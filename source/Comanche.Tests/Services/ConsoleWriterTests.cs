@@ -2,40 +2,41 @@
 using System.IO;
 using Comanche.Services;
 
-namespace Comanche.Tests.Services;
-
-/// <summary>
-/// Tests for the <see cref="ConsoleWriter"/> class.
-/// </summary>
-public class ConsoleWriterTests
+namespace Comanche.Tests.Services
 {
-    [Fact]
-    public void WriteLine_IsError_WritesToErrorStream()
+    /// <summary>
+    /// Tests for the <see cref="ConsoleWriter"/> class.
+    /// </summary>
+    public class ConsoleWriterTests
     {
-        // Arrange
-        var writer = new StringWriter();
-        var sut = new ConsoleWriter();
-        Console.SetError(writer);
+        [Fact]
+        public void WriteLine_IsError_WritesToErrorStream()
+        {
+            // Arrange
+            var writer = new StringWriter();
+            var sut = new ConsoleWriter();
+            Console.SetError(writer);
 
-        // Act
-        sut.WriteLine("foo", true);
+            // Act
+            sut.WriteLine("foo", true);
 
-        // Assert
-        writer.ToString().Should().Be("foo" + Environment.NewLine);
-    }
+            // Assert
+            writer.ToString().Should().Be("foo" + Environment.NewLine);
+        }
 
-    [Fact]
-    public void WriteLine_NotError_WritesToStandardStream()
-    {
-        // Arrange
-        var writer = new StringWriter();
-        var sut = new ConsoleWriter();
-        Console.SetOut(writer);
+        [Fact]
+        public void WriteLine_NotError_WritesToStandardStream()
+        {
+            // Arrange
+            var writer = new StringWriter();
+            var sut = new ConsoleWriter();
+            Console.SetOut(writer);
 
-        // Act
-        sut.WriteLine("bar", false);
+            // Act
+            sut.WriteLine("bar", false);
 
-        // Assert
-        writer.ToString().Should().Be("bar" + Environment.NewLine);
+            // Assert
+            writer.ToString().Should().Be("bar" + Environment.NewLine);
+        }
     }
 }

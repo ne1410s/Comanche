@@ -1,22 +1,25 @@
-﻿namespace Comanche;
+﻿using System;
 
-/// <summary>
-/// Sets an alias.
-/// </summary>
-[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Parameter)]
-public class AliasAttribute : Attribute
+namespace Comanche
 {
     /// <summary>
-    /// Initialises a new instance of the <see cref="AliasAttribute"/> class.
+    /// Sets an alias.
     /// </summary>
-    /// <param name="name">The alias name.</param>
-    public AliasAttribute(string name)
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Parameter)]
+    public class AliasAttribute : Attribute
     {
-        Name = name;
-    }
+        /// <summary>
+        /// Initialises a new instance of the <see cref="AliasAttribute"/> class.
+        /// </summary>
+        /// <param name="name">The alias name.</param>
+        public AliasAttribute(string name)
+        {
+            Name = name;
+        }
 
-    /// <summary>
-    /// Gets the alias name.
-    /// </summary>
-    public string Name { get; }
+        /// <summary>
+        /// Gets the alias name.
+        /// </summary>
+        public string Name { get; }
+    }
 }

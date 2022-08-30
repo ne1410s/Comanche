@@ -1,87 +1,91 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Comanche.Exceptions;
 using Comanche.Models;
 
-namespace Comanche.Services;
-
-/// <inheritdoc cref="IParamValidator"/>
-public class ParamValidator : IParamValidator
+namespace Comanche.Services
 {
-    /// <inheritdoc/>
-    public object?[]? Validate(MethodRoute methodRoute)
+    /// <inheritdoc cref="IParamValidator"/>
+    public class ParamValidator : IParamValidator
     {
-        var userArgs = methodRoute.ActualParams;
-        var inputChecklist = userArgs.ToDictionary(args => args.Key, _ => false);
-        var paramsList = new List<object?>();
-        var badParamErrors = new List<string>();
-        var argAliases = new Dictionary<string, string?>();
-
-        foreach (var parameter in methodRoute.MethodInfo.GetParameters())
+        /// <inheritdoc/>
+        public object?[]? Validate(MethodRoute methodRoute)
         {
-            var paramAlias = SanitiseName(parameter.GetCustomAttribute<AliasAttribute>()?.Name);
-            var paramType = parameter.ParameterType;
-            var aliasText = paramAlias == null ? null : $" (-{paramAlias})";
-            var paramLogName = $"--{parameter.Name}{aliasText}";
-            argAliases[parameter.Name!] = paramAlias;
-            var paramRef = paramAlias != null && userArgs.ContainsKey(paramAlias) ? paramAlias
-                : parameter.Name != null && userArgs.ContainsKey(parameter.Name) ? parameter.Name
-                : null;
+            var userArgs = methodRoute.ActualParams;
+            var inputChecklist = userArgs.ToDictionary(args => args.Key, _ => false);
+            var paramsList = new List<object?>();
+            var badParamErrors = new List<string>();
+            var argAliases = new Dictionary<string, string?>();
 
-            if (paramRef != null)
+            foreach (var parameter in methodRoute.MethodInfo.GetParameters())
             {
-                inputChecklist[paramRef] = true;
-                if (TryConvert(userArgs[paramRef], paramType, out var result, out var error))
+                var paramAlias = SanitiseName(parameter.GetCustomAttribute<AliasAttribute>()?.Name);
+                var paramType = parameter.ParameterType;
+                var aliasText = paramAlias == null ? null : $" (-{paramAlias})";
+                var paramLogName = $"--{parameter.Name}{aliasText}";
+                argAliases[parameter.Name!] = paramAlias;
+                var paramRef = paramAlias != null && userArgs.ContainsKey(paramAlias) ? paramAlias
+                    : parameter.Name != null && userArgs.ContainsKey(parameter.Name) ? parameter.Name
+                    : null;
+
+                if (paramRef != null)
                 {
-                    paramsList.Add(result);
+                    inputChecklist[paramRef] = true;
+                    if (TryConvert(userArgs[paramRef], paramType, out var result, out var error))
+                    {
+                        paramsList.Add(result);
+                    }
+                    else
+                    {
+                        badParamErrors.Add($"{paramLogName} is invalid. {error}".Trim());
+                    }
+                }
+                else if (parameter.HasDefaultValue)
+                {
+                    paramsList.Add(parameter.DefaultValue);
                 }
                 else
                 {
-                    badParamErrors.Add($"{paramLogName} is invalid. {error}".Trim());
+                    badParamErrors.Add($"{paramLogName} is required");
                 }
             }
-            else if (parameter.HasDefaultValue)
+
+            badParamErrors.AddRange(inputChecklist.Where(d => !d.Value).Select(d =>
             {
-                paramsList.Add(parameter.DefaultValue);
-            }
-            else
+                var exists = argAliases.ContainsKey(d.Key) || argAliases.ContainsValue(d.Key);
+                var errorType = exists ? "is already supplied" : "is unrecognised";
+                return $"'{d.Key}' {errorType}.";
+            }));
+
+            if (badParamErrors.Count > 0)
             {
-                badParamErrors.Add($"{paramLogName} is required");
+                throw new ParamsException(badParamErrors);
+            }
+
+            return paramsList.Count > 0 ? paramsList.ToArray() : null;
+        }
+
+        /// <inheritdoc/>
+        public bool TryConvert(string arg, Type type, out object? result, out string? error)
+        {
+            try
+            {
+                result = Convert.ChangeType(arg, type);
+                error = null;
+                return true;
+            }
+            catch (FormatException formatEx)
+            {
+                error = formatEx.Message;
+                result = null;
+                return false;
             }
         }
 
-        badParamErrors.AddRange(inputChecklist.Where(d => !d.Value).Select(d =>
-        {
-            var exists = argAliases.ContainsKey(d.Key) || argAliases.ContainsValue(d.Key);
-            var errorType = exists ? "is already supplied" : "is unrecognised";
-            return $"'{d.Key}' {errorType}.";
-        }));
-
-        if (badParamErrors.Count > 0)
-        {
-            throw new ParamsException(badParamErrors);
-        }
-
-        return paramsList.Count > 0 ? paramsList.ToArray() : null;
+        private static string? SanitiseName(string? name) => name == null ? null
+            : Regex.Replace(name, "[^a-zA-Z0-9-_]+", "").ToLower();
     }
-
-    /// <inheritdoc/>
-    public bool TryConvert(string arg, Type type, out object? result, out string? error)
-    {
-        try
-        {
-            result = Convert.ChangeType(arg, type);
-            error = null;
-            return true;
-        }
-        catch (FormatException formatEx)
-        {
-            error = formatEx.Message;
-            result = null;
-            return false;
-        }
-    }
-
-    private static string? SanitiseName(string? name) => name == null ? null
-        : Regex.Replace(name, "[^a-zA-Z0-9-_]+", "").ToLower();
 }

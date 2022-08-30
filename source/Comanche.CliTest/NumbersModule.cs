@@ -1,72 +1,73 @@
-﻿namespace Comanche.CliTest;
-
-/// <summary>
-/// All about... numbers!
-/// </summary>
-[Alias("num")]
-public static class NumbersModule
+﻿namespace Comanche.CliTest
 {
     /// <summary>
-    /// Does a check.
+    /// All about... numbers!
     /// </summary>
-    /// <remarks>Need to know basis.</remarks>
-    /// <param name="myStr">My string.</param>
-    /// <param name="otherThing">Something else.</param>
-    /// <returns>True if a number.</returns>
-    public static bool Check(
-        [Alias("stringy pants")] string myStr,
-        [Alias("os")] bool otherThing = true)
-    {
-        return double.TryParse(myStr, out _);
-    }
-
-    /// <summary>
-    /// Does.
-    /// </summary>
-    /// <returns>Unity.</returns>
-    [Alias("d")]
-    public static int Do() => 1;
-
-    /// <summary>
-    /// Something special.
-    /// </summary>
-    [Alias("alg!!")]
-    public static class AlgebraModule
+    [Alias("num")]
+    public static class NumbersModule
     {
         /// <summary>
-        /// Adds some numbers.
+        /// Does a check.
         /// </summary>
-        /// <param name="firstNumber">A number.</param>
-        /// <param name="second">Another number.</param>
-        /// <returns>The sum.</returns>
-        public static int Derive(int firstNumber, int second)
+        /// <remarks>Need to know basis.</remarks>
+        /// <param name="myStr">My string.</param>
+        /// <param name="otherThing">Something else.</param>
+        /// <returns>True if a number.</returns>
+        public static bool Check(
+            [Alias("stringy pants")] string myStr,
+            [Alias("os")] bool otherThing = true)
         {
-            return firstNumber + second;
+            return double.TryParse(myStr, out _);
         }
-    }
 
-    /// <summary>
-    /// Should not be exported.
-    /// </summary>
-    public abstract class Unexposed
-    {
         /// <summary>
         /// Does.
         /// </summary>
         /// <returns>Unity.</returns>
+        [Alias("d")]
         public static int Do() => 1;
-    }
 
-
-    /// <summary>
-    /// Should not be exported.
-    /// </summary>
-    public sealed class Unexposed2
-    {
         /// <summary>
-        /// Does.
+        /// Something special.
         /// </summary>
-        /// <returns>Unity.</returns>
-        public static int Do() => 1;
+        [Alias("alg!!")]
+        public static class AlgebraModule
+        {
+            /// <summary>
+            /// Adds some numbers.
+            /// </summary>
+            /// <param name="firstNumber">A number.</param>
+            /// <param name="second">Another number.</param>
+            /// <returns>The sum.</returns>
+            public static int Derive(int firstNumber, int second)
+            {
+                return firstNumber + second;
+            }
+        }
+
+        /// <summary>
+        /// Should not be exported.
+        /// </summary>
+        public abstract class Unexposed
+        {
+            /// <summary>
+            /// Does.
+            /// </summary>
+            /// <returns>Unity.</returns>
+            public static int Do() => 1;
+        }
+
+
+        /// <summary>
+        /// Should not be exported.
+        /// </summary>
+        public sealed class Unexposed2
+        {
+            /// <summary>
+            /// Does.
+            /// </summary>
+            /// <returns>Unity.</returns>
+            public static int Do() => 1;
+        }
     }
 }

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Authors>Paul Jones</Authors>
@@ -6,14 +6,13 @@
     <Description>Provides auto-documentation for CLIs.</Description>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <IncludeSymbols>True</IncludeSymbols>
-    <ImplicitUsings>enable</ImplicitUsings>
 	<Nullable>enable</Nullable>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/ne1410s/Comanche</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/ne1410s/Comanche</RepositoryUrl>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <TargetFramework>net6.0</TargetFramework>
+	<TargetFramework>netstandard2.1</TargetFramework>
     <Title>$(AssemblyName)</Title>
     <PackageTags>Command; Autodoc; Documenting; CLI;</PackageTags>
     <VersionPrefix>1.0.1</VersionPrefix>

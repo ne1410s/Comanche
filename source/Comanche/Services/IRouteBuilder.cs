@@ -1,16 +1,18 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 
-namespace Comanche.Services;
-
-/// <summary>
-/// Builds routes.
-/// </summary>
-public interface IRouteBuilder
+namespace Comanche.Services
 {
     /// <summary>
-    /// Builds routes for an assembly.
+    /// Builds routes.
     /// </summary>
-    /// <param name="assembly">The assembly.</param>
-    /// <returns>A route dictionary.</returns>
-    public Dictionary<string, MethodInfo> BuildRoutes(Assembly assembly);
+    public interface IRouteBuilder
+    {
+        /// <summary>
+        /// Builds routes for an assembly.
+        /// </summary>
+        /// <param name="assembly">The assembly.</param>
+        /// <returns>A route dictionary.</returns>
+        public Dictionary<string, MethodInfo> BuildRoutes(Assembly assembly);
+    }
 }

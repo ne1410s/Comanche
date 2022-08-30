@@ -1,23 +1,28 @@
-﻿namespace Comanche.Exceptions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
-/// <summary>
-/// Represents errors that occur processing parameters.
-/// </summary>
-public class ParamsException : ComancheException
+namespace Comanche.Exceptions
 {
     /// <summary>
-    /// A list of errors.
+    /// Represents errors that occur processing parameters.
     /// </summary>
-    public IReadOnlyList<string> Errors { get; }
-
-    /// <summary>
-    /// Initialises a new version of the <see cref="ParamsException"/> class.
-    /// </summary>
-    /// <param name="errors">A sequence of errors.</param>
-    public ParamsException(IEnumerable<string> errors)
-        : base($"Parameters not valid:{Environment.NewLine}  > "
-            + $"{string.Join($"{Environment.NewLine}  > ", errors)}")
+    public class ParamsException : ComancheException
     {
-        Errors = errors.ToList();
+        /// <summary>
+        /// A list of errors.
+        /// </summary>
+        public IReadOnlyList<string> Errors { get; }
+
+        /// <summary>
+        /// Initialises a new version of the <see cref="ParamsException"/> class.
+        /// </summary>
+        /// <param name="errors">A sequence of errors.</param>
+        public ParamsException(IEnumerable<string> errors)
+            : base($"Parameters not valid:{Environment.NewLine}  > "
+                + $"{string.Join($"{Environment.NewLine}  > ", errors)}")
+        {
+            Errors = errors.ToList();
+        }
     }
 }

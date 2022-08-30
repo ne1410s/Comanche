@@ -1,21 +1,24 @@
-﻿namespace Comanche.Models;
+﻿using System.Collections.Generic;
 
-/// <summary>
-/// A result for a module help route operation.
-/// </summary>
-public class ModuleHelp : HelpRoute
+namespace Comanche.Models
 {
     /// <summary>
-    /// Gets the modules.
+    /// A result for a module help route operation.
     /// </summary>
-    public HashSet<string> Modules { get; }
-
-    /// <summary>
-    /// Initialises a new instance of the <see cref="ModuleHelp"/> class.
-    /// </summary>
-    /// <param name="modules">The modules.</param>
-    public ModuleHelp(HashSet<string> modules)
+    public class ModuleHelp : HelpRoute
     {
-        Modules = modules;
+        /// <summary>
+        /// Gets the modules.
+        /// </summary>
+        public HashSet<string> Modules { get; }
+
+        /// <summary>
+        /// Initialises a new instance of the <see cref="ModuleHelp"/> class.
+        /// </summary>
+        /// <param name="modules">The modules.</param>
+        public ModuleHelp(HashSet<string> modules)
+        {
+            Modules = modules;
+        }
     }
 }
