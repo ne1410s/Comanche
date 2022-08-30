@@ -1,7 +1,8 @@
 {
   "stryker-config": {
+    "project": "Comanche.csproj",
     "test-projects": [
-      "DemoLibrary.Tests"
+      "Comanche.Tests"
     ],
     "thresholds": {
       "high": 100,

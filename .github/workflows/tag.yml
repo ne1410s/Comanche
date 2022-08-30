@@ -18,7 +18,7 @@ jobs:
     - name: Set the version
       run: |
         shopt -s extglob
-        for file in ./source/**/!(*Tests|*Test).csproj; do
+        for file in ./source/**/!(*Test*(s)|*UnitTest*(s)).csproj; do
           prefix="$(echo "cat /Project/PropertyGroup/VersionPrefix/text()" | xmllint --nocdata --shell "$file" | sed '1d;$d')"
           if [[ $prefix ]]; then
             break
