@@ -1,0 +1,30 @@
+name: test
+on:
+  pull_request:
+    paths:
+    - source/**
+  workflow_call:
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+    - name: Run tests
+      run: |
+        cd ./source
+        dotnet tool restore
+        dotnet test -s coverlet.runsettings -c Release
+        dotnet reportgenerator -targetdir:'${{ github.workspace }}/drop/reports' -reports:**/coverage.cobertura.xml -reporttypes:"htmlsummary"
+        rm -f ${{ github.workspace }}/drop/reports/summary.htm
+        mv ${{ github.workspace }}/drop/reports/summary.html ${{ github.workspace }}/drop/reports/coverage-report.html
+        dotnet stryker
+        strykerFile=$(find ./StrykerOutput -name mutation-report.html)
+        cp $strykerFile ${{ github.workspace }}/drop/reports
+    - name: Drop artifact - reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: reports
+        path: ${{ github.workspace }}/drop/reports
