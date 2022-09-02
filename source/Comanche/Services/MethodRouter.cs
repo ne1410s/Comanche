@@ -26,7 +26,7 @@ namespace Comanche.Services
             {
                 var closestPsv = GetClosestRoute(routePsv, routes.Keys);
                 var options = GetOptions(closestPsv, routes.Keys);
-                var prefix = (closestPsv?.Replace("|", " ") ?? "");
+                var prefix = closestPsv?.Replace("|", " ") ?? "";
                 var fqOptions = options.Select(o => prefix.EndsWith(o) ? prefix : $"{prefix} {o}".Trim()).ToHashSet();
                 var fqOpt1Psv = fqOptions.Select(o => o.Replace(" ", "|")).FirstOrDefault();
                 var methodFound = fqOpt1Psv != null && routes.ContainsKey(fqOpt1Psv) && closestPsv?.StartsWith(routePsv) == true;
@@ -47,7 +47,7 @@ namespace Comanche.Services
             }
 
             var paramArgString = argPsv.Replace(routePsv, "").Replace("|", " ");
-            var paramPairs = Regex.Split(paramArgString, "[-/]+").Where(p => !string.IsNullOrWhiteSpace(p));
+            var paramPairs = Regex.Split(paramArgString, "\\s+[-/]+").Where(p => !string.IsNullOrWhiteSpace(p));
             var paramMap = paramPairs.Select(x => x.Split(" ", StringSplitOptions.RemoveEmptyEntries));
             var dupes = paramMap.GroupBy(m => m[0]).Where(c => c.Count() > 1);
             if (dupes.Any())
