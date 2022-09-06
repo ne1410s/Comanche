@@ -284,7 +284,7 @@ namespace Comanche.Tests.Services
             var sut = new MethodRouter();
             var module = "mod1";
             var method = new Dictionary<string, MethodInfo> { [module] = TestMethods.Parse_Info };
-            var expected = new Dictionary<string, string> { ["force"] = $"{true}", ["c"] = "42" };
+            var expected = new Dictionary<string, string> { ["force"] = "", ["c"] = "42" };
 
             // Act
             var result = sut.LocateMethod(new[] { module, "--force", "-c 42" }, method);

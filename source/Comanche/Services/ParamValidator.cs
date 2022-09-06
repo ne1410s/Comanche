@@ -34,7 +34,13 @@ namespace Comanche.Services
                 if (paramRef != null)
                 {
                     inputChecklist[paramRef] = true;
-                    if (TryConvert(userArgs[paramRef], paramType, out var result, out var error))
+                    var inputValue = userArgs[paramRef];
+                    if (string.IsNullOrEmpty(inputValue) && paramType == typeof(bool))
+                    {
+                        inputValue = $"{true}";
+                    }
+
+                    if (TryConvert(inputValue, paramType, out var result, out var error))
                     {
                         paramsList.Add(result);
                     }

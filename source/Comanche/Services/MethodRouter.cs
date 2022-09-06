@@ -55,7 +55,7 @@ namespace Comanche.Services
                 throw new ParamsException(dupes.Select(kvp => $"'{kvp.Key}' appears more than once."));
             }
 
-            var dicto = paramMap.ToDictionary(kvp => kvp[0], kvp => kvp.Length == 1 ? $"{true}" : string.Join(' ', kvp.Skip(1)));
+            var dicto = paramMap.ToDictionary(kvp => kvp[0], kvp => kvp.Length == 1 ? "" : string.Join(' ', kvp.Skip(1)));
             return new MethodRoute(method, dicto);
         }
 
