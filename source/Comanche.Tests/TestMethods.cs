@@ -29,6 +29,13 @@ namespace Comanche.Tests
             [Alias("n 3 :@")] double num3 = 0) => num1 + num2 + num3;
 
         /// <summary>
+        /// Provides a method for empty / default tests.
+        /// </summary>
+        /// <param name="p1">Param 1.</param>
+        /// <param name="p2">Param 2.</param>
+        public static string Empty(string p1 = "default", bool p2 = false) => p1 + p2;
+
+        /// <summary>
         /// Returns true!
         /// </summary>
         /// <returns><see langword="true"/></returns>
@@ -37,6 +44,8 @@ namespace Comanche.Tests
         internal static MethodInfo Parse_Info => typeof(TestMethods).GetMethod(nameof(TestMethods.Parse))!;
 
         internal static MethodInfo Add_Info => typeof(TestMethods).GetMethod(nameof(TestMethods.Add))!;
+
+        internal static MethodInfo Empty_Info => typeof(TestMethods).GetMethod(nameof(TestMethods.Empty))!;
 
         internal static MethodInfo ParamlessMethod_Info => typeof(TestMethods).GetMethod(nameof(TestMethods.ParamlessMethod))!;
 

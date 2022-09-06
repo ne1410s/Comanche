@@ -7,6 +7,58 @@ namespace Comanche.Tests.Services
 {
     public class ParamValidatorTests
     {
+        [Fact]
+        public void Validate_ParamsWithDefaultAndNotSupplied_RevertToDefault()
+        {
+            // Arrange
+            var sut = new ParamValidator();
+            var route = new MethodRoute(TestMethods.Empty_Info, new());
+
+            // Act
+            var parameters = sut.Validate(route);
+
+            // Assert
+            parameters.Should().BeEquivalentTo(new object[] { "default", false });
+        }
+
+        [Fact]
+        public void Validate_ParamsWithDefaultAndSuppliedEmpty_RevertToExpected()
+        {
+            // Arrange
+            var sut = new ParamValidator();
+            var route = new MethodRoute(TestMethods.Empty_Info, new()
+            {
+                ["p1"] = "",
+                ["p2"] = "",
+            });
+
+            // Act
+            var parameters = sut.Validate(route);
+
+            // Assert
+            parameters.Should().BeEquivalentTo(new object[] { "", true });
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(" ")]
+        [InlineData("  ")]
+        public void Validate_StringParamsSuppliedWhitespace_ValueRetained(string whitespace)
+        {
+            // Arrange
+            var sut = new ParamValidator();
+            var route = new MethodRoute(TestMethods.Empty_Info, new()
+            {
+                ["p1"] = whitespace
+            });
+
+            // Act
+            var parameters = sut.Validate(route);
+
+            // Assert
+            parameters.Should().BeEquivalentTo(new object[] { whitespace, false });
+        }
+
         [Theory]
         [InlineData("n1")]
         [InlineData("num1")]
