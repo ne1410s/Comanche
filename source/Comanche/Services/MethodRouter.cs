@@ -47,7 +47,7 @@ namespace Comanche.Services
             }
 
             var paramArgString = argPsv.Replace(routePsv, "").Replace("|", " ");
-            var paramPairs = Regex.Split(paramArgString, "\\s+[-/]+").Where(p => !string.IsNullOrWhiteSpace(p));
+            var paramPairs = Regex.Split(paramArgString, @"\s+-+|\s+\/h\b").Where(p => !string.IsNullOrWhiteSpace(p));
             var paramMap = paramPairs.Select(x => x.Split(" ", StringSplitOptions.RemoveEmptyEntries));
             var dupes = paramMap.GroupBy(m => m[0]).Where(c => c.Count() > 1);
             if (dupes.Any())
