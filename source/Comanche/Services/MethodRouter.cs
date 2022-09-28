@@ -17,10 +17,10 @@ namespace Comanche.Services
         /// <inheritdoc/>
         public RouteResult LocateMethod(IEnumerable<string> args, Dictionary<string, MethodInfo> routes)
         {
-            var argPsv = string.Join('|', args);
-            var firstDash = Math.Max(argPsv.IndexOf('/'), argPsv.IndexOf('-'));
-            var routePsv = (firstDash == -1 ? argPsv : argPsv[..firstDash]).Trim('|');
             var isHelp = args.Any(arg => HelpParams.Contains(arg));
+            var argPsv = string.Join('|', args);
+            var firstDash = Math.Max(isHelp ? argPsv.IndexOf("/?") : -1, argPsv.IndexOf('-'));
+            var routePsv = (firstDash == -1 ? argPsv : argPsv[..firstDash]).Trim('|');
 
             if (!routes.ContainsKey(routePsv))
             {
@@ -47,7 +47,7 @@ namespace Comanche.Services
             }
 
             var paramArgString = argPsv.Replace(routePsv, "").Replace("|", " ");
-            var paramPairs = Regex.Split(paramArgString, @"\s+-+|\s+\/h\b").Where(p => !string.IsNullOrWhiteSpace(p));
+            var paramPairs = Regex.Split(paramArgString, @"\s+-+|\s+\/\?\b").Where(p => !string.IsNullOrWhiteSpace(p));
             var paramMap = paramPairs.Select(x => x.Split(" ", StringSplitOptions.RemoveEmptyEntries));
             var dupes = paramMap.GroupBy(m => m[0]).Where(c => c.Count() > 1);
             if (dupes.Any())

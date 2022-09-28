@@ -8,6 +8,7 @@ namespace Comanche.Tests
     public class SessionTests
     {
         private static readonly Assembly TestCli = Assembly.GetAssembly(typeof(CliTest.NumbersModule))!;
+        private static readonly Assembly LocalCli = Assembly.GetExecutingAssembly();
 
         [Fact]
         public void Route_HelpRequested_ReturnsNull()
@@ -27,7 +28,7 @@ namespace Comanche.Tests
             var expectedEntries = new[] { $"The following commands are available:{Environment.NewLine}  > num" };
 
             // Act
-            Route("/?", writer);
+            Route("/?", writer: writer);
 
             // Assert
             writer.Entries.Should().BeEquivalentTo(expectedEntries);
@@ -108,7 +109,7 @@ namespace Comanche.Tests
             + $"Suggestions:{Environment.NewLine}  > num alg derive" };
 
             // Act
-            Route(command, writer);
+            Route(command, writer: writer);
 
             // Assert
             writer.ErrorEntries.Should().BeEquivalentTo(expectedErrors);
@@ -201,7 +202,7 @@ namespace Comanche.Tests
             var expectedEntries = new[] { "2" };
 
             // Act
-            Route("num alg derive --firstNumber 1 --second 1", writer);
+            Route("num alg derive --firstNumber 1 --second 1", writer: writer);
 
             // Assert
             writer.Entries.Should().BeEquivalentTo(expectedEntries);
@@ -233,10 +234,27 @@ namespace Comanche.Tests
             actual.Should().BeNull();
         }
 
-        private static object? Route(string consoleInput, IOutputWriter? writer = null)
+        [Theory]
+        [InlineData("test")]
+        [InlineData(@"backs\ash")]
+        [InlineData("forwards/ash")]
+        public void Route_VaryingStringParameterChars_ReturnsExpected(string input)
+        {
+            // Arrange
+            var args = $"testmethods empty -p1 {input} -p2";
+            var expected = $"{input}{true}";
+
+            // Act
+            var actual = Route(args, LocalCli);
+
+            // Assert
+            actual.Should().Be(expected);
+        }
+
+        private static object? Route(string consoleInput, Assembly? assembly = null, IOutputWriter? writer = null)
         {
             Environment.ExitCode = 0;
-            return Session.Route(Regex.Split(consoleInput, "\\s+"), TestCli, writer);
+            return Session.Route(Regex.Split(consoleInput, "\\s+"), assembly ?? TestCli, writer);
         }
     }
 }
