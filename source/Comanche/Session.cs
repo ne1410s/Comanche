@@ -33,7 +33,7 @@ namespace Comanche
             try
             {
                 assembly ??= Assembly.GetEntryAssembly()!;
-                System.Collections.Generic.Dictionary<string, MethodInfo> routes = new RouteBuilder().BuildRoutes(assembly);
+                var routes = new RouteBuilder().BuildRoutes(assembly);
                 RouteResult routeResult = new MethodRouter().LocateMethod(args, routes);
                 if (routeResult is HelpRoute helpRoute)
                 {

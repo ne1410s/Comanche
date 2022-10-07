@@ -11,6 +11,18 @@ namespace Comanche.Tests
     /// </summary>
     public static class TestMethods
     {
+        internal static MethodInfo Parse_Info
+            => typeof(TestMethods).GetMethod(nameof(TestMethods.Parse))!;
+
+        internal static MethodInfo Add_Info
+            => typeof(TestMethods).GetMethod(nameof(TestMethods.Add))!;
+
+        internal static MethodInfo Empty_Info
+            => typeof(TestMethods).GetMethod(nameof(TestMethods.Empty))!;
+
+        internal static MethodInfo ParamlessMethod_Info
+            => typeof(TestMethods).GetMethod(nameof(TestMethods.ParamlessMethod))!;
+
         /// <summary>
         /// Does some parsing.
         /// Nothing more.
@@ -41,21 +53,9 @@ namespace Comanche.Tests
         public static string Empty(string p1 = "default", bool p2 = false) => p1 + p2;
 
         /// <summary>
-        /// Returns true!
+        /// Returns true.
         /// </summary>
-        /// <returns><see langword="true"/></returns>
+        /// <returns><see langword="true"/>ness.</returns>
         public static bool ParamlessMethod() => true;
-
-        internal static MethodInfo Parse_Info
-            => typeof(TestMethods).GetMethod(nameof(TestMethods.Parse))!;
-
-        internal static MethodInfo Add_Info
-            => typeof(TestMethods).GetMethod(nameof(TestMethods.Add))!;
-
-        internal static MethodInfo Empty_Info
-            => typeof(TestMethods).GetMethod(nameof(TestMethods.Empty))!;
-
-        internal static MethodInfo ParamlessMethod_Info
-            => typeof(TestMethods).GetMethod(nameof(TestMethods.ParamlessMethod))!;
     }
 }

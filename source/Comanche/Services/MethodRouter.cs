@@ -23,12 +23,12 @@ namespace Comanche.Services
             IEnumerable<string> args,
             Dictionary<string, MethodInfo> routes)
         {
-            string argPsv = string.Join('|', args);
-            int firstDash = Math.Max(
-                argPsv.IndexOf('/', StringComparison.OrdinalIgnoreCase),
+            var isHelp = args.Any(arg => HelpParams.Contains(arg));
+            var argPsv = string.Join('|', args);
+            var firstDash = Math.Max(
+                isHelp ? argPsv.IndexOf("/?", StringComparison.OrdinalIgnoreCase) : -1,
                 argPsv.IndexOf('-', StringComparison.OrdinalIgnoreCase));
-            string? routePsv = (firstDash == -1 ? argPsv : argPsv[..firstDash]).Trim('|');
-            bool isHelp = args.Any(arg => HelpParams.Contains(arg));
+            var routePsv = (firstDash == -1 ? argPsv : argPsv[..firstDash]).Trim('|');
 
             if (!routes.ContainsKey(routePsv))
             {
@@ -62,10 +62,10 @@ namespace Comanche.Services
                 return new MethodHelp(method);
             }
 
-            string paramArgString = argPsv
-                .Replace(routePsv, string.Empty, StringComparison.OrdinalIgnoreCase)
+            var paramArgString = argPsv
+                .Replace(routePsv, "", StringComparison.OrdinalIgnoreCase)
                 .Replace("|", " ", StringComparison.OrdinalIgnoreCase);
-            var paramPairs = Regex.Split(paramArgString, @"\s+-+|\s+\/h\b").Where(p => !string.IsNullOrWhiteSpace(p));
+            var paramPairs = Regex.Split(paramArgString, @"\s+-+|\s+\/\?\b").Where(p => !string.IsNullOrWhiteSpace(p));
             var paramMap = paramPairs.Select(x => x.Split(" ", StringSplitOptions.RemoveEmptyEntries));
             var dupes = paramMap.GroupBy(m => m[0]).Where(c => c.Count() > 1);
             if (dupes.Any())
