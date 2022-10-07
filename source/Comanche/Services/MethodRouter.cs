@@ -1,35 +1,51 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using Comanche.Exceptions;
-using Comanche.Models;
+﻿// <copyright file="MethodRouter.cs" company="ne1410s">
+// Copyright (c) ne1410s. All rights reserved.
+// </copyright>
 
 namespace Comanche.Services
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using System.Text.RegularExpressions;
+    using Comanche.Exceptions;
+    using Comanche.Models;
+
     /// <inheritdoc cref="IMethodRouter"/>
     public class MethodRouter : IMethodRouter
     {
         private const string QSwitch = "/?";
-        private static readonly List<string> HelpParams = new List<string>() { "--help", "-h", QSwitch };
+        private static readonly List<string> HelpParams = new() { "--help", "-h", QSwitch };
 
         /// <inheritdoc/>
-        public RouteResult LocateMethod(IEnumerable<string> args, Dictionary<string, MethodInfo> routes)
+        public RouteResult LocateMethod(
+            IEnumerable<string> args,
+            Dictionary<string, MethodInfo> routes)
         {
-            var argPsv = string.Join('|', args);
-            var firstDash = Math.Max(argPsv.IndexOf('/'), argPsv.IndexOf('-'));
-            var routePsv = (firstDash == -1 ? argPsv : argPsv[..firstDash]).Trim('|');
-            var isHelp = args.Any(arg => HelpParams.Contains(arg));
+            string argPsv = string.Join('|', args);
+            int firstDash = Math.Max(
+                argPsv.IndexOf('/', StringComparison.OrdinalIgnoreCase),
+                argPsv.IndexOf('-', StringComparison.OrdinalIgnoreCase));
+            string? routePsv = (firstDash == -1 ? argPsv : argPsv[..firstDash]).Trim('|');
+            bool isHelp = args.Any(arg => HelpParams.Contains(arg));
 
             if (!routes.ContainsKey(routePsv))
             {
-                var closestPsv = GetClosestRoute(routePsv, routes.Keys);
-                var options = GetOptions(closestPsv, routes.Keys);
-                var prefix = closestPsv?.Replace("|", " ") ?? "";
-                var fqOptions = options.Select(o => prefix.EndsWith(o) ? prefix : $"{prefix} {o}".Trim()).ToHashSet();
-                var fqOpt1Psv = fqOptions.Select(o => o.Replace(" ", "|")).FirstOrDefault();
-                var methodFound = fqOpt1Psv != null && routes.ContainsKey(fqOpt1Psv) && closestPsv?.StartsWith(routePsv) == true;
+                string? closestPsv = this.GetClosestRoute(routePsv, routes.Keys);
+                var options = this.GetOptions(closestPsv, routes.Keys);
+                var prefix = closestPsv?
+                    .Replace("|", " ", StringComparison.OrdinalIgnoreCase) ?? string.Empty;
+                var fqOptions = options
+                    .Select(o => prefix.EndsWith(o, StringComparison.OrdinalIgnoreCase)
+                        ? prefix
+                        : $"{prefix} {o}".Trim()).ToHashSet();
+                string? fqOpt1Psv = fqOptions
+                    .Select(o => o.Replace(" ", "|", StringComparison.OrdinalIgnoreCase))
+                    .FirstOrDefault();
+                bool methodFound = fqOpt1Psv != null
+                    && routes.ContainsKey(fqOpt1Psv)
+                    && closestPsv?.StartsWith(routePsv, StringComparison.OrdinalIgnoreCase) == true;
                 if (isHelp && (fqOpt1Psv == null || methodFound || routePsv?.Length == 0 || routePsv == QSwitch))
                 {
                     return new ModuleHelp(fqOptions);
@@ -40,13 +56,15 @@ namespace Comanche.Services
                 }
             }
 
-            var method = routes[routePsv];
+            MethodInfo method = routes[routePsv];
             if (isHelp)
             {
                 return new MethodHelp(method);
             }
 
-            var paramArgString = argPsv.Replace(routePsv, "").Replace("|", " ");
+            string paramArgString = argPsv
+                .Replace(routePsv, string.Empty, StringComparison.OrdinalIgnoreCase)
+                .Replace("|", " ", StringComparison.OrdinalIgnoreCase);
             var paramPairs = Regex.Split(paramArgString, @"\s+-+|\s+\/h\b").Where(p => !string.IsNullOrWhiteSpace(p));
             var paramMap = paramPairs.Select(x => x.Split(" ", StringSplitOptions.RemoveEmptyEntries));
             var dupes = paramMap.GroupBy(m => m[0]).Where(c => c.Count() > 1);
@@ -55,23 +73,29 @@ namespace Comanche.Services
                 throw new ParamsException(dupes.Select(kvp => $"'{kvp.Key}' appears more than once."));
             }
 
-            var dicto = paramMap.ToDictionary(kvp => kvp[0], kvp => kvp.Length == 1 ? "" : string.Join(' ', kvp.Skip(1)));
+            var dicto = paramMap.ToDictionary(
+                kvp => kvp[0],
+                kvp => kvp.Length == 1 ? string.Empty : string.Join(' ', kvp.Skip(1)));
             return new MethodRoute(method, dicto);
         }
 
         /// <inheritdoc/>
         public string? GetClosestRoute(string? routePsv, IEnumerable<string> routeKeys)
         {
-            if (routePsv == null || routeKeys.Any(r => r == routePsv || r.StartsWith(routePsv + '|')))
+            if (routePsv == null
+                || routeKeys.Any(r => r == routePsv
+                || r.StartsWith(routePsv + '|', StringComparison.OrdinalIgnoreCase)))
             {
                 return routePsv;
             }
 
-            var pipes = routePsv.Count(c => c == '|');
-            for (var i = 0; i < pipes; i++)
+            int pipes = routePsv.Count(c => c == '|');
+            for (int i = 0; i < pipes; i++)
             {
                 routePsv = routePsv[..routePsv.LastIndexOf('|')];
-                var rootMatch = routeKeys.FirstOrDefault(r => r.StartsWith(routePsv));
+                string rootMatch = routeKeys.FirstOrDefault(r => r.StartsWith(
+                    routePsv,
+                    StringComparison.OrdinalIgnoreCase));
                 if (rootMatch != null)
                 {
                     return rootMatch[..routePsv.Length];
@@ -84,15 +108,15 @@ namespace Comanche.Services
         /// <inheritdoc/>
         public HashSet<string> GetOptions(string? routePsv, IEnumerable<string> routeKeys)
         {
-            routePsv = GetClosestRoute(routePsv, routeKeys) ?? "";
+            routePsv = this.GetClosestRoute(routePsv, routeKeys) ?? string.Empty;
 
             var siblings = routeKeys
-                .Where(r => r != routePsv && r.StartsWith(routePsv))
+                .Where(r => r != routePsv && r.StartsWith(routePsv, StringComparison.OrdinalIgnoreCase))
                 .Select(r => r[routePsv.Length..].TrimStart('|').Split('|')[0]).ToList();
 
             if (siblings.Count == 0 && routeKeys.Contains(routePsv))
             {
-                var last = routePsv.Split('|')[^1];
+                string last = routePsv.Split('|')[^1];
                 siblings.Add(last);
             }
 

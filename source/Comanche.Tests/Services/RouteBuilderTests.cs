@@ -1,4 +1,8 @@
-﻿using System.Reflection;
+﻿// <copyright file="RouteBuilderTests.cs" company="ne1410s">
+// Copyright (c) ne1410s. All rights reserved.
+// </copyright>
+
+using System.Reflection;
 using Comanche.CliTest;
 using Comanche.Services;
 
@@ -9,34 +13,34 @@ namespace Comanche.Tests.Services
     /// </summary>
     public class RouteBuilderTests
     {
-        private static readonly Assembly TestCli = Assembly.GetAssembly(typeof(CliTest.NumbersModule))!;
+        private static readonly Assembly TestCli
+            = Assembly.GetAssembly(typeof(NumbersModule))!;
 
         [Fact]
         public void BuildRoutes_ThisAssembly_LimitsTypesExpected()
         {
             // Arrange
-            var assembly = Assembly.GetEntryAssembly()!;
-            var sut = new RouteBuilder();
+            Assembly assembly = Assembly.GetEntryAssembly()!;
+            RouteBuilder sut = new();
 
             // Act
-            var routes = sut.BuildRoutes(assembly);
+            System.Collections.Generic.Dictionary<string, MethodInfo> routes = sut.BuildRoutes(assembly);
 
             // Assert
             routes.Should().AllSatisfy(r => r.Key.StartsWith("unittestclient"));
         }
 
-
         [Fact]
         public void BuildRoutes_TestAssembly_DoesNotExposeNonStaticModule()
         {
             // Arrange
-            var sut = new RouteBuilder();
+            RouteBuilder sut = new();
             _ = NumbersModule.Do();
             _ = NumbersModule.Unexposed.Do();
             _ = NumbersModule.Unexposed2.Do();
 
             // Act
-            var routes = sut.BuildRoutes(TestCli);
+            System.Collections.Generic.Dictionary<string, MethodInfo> routes = sut.BuildRoutes(TestCli);
 
             // Assert
             routes.Keys.Should().Contain("num|alg|derive")

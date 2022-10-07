@@ -1,8 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
+﻿// <copyright file="IRouteBuilder.cs" company="ne1410s">
+// Copyright (c) ne1410s. All rights reserved.
+// </copyright>
 
 namespace Comanche.Services
 {
+    using System.Collections.Generic;
+    using System.Reflection;
+
     /// <summary>
     /// Builds routes.
     /// </summary>

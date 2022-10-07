@@ -1,4 +1,8 @@
-﻿using System;
+﻿// <copyright file="SessionTests.cs" company="ne1410s">
+// Copyright (c) ne1410s. All rights reserved.
+// </copyright>
+
+using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Comanche.Services;
@@ -7,13 +11,14 @@ namespace Comanche.Tests
 {
     public class SessionTests
     {
-        private static readonly Assembly TestCli = Assembly.GetAssembly(typeof(CliTest.NumbersModule))!;
+        private static readonly Assembly TestCli
+            = Assembly.GetAssembly(typeof(CliTest.NumbersModule))!;
 
         [Fact]
         public void Route_HelpRequested_ReturnsNull()
         {
             // Arrange & Act
-            var result = Route("/?");
+            object? result = Route("/?");
 
             // Assert
             result.Should().BeNull();
@@ -23,8 +28,11 @@ namespace Comanche.Tests
         public void Route_HelpRequested_WritesStandardEntry()
         {
             // Arrange
-            var writer = new ConsoleWriter();
-            var expectedEntries = new[] { $"The following commands are available:{Environment.NewLine}  > num" };
+            ConsoleWriter writer = new();
+            string[] expectedEntries = new[]
+            {
+                $"The following commands are available:{Environment.NewLine}  > num",
+            };
 
             // Act
             Route("/?", writer);
@@ -102,10 +110,13 @@ namespace Comanche.Tests
         public void Route_WithError_WritesErrorEntry()
         {
             // Arrange
-            var writer = new ConsoleWriter();
-            var command = "num alg derive splar -h";
-            var expectedErrors = new[] { $"Error invoking command '{command}'. Command not recognised. "
-            + $"Suggestions:{Environment.NewLine}  > num alg derive" };
+            ConsoleWriter writer = new();
+            const string command = "num alg derive splar -h";
+            string[] expectedErrors = new[]
+            {
+                $"Error invoking command '{command}'. Command not recognised. "
+                    + $"Suggestions:{Environment.NewLine}  > num alg derive",
+            };
 
             // Act
             Route(command, writer);
@@ -127,7 +138,7 @@ namespace Comanche.Tests
         public void Route_ExecNoMatchButValidChild_SetsErrorCode()
         {
             // Arrange
-            var command = "num alg";
+            const string command = "num alg";
 
             // Act
             Route(command);
@@ -140,7 +151,7 @@ namespace Comanche.Tests
         public void Route_ExecInvalidChild_SetsErrorCode()
         {
             // Arrange
-            var command = "num alg derive splar";
+            const string command = "num alg derive splar";
 
             // Act
             Route(command);
@@ -153,7 +164,7 @@ namespace Comanche.Tests
         public void Route_ParameterError_SetsErrorCode()
         {
             // Arrange
-            var command = $"num check -os false";
+            const string command = "num check -os false";
 
             // Act
             _ = Route(command);
@@ -166,8 +177,8 @@ namespace Comanche.Tests
         public void Route_DefaultArgs_TruncatesFirst()
         {
             // Arrange
-            var writer = new ConsoleWriter();
-            var args = Environment.GetCommandLineArgs();
+            ConsoleWriter writer = new();
+            string[] args = Environment.GetCommandLineArgs();
 
             // Act
             _ = Session.Route(outputWriter: writer);
@@ -184,10 +195,10 @@ namespace Comanche.Tests
         public void Route_WithParams_ReturnsExpected(string input, bool expected)
         {
             // Arrange
-            var command = $"num check --myStr {input}";
+            string command = $"num check --myStr {input}";
 
             // Act
-            var actual = Route(command);
+            object? actual = Route(command);
 
             // Assert
             actual.Should().Be(expected);
@@ -197,8 +208,8 @@ namespace Comanche.Tests
         public void Route_ValidProcess_WritesStandardEntry()
         {
             // Arrange
-            var writer = new ConsoleWriter();
-            var expectedEntries = new[] { "2" };
+            ConsoleWriter writer = new();
+            string[] expectedEntries = new[] { "2" };
 
             // Act
             Route("num alg derive --firstNumber 1 --second 1", writer);
@@ -211,10 +222,10 @@ namespace Comanche.Tests
         public void Route_SubModuleWithParams_ReturnsExpected()
         {
             // Arrange
-            var command = "num alg derive --firstNumber 1 --second 1";
+            const string command = "num alg derive --firstNumber 1 --second 1";
 
             // Act
-            var actual = Route(command);
+            object? actual = Route(command);
 
             // Assert
             actual.Should().Be(2);
@@ -224,10 +235,10 @@ namespace Comanche.Tests
         public void Route_InvalidConfiguration_ReturnsNull()
         {
             // Arrange
-            var args = (string[]?)null;
+            string[]? args = (string[]?)null;
 
             // Act
-            var actual = Session.Route(args);
+            object? actual = Session.Route(args);
 
             // Assert
             actual.Should().BeNull();

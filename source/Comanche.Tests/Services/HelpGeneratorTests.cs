@@ -1,4 +1,8 @@
-﻿using System;
+﻿// <copyright file="HelpGeneratorTests.cs" company="ne1410s">
+// Copyright (c) ne1410s. All rights reserved.
+// </copyright>
+
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Comanche.Models;
@@ -15,12 +19,13 @@ namespace Comanche.Tests.Services
         public void GenerateHelp_TestCliMethodWithXmlSummary_ContainsSummaryText()
         {
             // Arrange
-            var methodInfo = typeof(CliTest.NumbersModule).GetMethod(nameof(CliTest.NumbersModule.Check))!;
-            var methodHelp = new MethodHelp(methodInfo);
-            var sut = new HelpGenerator(Assembly.GetAssembly(typeof(CliTest.NumbersModule))!);
+            MethodInfo methodInfo = typeof(CliTest.NumbersModule)
+                .GetMethod(nameof(CliTest.NumbersModule.Check))!;
+            MethodHelp methodHelp = new(methodInfo);
+            HelpGenerator sut = new(Assembly.GetAssembly(typeof(CliTest.NumbersModule))!);
 
             // Act
-            var helpText = sut.GenerateHelp(methodHelp);
+            string helpText = sut.GenerateHelp(methodHelp);
 
             // Assert
             helpText.Should().Contain("Does a check.");
@@ -30,11 +35,11 @@ namespace Comanche.Tests.Services
         public void GenerateHelp_TestAsmMethodWithMultilineSummary_ContainsSummaryText()
         {
             // Arrange
-            var methodHelp = new MethodHelp(TestMethods.Parse_Info);
-            var sut = new HelpGenerator(Assembly.GetAssembly(typeof(TestMethods))!);
+            MethodHelp methodHelp = new(TestMethods.Parse_Info);
+            HelpGenerator sut = new(Assembly.GetAssembly(typeof(TestMethods))!);
 
             // Act
-            var helpText = sut.GenerateHelp(methodHelp);
+            string helpText = sut.GenerateHelp(methodHelp);
 
             // Assert
             helpText.Should().Contain("Does some parsing. Nothing more.");
@@ -44,11 +49,11 @@ namespace Comanche.Tests.Services
         public void GenerateHelp_ModuleHelp_ReturnsSuggestedModules()
         {
             // Arrange
-            var moduleHelp = new ModuleHelp(new HashSet<string> { "one", "two" });
-            var sut = new HelpGenerator(Assembly.GetAssembly(typeof(CliTest.NumbersModule))!);
+            ModuleHelp moduleHelp = new(new HashSet<string> { "one", "two" });
+            HelpGenerator sut = new(Assembly.GetAssembly(typeof(CliTest.NumbersModule))!);
 
             // Act
-            var helpText = sut.GenerateHelp(moduleHelp);
+            string helpText = sut.GenerateHelp(moduleHelp);
 
             // Assert
             helpText.Should().Be($"The following commands are available:{Environment.NewLine}  > "
@@ -59,10 +64,11 @@ namespace Comanche.Tests.Services
         public void GenerateHelp_MethodHelp_ProducesExpectedText()
         {
             // Arrange
-            var methodInfo = typeof(CliTest.NumbersModule).GetMethod(nameof(CliTest.NumbersModule.Check))!;
-            var methodHelp = new MethodHelp(methodInfo);
-            var sut = new HelpGenerator(Assembly.GetAssembly(typeof(CliTest.NumbersModule))!);
-            var expectedText = @"method: Check
+            MethodInfo methodInfo = typeof(CliTest.NumbersModule)
+                .GetMethod(nameof(CliTest.NumbersModule.Check))!;
+            MethodHelp methodHelp = new(methodInfo);
+            HelpGenerator sut = new(Assembly.GetAssembly(typeof(CliTest.NumbersModule))!);
+            const string expectedText = @"method: Check
 summary: Does a check.
 remarks: Need to know basis.
 returns: True if a number.
@@ -72,7 +78,7 @@ parameters:
 ";
 
             // Act
-            var helpText = sut.GenerateHelp(methodHelp);
+            string helpText = sut.GenerateHelp(methodHelp);
 
             // Assert
             helpText.Should().Contain(expectedText);
@@ -82,16 +88,16 @@ parameters:
         public void GenerateHelp_ParameterlessMethodHelp_ProducesExpectedText()
         {
             // Arrange
-            var methodInfo = typeof(CliTest.NumbersModule).GetMethod(nameof(CliTest.NumbersModule.Do))!;
-            var methodHelp = new MethodHelp(methodInfo);
-            var sut = new HelpGenerator(Assembly.GetAssembly(typeof(CliTest.NumbersModule))!);
-            var expectedText = @"method: Do (d)
+            MethodInfo methodInfo = typeof(CliTest.NumbersModule).GetMethod(nameof(CliTest.NumbersModule.Do))!;
+            MethodHelp methodHelp = new(methodInfo);
+            HelpGenerator sut = new(Assembly.GetAssembly(typeof(CliTest.NumbersModule))!);
+            const string expectedText = @"method: Do (d)
 summary: Does.
 returns: Unity.
 ";
 
             // Act
-            var helpText = sut.GenerateHelp(methodHelp);
+            string helpText = sut.GenerateHelp(methodHelp);
 
             // Assert
             helpText.Should().Contain(expectedText);

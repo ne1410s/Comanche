@@ -1,9 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using Comanche.Models;
+﻿// <copyright file="IMethodRouter.cs" company="ne1410s">
+// Copyright (c) ne1410s. All rights reserved.
+// </copyright>
 
 namespace Comanche.Services
 {
+    using System.Collections.Generic;
+    using System.Reflection;
+    using Comanche.Models;
+
     /// <summary>
     /// Routes methods.
     /// </summary>
@@ -31,6 +35,7 @@ namespace Comanche.Services
         /// <param name="args">The arguments.</param>
         /// <param name="routes">The routes.</param>
         /// <returns>A route result.</returns>
-        public RouteResult LocateMethod(IEnumerable<string> args, Dictionary<string, MethodInfo> routes);
+        public RouteResult LocateMethod(
+            IEnumerable<string> args, Dictionary<string, MethodInfo> routes);
     }
 }

@@ -1,4 +1,8 @@
-﻿using System;
+﻿// <copyright file="ParamValidatorTests.cs" company="ne1410s">
+// Copyright (c) ne1410s. All rights reserved.
+// </copyright>
+
+using System;
 using Comanche.Exceptions;
 using Comanche.Models;
 using Comanche.Services;
@@ -11,11 +15,11 @@ namespace Comanche.Tests.Services
         public void Validate_ParamsWithDefaultAndNotSupplied_RevertToDefault()
         {
             // Arrange
-            var sut = new ParamValidator();
-            var route = new MethodRoute(TestMethods.Empty_Info, new());
+            ParamValidator sut = new();
+            MethodRoute route = new(TestMethods.Empty_Info, new());
 
             // Act
-            var parameters = sut.Validate(route);
+            object?[]? parameters = sut.Validate(route);
 
             // Assert
             parameters.Should().BeEquivalentTo(new object[] { "default", false });
@@ -25,18 +29,20 @@ namespace Comanche.Tests.Services
         public void Validate_ParamsWithDefaultAndSuppliedEmpty_RevertToExpected()
         {
             // Arrange
-            var sut = new ParamValidator();
-            var route = new MethodRoute(TestMethods.Empty_Info, new()
+            ParamValidator sut = new();
+            MethodRoute route = new(
+                TestMethods.Empty_Info,
+                new()
             {
-                ["p1"] = "",
-                ["p2"] = "",
+                ["p1"] = string.Empty,
+                ["p2"] = string.Empty,
             });
 
             // Act
-            var parameters = sut.Validate(route);
+            object?[]? parameters = sut.Validate(route);
 
             // Assert
-            parameters.Should().BeEquivalentTo(new object[] { "", true });
+            parameters.Should().BeEquivalentTo(new object[] { string.Empty, true });
         }
 
         [Theory]
@@ -46,14 +52,14 @@ namespace Comanche.Tests.Services
         public void Validate_StringParamsSuppliedWhitespace_ValueRetained(string whitespace)
         {
             // Arrange
-            var sut = new ParamValidator();
-            var route = new MethodRoute(TestMethods.Empty_Info, new()
+            ParamValidator sut = new();
+            MethodRoute route = new(TestMethods.Empty_Info, new()
             {
-                ["p1"] = whitespace
+                ["p1"] = whitespace,
             });
 
             // Act
-            var parameters = sut.Validate(route);
+            object?[]? parameters = sut.Validate(route);
 
             // Assert
             parameters.Should().BeEquivalentTo(new object[] { whitespace, false });
@@ -65,16 +71,17 @@ namespace Comanche.Tests.Services
         public void Validate_InconvertibleParam_ThrowsException(string param1Ref)
         {
             // Arrange
-            var sut = new ParamValidator();
-            var route = new MethodRoute(TestMethods.Add_Info, new()
+            ParamValidator sut = new();
+            MethodRoute route = new(TestMethods.Add_Info, new()
             {
                 [param1Ref] = "se7en",
                 ["num2"] = "33",
             });
-            var expected = "--num1 (-n1) is invalid. Input string was not in a correct format.";
+            const string expected = "--num1 (-n1) is invalid. "
+                + "Input string was not in a correct format.";
 
             // Act
-            var act = () => sut.Validate(route);
+            Func<object?[]> act = () => sut.Validate(route)!;
 
             // Assert
             act.Should().ThrowExactly<ParamsException>()
@@ -88,16 +95,16 @@ namespace Comanche.Tests.Services
         public void Validate_ConvertibleParams_ReturnsExpected(string param1Ref)
         {
             // Arrange
-            var sut = new ParamValidator();
-            var route = new MethodRoute(TestMethods.Add_Info, new()
+            ParamValidator sut = new();
+            MethodRoute route = new(TestMethods.Add_Info, new()
             {
                 [param1Ref] = "7",
                 ["num2"] = "33",
-                ["n3"] = "8"
+                ["n3"] = "8",
             });
 
             // Act
-            var parameters = sut.Validate(route);
+            object?[]? parameters = sut.Validate(route);
 
             // Assert
             parameters.Should().BeEquivalentTo(new object[] { 7, 33, 8 });
@@ -107,11 +114,11 @@ namespace Comanche.Tests.Services
         public void Validate_Paramless_ReturnsNull()
         {
             // Arrange
-            var sut = new ParamValidator();
-            var route = new MethodRoute(TestMethods.ParamlessMethod_Info, new());
+            ParamValidator sut = new();
+            MethodRoute route = new(TestMethods.ParamlessMethod_Info, new());
 
             // Act
-            var parameters = sut.Validate(route);
+            object?[]? parameters = sut.Validate(route);
 
             // Assert
             parameters.Should().BeNull();
@@ -121,17 +128,17 @@ namespace Comanche.Tests.Services
         public void Validate_UnknownParameter_ThrowsException()
         {
             // Arrange
-            var sut = new ParamValidator();
-            var route = new MethodRoute(TestMethods.Add_Info, new()
+            ParamValidator sut = new();
+            MethodRoute route = new(TestMethods.Add_Info, new()
             {
                 ["num1"] = "7",
                 ["num2"] = "33",
                 ["num444556"] = "444556",
             });
-            var expected = "'num444556' is unrecognised.";
+            const string expected = "'num444556' is unrecognised.";
 
             // Act
-            var act = () => sut.Validate(route);
+            Func<object?[]> act = () => sut.Validate(route)!;
 
             // Assert
             act.Should().ThrowExactly<ParamsException>()
@@ -143,15 +150,15 @@ namespace Comanche.Tests.Services
         public void Validate_MissingRequiredParameter_ThrowsException()
         {
             // Arrange
-            var sut = new ParamValidator();
-            var route = new MethodRoute(TestMethods.Add_Info, new()
+            ParamValidator sut = new();
+            MethodRoute route = new(TestMethods.Add_Info, new()
             {
                 ["num2"] = "33",
             });
-            var expected = "--num1 (-n1) is required";
+            const string expected = "--num1 (-n1) is required";
 
             // Act
-            var act = () => sut.Validate(route);
+            Func<object?[]> act = () => sut.Validate(route)!;
 
             // Assert
             act.Should().ThrowExactly<ParamsException>()
@@ -163,17 +170,17 @@ namespace Comanche.Tests.Services
         public void Validate_DuplicateParameter_ThrowsException()
         {
             // Arrange
-            var sut = new ParamValidator();
-            var route = new MethodRoute(TestMethods.Add_Info, new()
+            ParamValidator sut = new();
+            MethodRoute route = new(TestMethods.Add_Info, new()
             {
                 ["n1"] = "7",
                 ["num2"] = "33",
                 ["num1"] = "444556",
             });
-            var expected = "'num1' is already supplied.";
+            const string expected = "'num1' is already supplied.";
 
             // Act
-            var act = () => sut.Validate(route);
+            Func<object?[]> act = () => sut.Validate(route)!;
 
             // Assert
             act.Should().ThrowExactly<ParamsException>()
@@ -185,24 +192,24 @@ namespace Comanche.Tests.Services
         public void Validate_MultipleInvalidParameters_ThrowsException()
         {
             // Arrange
-            var sut = new ParamValidator();
-            var route = new MethodRoute(TestMethods.Add_Info, new()
+            ParamValidator sut = new();
+            MethodRoute route = new(TestMethods.Add_Info, new()
             {
                 ["n1"] = "se7en",
                 ["num2"] = "3hree",
                 ["num3"] = "4our",
             });
-            var errors = new string[]
+            string[] errors = new string[]
             {
-            "--num1 (-n1) is invalid. Input string was not in a correct format.",
-            "--num2 is invalid. Input string was not in a correct format.",
-            "--num3 (-n3) is invalid. Input string was not in a correct format."
+                "--num1 (-n1) is invalid. Input string was not in a correct format.",
+                "--num2 is invalid. Input string was not in a correct format.",
+                "--num3 (-n3) is invalid. Input string was not in a correct format.",
             };
-            var expectedMessage = $"Parameters not valid:{Environment.NewLine}  > "
+            string expectedMessage = $"Parameters not valid:{Environment.NewLine}  > "
                 + string.Join($"{Environment.NewLine}  > ", errors);
 
             // Act
-            var act = () => sut.Validate(route);
+            Func<object?[]> act = () => sut.Validate(route)!;
 
             // Assert
             act.Should().ThrowExactly<ParamsException>().WithMessage(expectedMessage);

@@ -1,10 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
+﻿// <copyright file="RouteBuilder.cs" company="ne1410s">
+// Copyright (c) ne1410s. All rights reserved.
+// </copyright>
 
 namespace Comanche.Services
 {
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Linq;
+    using System.Reflection;
+    using System.Text.RegularExpressions;
+
     /// <inheritdoc cref="IRouteBuilder"/>
     public class RouteBuilder : IRouteBuilder
     {
@@ -21,14 +26,15 @@ namespace Comanche.Services
 
         private static string DerivePath(MemberInfo member, string? leaf = null)
         {
-            var alias = member.GetCustomAttribute<AliasAttribute>()?.Name;
-            var divider = string.IsNullOrEmpty(leaf) ? string.Empty : "|";
-            var currentPath = SanitiseName(alias ?? member.Name) + divider + leaf;
-            var parent = member.DeclaringType;
+            string? alias = member.GetCustomAttribute<AliasAttribute>()?.Name;
+            string divider = string.IsNullOrEmpty(leaf) ? string.Empty : "|";
+            string currentPath = SanitiseName(alias ?? member.Name) + divider + leaf;
+            System.Type parent = member.DeclaringType;
             return parent == null ? currentPath : DerivePath(parent, currentPath);
         }
 
         private static string SanitiseName(string name) =>
-            Regex.Replace(name, "[^a-zA-Z0-9-_]+", "").ToLower();
+            Regex.Replace(name, "[^a-zA-Z0-9-_]+", string.Empty)
+                .ToLower(CultureInfo.InvariantCulture);
     }
 }

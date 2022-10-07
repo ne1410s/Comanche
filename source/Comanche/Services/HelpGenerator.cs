@@ -1,18 +1,25 @@
-﻿using System;
-using System.IO;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Xml.Linq;
-using System.Xml.XPath;
-using Comanche.Models;
+﻿// <copyright file="HelpGenerator.cs" company="ne1410s">
+// Copyright (c) ne1410s. All rights reserved.
+// </copyright>
 
 namespace Comanche.Services
 {
+    using System;
+    using System.Globalization;
+    using System.IO;
+    using System.Reflection;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using System.Xml.Linq;
+    using System.Xml.XPath;
+    using Comanche.Models;
+
     /// <inheritdoc cref="IHelpGenerator"/>
     public class HelpGenerator : IHelpGenerator
     {
-        private const string XPathParamMethodPrefixFormat = "./doc/members/member[starts-with(@name, '{0}(')]";
+        private const string XPathParamMethodPrefixFormat
+            = "./doc/members/member[starts-with(@name, '{0}(')]";
+
         private const string XPathParamlessMethodFormat = "./doc/members/member[@name='{0}']";
 
         private readonly XDocument? xDoc;
@@ -25,8 +32,10 @@ namespace Comanche.Services
         {
             // IL3000: Assembly.Location is empty in apps built for single-file
             // This approach appears to support single-file and regular builds
-            var xmlPath = Path.Combine(AppContext.BaseDirectory, cliAssembly.GetName().Name + ".xml");
-            xDoc = File.Exists(xmlPath) ? XDocument.Load(xmlPath) : null;
+            string xmlPath = Path.Combine(
+                AppContext.BaseDirectory,
+                cliAssembly.GetName().Name + ".xml");
+            this.xDoc = File.Exists(xmlPath) ? XDocument.Load(xmlPath) : null;
         }
 
         /// <inheritdoc/>
@@ -38,16 +47,16 @@ namespace Comanche.Services
                     + $"{string.Join($"{Environment.NewLine}  > ", moduleHelp.Modules)}";
             }
 
-            var method = ((MethodHelp)helpRoute).Method;
+            MethodInfo method = ((MethodHelp)helpRoute).Method;
 
-            var sb = new StringBuilder();
+            StringBuilder sb = new();
             sb.Append("method: ").AppendLine(GetNameWithAlias(method));
 
-            var parameters = method.GetParameters();
-            var parameterless = parameters.Length == 0;
+            ParameterInfo[] parameters = method.GetParameters();
+            bool parameterless = parameters.Length == 0;
 
-            var xPathSelector = GetXPathSelector(method, parameterless);
-            var xmlMember = xDoc?.XPathSelectElement(xPathSelector);
+            string xPathSelector = GetXPathSelector(method, parameterless);
+            XElement? xmlMember = this.xDoc?.XPathSelectElement(xPathSelector);
             if (xmlMember != null)
             {
                 AppendLineIfFound(sb, xmlMember, "summary");
@@ -58,7 +67,7 @@ namespace Comanche.Services
             if (!parameterless)
             {
                 sb.AppendLine("parameters:");
-                foreach (var parameter in parameters)
+                foreach (ParameterInfo? parameter in parameters)
                 {
                     sb.Append("  name: ").AppendLine(parameter.Name);
                 }
@@ -69,10 +78,10 @@ namespace Comanche.Services
 
         private static string GetXPathSelector(MethodInfo mi, bool parameterless)
         {
-            var methodEntry = $"M:{mi.DeclaringType!.FullName}.{mi.Name}";
+            string entry = $"M:{mi.DeclaringType!.FullName}.{mi.Name}";
             return parameterless
-                ? string.Format(XPathParamlessMethodFormat, methodEntry)
-                : string.Format(XPathParamMethodPrefixFormat, methodEntry);
+                ? string.Format(CultureInfo.InvariantCulture, XPathParamlessMethodFormat, entry)
+                : string.Format(CultureInfo.InvariantCulture, XPathParamMethodPrefixFormat, entry);
         }
 
         private static string GetNameWithAlias(MemberInfo info)
@@ -83,7 +92,7 @@ namespace Comanche.Services
 
         private static string? GetXml(XElement parent, string prop)
         {
-            var rawXmlValue = parent.Element(prop)?.Value;
+            string? rawXmlValue = parent.Element(prop)?.Value;
             return !string.IsNullOrWhiteSpace(rawXmlValue)
                 ? Regex.Replace(rawXmlValue, "\\s{2,}", " ").Trim()
                 : null;
@@ -91,7 +100,7 @@ namespace Comanche.Services
 
         private static void AppendLineIfFound(StringBuilder sb, XElement parent, string selector)
         {
-            var xmlValue = GetXml(parent, selector);
+            string? xmlValue = GetXml(parent, selector);
             if (xmlValue != null)
             {
                 sb.Append(selector).Append(": ").AppendLine(xmlValue);

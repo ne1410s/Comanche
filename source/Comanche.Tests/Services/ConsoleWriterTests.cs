@@ -1,4 +1,8 @@
-﻿using System;
+﻿// <copyright file="ConsoleWriterTests.cs" company="ne1410s">
+// Copyright (c) ne1410s. All rights reserved.
+// </copyright>
+
+using System;
 using System.IO;
 using Comanche.Services;
 
@@ -13,8 +17,8 @@ namespace Comanche.Tests.Services
         public void WriteLine_IsError_WritesToErrorStream()
         {
             // Arrange
-            var writer = new StringWriter();
-            var sut = new ConsoleWriter();
+            StringWriter writer = new();
+            ConsoleWriter sut = new();
             Console.SetError(writer);
 
             // Act
@@ -28,8 +32,8 @@ namespace Comanche.Tests.Services
         public void WriteLine_NotError_WritesToStandardStream()
         {
             // Arrange
-            var writer = new StringWriter();
-            var sut = new ConsoleWriter();
+            StringWriter writer = new();
+            ConsoleWriter sut = new();
             Console.SetOut(writer);
 
             // Act

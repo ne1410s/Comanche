@@ -1,4 +1,8 @@
-﻿using System;
+﻿// <copyright file="MethodRouterTests.cs" company="ne1410s">
+// Copyright (c) ne1410s. All rights reserved.
+// </copyright>
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -14,10 +18,10 @@ namespace Comanche.Tests.Services
         public void GetClosestRoute_IncompleteRoute_ReturnsMostCompleteValid()
         {
             // Arrange
-            var sut = new MethodRouter();
+            MethodRouter sut = new();
 
             // Act
-            var result = sut.GetClosestRoute("test|pass|other", new[] { "test|pass|oth" });
+            string? result = sut.GetClosestRoute("test|pass|other", new[] { "test|pass|oth" });
 
             // Assert
             result.Should().Be("test|pass");
@@ -27,10 +31,10 @@ namespace Comanche.Tests.Services
         public void GetClosestRoute_NoMatches_ReturnsNull()
         {
             // Arrange
-            var sut = new MethodRouter();
+            MethodRouter sut = new();
 
             // Act
-            var result = sut.GetClosestRoute("test", new[] { "pass" });
+            string? result = sut.GetClosestRoute("test", new[] { "pass" });
 
             // Assert
             result.Should().BeNull();
@@ -40,10 +44,10 @@ namespace Comanche.Tests.Services
         public void GetClosestRoute_NoRoutes_ReturnsNull()
         {
             // Arrange
-            var sut = new MethodRouter();
+            MethodRouter sut = new();
 
             // Act
-            var result = sut.GetClosestRoute("test", Array.Empty<string>());
+            string? result = sut.GetClosestRoute("test", Array.Empty<string>());
 
             // Assert
             result.Should().BeNull();
@@ -53,10 +57,10 @@ namespace Comanche.Tests.Services
         public void GetClosestRoute_OnlySiblings_ReturnsCommonRoute()
         {
             // Arrange
-            var sut = new MethodRouter();
+            MethodRouter sut = new();
 
             // Act
-            var result = sut.GetClosestRoute("t1|t3", new[] { "t1|t2a", "t1|t2b" });
+            string? result = sut.GetClosestRoute("t1|t3", new[] { "t1|t2a", "t1|t2b" });
 
             // Assert
             result.Should().Be("t1");
@@ -66,11 +70,11 @@ namespace Comanche.Tests.Services
         public void GetClosestRoute_RouteIsValid_ReturnsValidRoute()
         {
             // Arrange
-            var sut = new MethodRouter();
-            var validRoute = "test|pass";
+            MethodRouter sut = new();
+            const string validRoute = "test|pass";
 
             // Act
-            var result = sut.GetClosestRoute(validRoute, new[] { "test", "pass", validRoute, });
+            string? result = sut.GetClosestRoute(validRoute, new[] { "test", "pass", validRoute, });
 
             // Assert
             result.Should().Be(validRoute);
@@ -80,12 +84,12 @@ namespace Comanche.Tests.Services
         public void GetClosestRoute_WithValidAncestor_ReturnsAncestorRoute()
         {
             // Arrange
-            var sut = new MethodRouter();
-            var validRoute = "test|pass";
-            var attemptedRoute = validRoute + "|other";
+            MethodRouter sut = new();
+            const string validRoute = "test|pass";
+            const string attemptedRoute = validRoute + "|other";
 
             // Act
-            var result = sut.GetClosestRoute(attemptedRoute, new[] { "test", "pass", validRoute, });
+            string? result = sut.GetClosestRoute(attemptedRoute, new[] { "test", "pass", validRoute, });
 
             // Assert
             result.Should().Be(validRoute);
@@ -95,10 +99,10 @@ namespace Comanche.Tests.Services
         public void GetOptions_InvalidRoute_ReturnsTopLevelOptions()
         {
             // Arrange
-            var sut = new MethodRouter();
+            MethodRouter sut = new();
 
             // Act
-            var opts = sut.GetOptions("top999", new[] { "top1|mid1|low1", "top2|low2", "top3" });
+            HashSet<string> opts = sut.GetOptions("top999", new[] { "top1|mid1|low1", "top2|low2", "top3" });
 
             // Assert
             opts.Should().BeEquivalentTo(new[] { "top1", "top2", "top3" });
@@ -108,10 +112,10 @@ namespace Comanche.Tests.Services
         public void GetOptions_NullRoute_ReturnsTopLevelOptions()
         {
             // Arrange
-            var sut = new MethodRouter();
+            MethodRouter sut = new();
 
             // Act
-            var opts = sut.GetOptions(null, new[] { "top1|mid1|low1", "top2|low2", "top3" });
+            HashSet<string> opts = sut.GetOptions(null, new[] { "top1|mid1|low1", "top2|low2", "top3" });
 
             // Assert
             opts.Should().BeEquivalentTo(new[] { "top1", "top2", "top3" });
@@ -121,10 +125,10 @@ namespace Comanche.Tests.Services
         public void GetOptions_OnlySiblings_ReturnsParentalSiblings()
         {
             // Arrange
-            var sut = new MethodRouter();
+            MethodRouter sut = new();
 
             // Act
-            var opts = sut.GetOptions("top1|mid1|low99", new[] { "top1|mid1|low1", "top1|mid1|lower2" });
+            HashSet<string> opts = sut.GetOptions("top1|mid1|low99", new[] { "top1|mid1|low1", "top1|mid1|lower2" });
 
             // Assert
             opts.Should().BeEquivalentTo(new[] { "low1", "lower2" });
@@ -134,10 +138,10 @@ namespace Comanche.Tests.Services
         public void GetOptions_ValidParent_ReturnsParentalSiblings()
         {
             // Arrange
-            var sut = new MethodRouter();
+            MethodRouter sut = new();
 
             // Act
-            var opts = sut.GetOptions("top1|mid3", new[] { "top1|mid1|low1", "top1|mid2", "top1" });
+            HashSet<string> opts = sut.GetOptions("top1|mid3", new[] { "top1|mid1|low1", "top1|mid2", "top1" });
 
             // Assert
             opts.Should().BeEquivalentTo(new[] { "mid1", "mid2" });
@@ -147,10 +151,10 @@ namespace Comanche.Tests.Services
         public void GetOptions_ValidRoute_ReturnsSiblings()
         {
             // Arrange
-            var sut = new MethodRouter();
+            MethodRouter sut = new();
 
             // Act
-            var opts = sut.GetOptions("top1", new[] { "top1|mid1|low1", "top1|mid2", "top1" });
+            HashSet<string> opts = sut.GetOptions("top1", new[] { "top1|mid1|low1", "top1|mid2", "top1" });
 
             // Assert
             opts.Should().BeEquivalentTo(new[] { "mid1", "mid2" });
@@ -160,10 +164,10 @@ namespace Comanche.Tests.Services
         public void GetOptions_ValidSingle_ReturnsSingle()
         {
             // Arrange
-            var sut = new MethodRouter();
+            MethodRouter sut = new();
 
             // Act
-            var opts = sut.GetOptions("top1|mid2", new[] { "top1|mid1|low1", "top1|mid2", "top1" });
+            HashSet<string> opts = sut.GetOptions("top1|mid2", new[] { "top1|mid1|low1", "top1|mid2", "top1" });
 
             // Assert
             opts.Should().BeEquivalentTo(new[] { "mid2" });
@@ -173,12 +177,12 @@ namespace Comanche.Tests.Services
         public void LocateMethod_WithRootHelpKey_ReturnsMethodHelp()
         {
             // Arrange
-            var sut = new MethodRouter();
-            var methodKey = "parse";
-            var method = new Dictionary<string, MethodInfo> { [methodKey] = TestMethods.Parse_Info };
+            MethodRouter sut = new();
+            const string methodKey = "parse";
+            Dictionary<string, MethodInfo> method = new() { [methodKey] = TestMethods.Parse_Info };
 
             // Act
-            var result = sut.LocateMethod(new string[] { "/?" }, method);
+            RouteResult result = sut.LocateMethod(new string[] { "/?" }, method);
 
             // Assert
             result.Should().BeOfType<ModuleHelp>()
@@ -192,12 +196,12 @@ namespace Comanche.Tests.Services
         public void LocateMethod_WithHelpKey_ReturnsMethodHelp(string helpKey)
         {
             // Arrange
-            var sut = new MethodRouter();
-            var methodKey = "parse";
-            var method = new Dictionary<string, MethodInfo> { [methodKey] = TestMethods.Parse_Info };
+            MethodRouter sut = new();
+            const string methodKey = "parse";
+            Dictionary<string, MethodInfo> method = new() { [methodKey] = TestMethods.Parse_Info };
 
             // Act
-            var result = sut.LocateMethod(new string[] { methodKey, helpKey }, method);
+            RouteResult result = sut.LocateMethod(new string[] { methodKey, helpKey }, method);
 
             // Assert
             result.Should().BeOfType<MethodHelp>()
@@ -208,10 +212,10 @@ namespace Comanche.Tests.Services
         public void LocateMethod_NoneSet_NoClosestRouteInException()
         {
             // Arrange
-            var sut = new MethodRouter();
+            MethodRouter sut = new();
 
             // Act
-            var act = () => sut.LocateMethod(new[] { "bad1", "bad2" }, new());
+            Func<RouteResult> act = () => sut.LocateMethod(new[] { "bad1", "bad2" }, new());
 
             // Assert
             act.Should().Throw<RouteException>().Which.ClosestRoute.Should().BeNull();
@@ -221,13 +225,13 @@ namespace Comanche.Tests.Services
         public void LocateMethod_ValidSingleAncestor_LocatesMethod()
         {
             // Arrange
-            var sut = new MethodRouter();
-            var ancestor = "mod1|mod2";
-            var requested = new[] { "mod1", "mod2", "bad1" };
-            var method = new Dictionary<string, MethodInfo> { [ancestor] = TestMethods.Parse_Info };
+            MethodRouter sut = new();
+            const string ancestor = "mod1|mod2";
+            string[] requested = new[] { "mod1", "mod2", "bad1" };
+            Dictionary<string, MethodInfo> method = new() { [ancestor] = TestMethods.Parse_Info };
 
             // Act
-            var act = () => sut.LocateMethod(requested, method);
+            Func<RouteResult> act = () => sut.LocateMethod(requested, method);
 
             // Assert
             act.Should().Throw<RouteException>()
@@ -239,20 +243,20 @@ namespace Comanche.Tests.Services
         public void LocateMethod_ValidAncestorSiblings_SiblingsListedInException()
         {
             // Arrange
-            var sut = new MethodRouter();
-            var ancestorSubMethod1 = "mod1|mod2|mod3a";
-            var ancestorSubMethod2 = "mod1|mod2|mod3b";
-            var requested = new[] { "mod1", "mod2", "bad1" };
-            var method = new Dictionary<string, MethodInfo>
+            MethodRouter sut = new();
+            const string ancestorSubMethod1 = "mod1|mod2|mod3a";
+            const string ancestorSubMethod2 = "mod1|mod2|mod3b";
+            string[] requested = new[] { "mod1", "mod2", "bad1" };
+            Dictionary<string, MethodInfo> method = new()
             {
                 [ancestorSubMethod1] = TestMethods.Parse_Info,
                 [ancestorSubMethod2] = TestMethods.Parse_Info,
             };
-            var expectedMessage = $"Command not recognised. Suggestions:{Environment.NewLine}  > " +
+            string expectedMessage = $"Command not recognised. Suggestions:{Environment.NewLine}  > " +
                 $"mod1 mod2 mod3a{Environment.NewLine}  > mod1 mod2 mod3b";
 
             // Act
-            var act = () => sut.LocateMethod(requested, method);
+            Func<RouteResult> act = () => sut.LocateMethod(requested, method);
 
             // Assert
             act.Should().Throw<RouteException>()
@@ -266,11 +270,11 @@ namespace Comanche.Tests.Services
         public void LocateMethod_WithMethod_MethodFound(string modulePsv)
         {
             // Arrange
-            var sut = new MethodRouter();
-            var method = new Dictionary<string, MethodInfo> { [modulePsv] = TestMethods.Parse_Info };
+            MethodRouter sut = new();
+            Dictionary<string, MethodInfo> method = new() { [modulePsv] = TestMethods.Parse_Info };
 
             // Act
-            var result = sut.LocateMethod(modulePsv.Split('|'), method);
+            RouteResult result = sut.LocateMethod(modulePsv.Split('|'), method);
 
             // Assert
             result.Should().BeOfType<MethodRoute>()
@@ -281,13 +285,13 @@ namespace Comanche.Tests.Services
         public void LocateMethod_WithParameters_ParametersFound()
         {
             // Arrange
-            var sut = new MethodRouter();
-            var module = "mod1";
-            var method = new Dictionary<string, MethodInfo> { [module] = TestMethods.Parse_Info };
-            var expected = new Dictionary<string, string> { ["force"] = "", ["c"] = "42" };
+            MethodRouter sut = new();
+            const string module = "mod1";
+            Dictionary<string, MethodInfo> method = new() { [module] = TestMethods.Parse_Info };
+            Dictionary<string, string> expected = new() { ["force"] = string.Empty, ["c"] = "42" };
 
             // Act
-            var result = sut.LocateMethod(new[] { module, "--force", "-c 42" }, method);
+            RouteResult result = sut.LocateMethod(new[] { module, "--force", "-c 42" }, method);
 
             // Assert
             result.Should().BeOfType<MethodRoute>()
@@ -298,12 +302,12 @@ namespace Comanche.Tests.Services
         public void LocateMethod_WithParametersDuplicated_ThrowsException()
         {
             // Arrange
-            var sut = new MethodRouter();
-            var module = "mod1";
-            var method = new Dictionary<string, MethodInfo> { [module] = TestMethods.Parse_Info };
+            MethodRouter sut = new();
+            const string module = "mod1";
+            Dictionary<string, MethodInfo> method = new() { [module] = TestMethods.Parse_Info };
 
             // Act
-            var act = () => sut.LocateMethod(new[] { module, "-c 12", "-c 42" }, method);
+            Func<RouteResult> act = () => sut.LocateMethod(new[] { module, "-c 12", "-c 42" }, method);
 
             // Assert
             act.Should().Throw<ParamsException>().WithMessage("* appears more than once.");

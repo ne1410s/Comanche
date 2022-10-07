@@ -1,7 +1,11 @@
-﻿namespace Comanche.CliTest
+﻿// <copyright file="NumbersModule.cs" company="ne1410s">
+// Copyright (c) ne1410s. All rights reserved.
+// </copyright>
+
+namespace Comanche.CliTest
 {
     /// <summary>
-    /// All about... numbers!
+    /// All about... numbers.
     /// </summary>
     [Alias("num")]
     public static class NumbersModule
@@ -56,7 +60,6 @@
             /// <returns>Unity.</returns>
             public static int Do() => 1;
         }
-
 
         /// <summary>
         /// Should not be exported.

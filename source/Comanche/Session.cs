@@ -1,12 +1,16 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using Comanche.Exceptions;
-using Comanche.Models;
-using Comanche.Services;
+﻿// <copyright file="Session.cs" company="ne1410s">
+// Copyright (c) ne1410s. All rights reserved.
+// </copyright>
 
 namespace Comanche
 {
+    using System;
+    using System.Linq;
+    using System.Reflection;
+    using Comanche.Exceptions;
+    using Comanche.Models;
+    using Comanche.Services;
+
     /// <summary>
     /// A session.
     /// </summary>
@@ -29,19 +33,19 @@ namespace Comanche
             try
             {
                 assembly ??= Assembly.GetEntryAssembly()!;
-                var routes = new RouteBuilder().BuildRoutes(assembly);
-                var routeResult = new MethodRouter().LocateMethod(args, routes);
+                System.Collections.Generic.Dictionary<string, MethodInfo> routes = new RouteBuilder().BuildRoutes(assembly);
+                RouteResult routeResult = new MethodRouter().LocateMethod(args, routes);
                 if (routeResult is HelpRoute helpRoute)
                 {
-                    var help = new HelpGenerator(assembly).GenerateHelp(helpRoute);
+                    string help = new HelpGenerator(assembly).GenerateHelp(helpRoute);
                     outputWriter.WriteLine(help);
                     return null;
                 }
                 else
                 {
-                    var methodResult = (MethodRoute)routeResult;
-                    var parameters = new ParamValidator().Validate(methodResult);
-                    var outcome = methodResult.MethodInfo.Invoke(null, parameters);
+                    MethodRoute methodResult = (MethodRoute)routeResult;
+                    object?[]? parameters = new ParamValidator().Validate(methodResult);
+                    object outcome = methodResult.MethodInfo.Invoke(null, parameters);
                     outputWriter.WriteLine($"{outcome}");
                     return outcome;
                 }

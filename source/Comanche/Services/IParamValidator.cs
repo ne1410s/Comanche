@@ -1,8 +1,12 @@
-﻿using System;
-using Comanche.Models;
+﻿// <copyright file="IParamValidator.cs" company="ne1410s">
+// Copyright (c) ne1410s. All rights reserved.
+// </copyright>
 
 namespace Comanche.Services
 {
+    using System;
+    using Comanche.Models;
+
     /// <summary>
     /// Validates parameters.
     /// </summary>
@@ -21,8 +25,8 @@ namespace Comanche.Services
         /// <param name="arg">The parameter as text.</param>
         /// <param name="type">The parameter type.</param>
         /// <param name="result">Any result.</param>
-        /// <param name="error">Any error.</param>
+        /// <param name="errorMsg">Any error.</param>
         /// <returns>Whether conversion succeeded.</returns>
-        public bool TryConvert(string arg, Type type, out object? result, out string? error);
+        public bool TryConvert(string arg, Type type, out object? result, out string? errorMsg);
     }
 }
