@@ -12,6 +12,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{926E8D8A-E0B3-414E-82D6-AFA20217B5A4}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		.runsettings = .runsettings
 		.config\dotnet-tools.json = .config\dotnet-tools.json
 		global.json = global.json
 		readme.md = readme.md

@@ -63,7 +63,7 @@ namespace Comanche.Services
             }
 
             var paramArgString = argPsv
-                .Replace(routePsv, "", StringComparison.OrdinalIgnoreCase)
+                .Replace(routePsv, string.Empty, StringComparison.OrdinalIgnoreCase)
                 .Replace("|", " ", StringComparison.OrdinalIgnoreCase);
             var paramPairs = Regex.Split(paramArgString, @"\s+-+|\s+\/\?\b").Where(p => !string.IsNullOrWhiteSpace(p));
             var paramMap = paramPairs.Select(x => x.Split(" ", StringSplitOptions.RemoveEmptyEntries));

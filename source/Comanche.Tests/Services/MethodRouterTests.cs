@@ -312,5 +312,14 @@ namespace Comanche.Tests.Services
             // Assert
             act.Should().Throw<ParamsException>().WithMessage("* appears more than once.");
         }
+
+        [Fact]
+        public void PlacateTestAssemblyCoverage()
+        {
+            _ = TestMethods.Parse(string.Empty);
+            _ = TestMethods.Parse($"{3}");
+            _ = TestMethods.Add(1, 2, 4);
+            _ = TestMethods.ParamlessMethod();
+        }
     }
 }
