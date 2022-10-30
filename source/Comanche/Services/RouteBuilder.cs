@@ -9,6 +9,7 @@ namespace Comanche.Services
     using System.Linq;
     using System.Reflection;
     using System.Text.RegularExpressions;
+    using Comanche.AttributesV2;
 
     /// <inheritdoc cref="IRouteBuilder"/>
     public class RouteBuilder : IRouteBuilder
@@ -16,10 +17,15 @@ namespace Comanche.Services
         /// <inheritdoc/>
         public Dictionary<string, MethodInfo> BuildRoutes(Assembly assembly)
         {
+            // TODO: Remove static/abstract/sealed constraints and add constraint to require [Module] attrib
+
             var abstractTypes = assembly.GetExportedTypes().Where(t => t.IsAbstract);
             var sealedTypes = assembly.GetExportedTypes().Where(t => t.IsSealed);
             return abstractTypes
                 .Where(t => sealedTypes.Contains(t))
+
+                // TODO: Remove static constraint and add constraint to not have [Hidden] attrib
+
                 .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.Static))
                 .ToDictionary(m => DerivePath(m), m => m);
         }

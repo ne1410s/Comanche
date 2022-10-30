@@ -2,10 +2,11 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-using System.Reflection;
-
 namespace Comanche.Tests
 {
+    using System.Reflection;
+    using Comanche.AttributesV2;
+
     /// <summary>
     /// Test methods.
     /// </summary>

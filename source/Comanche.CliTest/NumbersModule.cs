@@ -4,10 +4,12 @@
 
 namespace Comanche.CliTest
 {
+    using Comanche.AttributesV2;
+
     /// <summary>
     /// All about... numbers.
     /// </summary>
-    [Alias("num")]
+    [Module("num")]
     public static class NumbersModule
     {
         /// <summary>
@@ -34,7 +36,7 @@ namespace Comanche.CliTest
         /// <summary>
         /// Something special.
         /// </summary>
-        [Alias("alg!!")]
+        [Module("alg!!")]
         public static class AlgebraModule
         {
             /// <summary>

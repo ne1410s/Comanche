@@ -10,6 +10,7 @@ namespace Comanche.Services
     using System.Linq;
     using System.Reflection;
     using System.Text.RegularExpressions;
+    using Comanche.AttributesV2;
     using Comanche.Exceptions;
     using Comanche.Models;
 

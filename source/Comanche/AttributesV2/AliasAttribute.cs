@@ -2,14 +2,14 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche
+namespace Comanche.AttributesV2
 {
     using System;
 
     /// <summary>
-    /// Sets an alias.
+    /// Provides a member with an alias in routing and execution.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Parameter)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Parameter)]
     public class AliasAttribute : Attribute
     {
         /// <summary>
