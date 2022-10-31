@@ -5,26 +5,40 @@
 namespace Comanche.ModelsV2;
 
 using System;
-using System.Globalization;
 
 /// <summary>
 /// A modelled parameter.
 /// </summary>
 public class ComancheParam
 {
+    private readonly Func<string?, object?> converter;
+
     /// <summary>
     /// Initialises a new instance of the <see cref="ComancheParam"/> class.
     /// </summary>
     /// <param name="name">The parameter name.</param>
+    /// <param name="converter">The converter.</param>
     /// <param name="alias">The parameter alias, if applicable.</param>
-    /// <param name="type">The parameter type.</param>
-    /// <param name="defaultValueRaw">The raw default value.</param>
-    public ComancheParam(string name, string? alias, Type type, object? defaultValueRaw)
+    /// <param name="typeName">The parameter type name.</param>
+    /// <param name="hidden">Whether the parameter is hidden.</param>
+    /// <param name="hasDefaultValue">Whether a default value has been specified.</param>
+    /// <param name="defaultValue">The default value.</param>
+    public ComancheParam(
+        string name,
+        Func<string?, object?> converter,
+        string? alias,
+        string typeName,
+        bool hidden,
+        bool hasDefaultValue,
+        object? defaultValue)
     {
         this.Name = name;
+        this.converter = converter;
         this.Alias = alias;
-        this.Type = type;
-        this.DefaultValue = defaultValueRaw;
+        this.TypeName = typeName;
+        this.Hidden = hidden;
+        this.HasDefault = hasDefaultValue;
+        this.DefaultValue = defaultValue;
     }
 
     /// <summary>
@@ -38,9 +52,19 @@ public class ComancheParam
     public string? Alias { get; }
 
     /// <summary>
-    /// Gets the parameter type.
+    /// Gets the parameter type name.
     /// </summary>
-    public Type Type { get; }
+    public string TypeName { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether the value is hidden.
+    /// </summary>
+    public bool Hidden { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether a default value is provided.
+    /// </summary>
+    public bool HasDefault { get; }
 
     /// <summary>
     /// Gets the default value.
@@ -48,10 +72,9 @@ public class ComancheParam
     public object? DefaultValue { get; }
 
     /// <summary>
-    /// Parses input to the parameter type.
+    /// Converts input to a value.
     /// </summary>
-    /// <param name="input">The text input.</param>
-    /// <returns>The parsed value.</returns>
-    public virtual object? ParseInput(string? input) => input == null ? null
-        : Convert.ChangeType(input, this.Type, CultureInfo.InvariantCulture);
+    /// <param name="input">The command line input.</param>
+    /// <returns>A converted value.</returns>
+    public object? Convert(string? input) => this.converter(input);
 }

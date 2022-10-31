@@ -13,25 +13,29 @@ using System.Linq;
 /// </summary>
 public class ComancheMethod
 {
-    private readonly Func<Type, object?[], object?> call;
+    private readonly Func<object?, object?[], object?> call;
+    private readonly Func<object?> resolver;
 
     /// <summary>
     /// Initialises a new instance of the <see cref="ComancheMethod"/> class.
     /// </summary>
     /// <param name="name">The method name.</param>
-    /// <param name="parent">The parent module.</param>
+    /// <param name="summary">The method summary.</param>
+    /// <param name="resolver">The caller resolver.</param>
+    /// <param name="invoker">The call function.</param>
     /// <param name="parameters">The parameter definitions.</param>
-    /// <param name="call">The call function.</param>
     public ComancheMethod(
         string name,
-        ComancheModule parent,
-        List<ComancheParam> parameters,
-        Func<Type, object?[], object?> call)
+        string? summary,
+        Func<object?> resolver,
+        Func<object?, object?[], object?> invoker,
+        List<ComancheParam> parameters)
     {
+        this.resolver = resolver;
+        this.call = invoker;
         this.Name = name;
-        this.Parent = parent;
+        this.Summary = summary;
         this.Parameters = parameters;
-        this.call = call;
     }
 
     /// <summary>
@@ -40,9 +44,9 @@ public class ComancheMethod
     public string Name { get; }
 
     /// <summary>
-    /// Gets the parent module.
+    /// Gets the method summary.
     /// </summary>
-    public ComancheModule Parent { get; }
+    public string? Summary { get; }
 
     /// <summary>
     /// Gets a list of parameters.
@@ -57,9 +61,10 @@ public class ComancheMethod
     public object? Call(Dictionary<ComancheParam, string?> callParams)
     {
         object?[] parameterVals = this.Parameters
-            .Select(p => callParams.ContainsKey(p) ? p.ParseInput(callParams[p]) : null)
+            .Select(p => callParams.ContainsKey(p) ? p.Convert(callParams[p]) : null)
             .ToArray();
 
-        return this.call(this.Parent.Type, parameterVals);
+        var caller = this.resolver();
+        return this.call(caller, parameterVals);
     }
 }

@@ -16,12 +16,12 @@ public class ComancheModule
     /// Initialises a new instance of the <see cref="ComancheModule"/> class.
     /// </summary>
     /// <param name="name">The module name.</param>
-    /// <param name="type">The module type.</param>
+    /// <param name="summary">The summary description.</param>
     /// <param name="methods">The methods.</param>
-    public ComancheModule(string name, Type type, Dictionary<string, ComancheMethod> methods)
+    public ComancheModule(string name, string? summary, Dictionary<string, ComancheMethod> methods)
     {
         this.Name = name;
-        this.Type = type;
+        this.Summary = summary;
         this.Methods = methods;
     }
 
@@ -31,9 +31,9 @@ public class ComancheModule
     public string Name { get; }
 
     /// <summary>
-    /// Gets the module type.
+    /// Gets the summary.
     /// </summary>
-    public Type Type { get; }
+    public string? Summary { get; }
 
     /// <summary>
     /// Gets a list of methods.
