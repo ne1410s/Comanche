@@ -2,7 +2,7 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche.ModelsV2;
+namespace Comanche.Models;
 
 using System;
 
@@ -17,6 +17,7 @@ public class ComancheParam
     /// Initialises a new instance of the <see cref="ComancheParam"/> class.
     /// </summary>
     /// <param name="name">The parameter name.</param>
+    /// <param name="summary">The parameter summary.</param>
     /// <param name="converter">The converter.</param>
     /// <param name="alias">The parameter alias, if applicable.</param>
     /// <param name="typeName">The parameter type name.</param>
@@ -25,6 +26,7 @@ public class ComancheParam
     /// <param name="defaultValue">The default value.</param>
     public ComancheParam(
         string name,
+        string? summary,
         Func<string?, object?> converter,
         string? alias,
         string typeName,
@@ -33,6 +35,7 @@ public class ComancheParam
         object? defaultValue)
     {
         this.Name = name;
+        this.Summary = summary;
         this.converter = converter;
         this.Alias = alias;
         this.TypeName = typeName;
@@ -45,6 +48,11 @@ public class ComancheParam
     /// Gets the parameter name.
     /// </summary>
     public string Name { get; }
+
+    /// <summary>
+    /// Gets the parameter summary.
+    /// </summary>
+    public string? Summary { get; }
 
     /// <summary>
     /// Gets the parameter alias.

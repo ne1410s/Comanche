@@ -2,7 +2,7 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche
+namespace Comanche.OldNBusted
 {
     using System;
     using System.Linq;

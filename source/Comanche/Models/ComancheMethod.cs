@@ -2,7 +2,7 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche.ModelsV2;
+namespace Comanche.Models;
 
 using System;
 using System.Collections.Generic;
@@ -51,14 +51,14 @@ public class ComancheMethod
     /// <summary>
     /// Gets a list of parameters.
     /// </summary>
-    public List<ComancheParam> Parameters { get; }
+    public IReadOnlyList<ComancheParam> Parameters { get; }
 
     /// <summary>
     /// Calls the function.
     /// </summary>
     /// <param name="callParams">The call parameters.</param>
     /// <returns>The result.</returns>
-    public object? Call(Dictionary<ComancheParam, string?> callParams)
+    public object? Call(IDictionary<ComancheParam, string?> callParams)
     {
         object?[] parameterVals = this.Parameters
             .Select(p => callParams.ContainsKey(p) ? p.Convert(callParams[p]) : null)

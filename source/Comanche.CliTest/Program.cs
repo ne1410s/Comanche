@@ -2,7 +2,9 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-_ = Comanche.Session.Route();
+using Comanche.OldNBusted;
+
+_ = Session.Route();
 
 /// <summary>
 /// The program.

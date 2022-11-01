@@ -1,8 +1,8 @@
-﻿// <copyright file="DiscoveryService.cs" company="ne1410s">
+﻿// <copyright file="DiscoveryExtensions.cs" company="ne1410s">
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche.ServicesV2;
+namespace Comanche.Extensions;
 
 using System;
 using System.Collections.Generic;
@@ -13,13 +13,13 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Xml.XPath;
-using Comanche.AttributesV2;
-using Comanche.ModelsV2;
+using Comanche.Attributes;
+using Comanche.Models;
 
 /// <summary>
-/// Discovers functionality exposed to Comanche.
+/// Extensions relating to Comanche discovery.
 /// </summary>
-public class DiscoveryService
+public static class DiscoveryExtensions
 {
     private const string XPathParameterMethodFormat = "./doc/members/member[starts-with(@name, '{0}(')]";
     private const string XPathMemberFormat = "./doc/members/member[@name='{0}']";
@@ -32,16 +32,20 @@ public class DiscoveryService
     /// </summary>
     /// <param name="asm">The assembly.</param>
     /// <returns>Comanche metadata.</returns>
-    public Dictionary<string, ComancheModule> Discover(Assembly asm)
+    public static ComancheSession Discover(this Assembly asm)
     {
-        var xDoc = LoadXDoc(asm);
-        return asm.ExportedTypes
-            .Select(t => ToModule(t, xDoc))
+        var xDoc = asm.LoadXDoc();
+
+        var topLevelModules = asm.ExportedTypes
+            .Where(t => t.DeclaringType == null)
+            .Select(t => t.ToModule(xDoc))
             .Where(m => m != null)
             .ToDictionary(m => m!.Name, m => m!, Ordinal);
+
+        return new(topLevelModules);
     }
 
-    private static ComancheModule? ToModule(Type t, XDocument? xDoc)
+    private static ComancheModule? ToModule(this Type t, XDocument? xDoc)
     {
         var moduleName = t.GetCustomAttribute<ModuleAttribute>()?.Name;
         if (moduleName == null)
@@ -49,49 +53,56 @@ public class DiscoveryService
             return null;
         }
 
-        //TODO: Submodules??
-
         var xPath = string.Format(Invariant, XPathMemberFormat, $"T:{t.FullName}");
-        var xmlMember = xDoc?.XPathSelectElement(xPath);
-        var xmlSummary = GetNodeText(xmlMember, "summary");
-
+        var xmlType = xDoc?.XPathSelectElement(xPath);
+        var xmlSummary = GetNodeText(xmlType, "summary");
         var isStatic = t.IsAbstract && t.IsSealed;
         var resolver = () => isStatic ? null : Activator.CreateInstance(t);
-        return new(moduleName, xmlSummary, t.GetMethods()
+
+        var methods = t.GetMethods()
             .Where(m => m.DeclaringType != typeof(object) && m.GetCustomAttribute<HiddenAttribute>() == null)
-            .Select(m => ToMethod(m, resolver, xDoc))
-            .ToDictionary(m => m.Name, m => m));
+            .Select(m => m.ToMethod(resolver, xDoc))
+            .ToDictionary(m => m.Name, m => m);
+
+        var subModules = t.GetNestedTypes()
+            .Select(n => n.ToModule(xDoc))
+            .Where(m => m != null)
+            .ToDictionary(m => m!.Name, m => m!, Ordinal);
+
+        return new(moduleName, xmlSummary, methods, subModules);
     }
 
-    private static ComancheMethod ToMethod(MethodInfo m, Func<object?> resolver, XDocument? xDoc)
+    private static ComancheMethod ToMethod(this MethodInfo m, Func<object?> resolver, XDocument? xDoc)
     {
         var paramInfos = m.GetParameters();
-        var xmlMemberName = m.DeclaringType.FullName.Replace("+", ".");
+        var xmlMemberName = m.DeclaringType.FullName.Replace("+", ".", StringComparison.OrdinalIgnoreCase);
         var xPathFormat = paramInfos.Length == 0 ? XPathMemberFormat : XPathParameterMethodFormat;
         var xPath = string.Format(Invariant, xPathFormat, $"M:{xmlMemberName}.{m.Name}");
-        var xmlMember = xDoc?.XPathSelectElement(xPath);
-        var xmlSummary = GetNodeText(xmlMember, "summary");
-
+        var xmlMethod = xDoc?.XPathSelectElement(xPath);
+        var xmlSummary = xmlMethod.GetNodeText("summary");
         var methodName = m.GetCustomAttribute<AliasAttribute>()?.Name ?? m.Name;
-        return new(methodName, xmlSummary, resolver, m.Invoke, paramInfos
-            .Select(p => ToParam(p, xmlMember))
-            .ToList());
+
+        var parameters = paramInfos
+            .Select(p => p.ToParam(xmlMethod))
+            .ToList();
+
+        return new(methodName, xmlSummary, resolver, m.Invoke, parameters);
     }
 
-    private static ComancheParam ToParam(ParameterInfo p, XElement? xmlMethod)
+    private static ComancheParam ToParam(this ParameterInfo p, XElement? xmlMethod)
     {
-        //TODO: Read xml!!
-
+        var xmlSummary = xmlMethod.GetNodeText($"param[@name='{p.Name}']");
         var alias = p.GetCustomAttribute<AliasAttribute>()?.Name;
         var hidden = p.GetCustomAttribute<HiddenAttribute>() != null;
         var typeName = p.ParameterType.Name;
         var converter = (string? input) => input == null && p.HasDefaultValue
             ? p.DefaultValue
             : Convert.ChangeType(input, p.ParameterType, Invariant);
-        return new ComancheParam(p.Name, converter, alias, typeName, hidden, p.HasDefaultValue, p.DefaultValue);
+
+        return new(p.Name, xmlSummary, converter, alias, typeName, hidden, p.HasDefaultValue, p.DefaultValue);
     }
 
-    private static XDocument? LoadXDoc(Assembly asm)
+    private static XDocument? LoadXDoc(this Assembly asm)
     {
         // IL3000: Assembly.Location is empty in apps built for single-file
         // This approach appears to support single-file and regular builds
@@ -99,9 +110,9 @@ public class DiscoveryService
         return File.Exists(xmlPath) ? XDocument.Load(xmlPath) : null;
     }
 
-    private static string? GetNodeText(XElement? parent, string prop)
+    private static string? GetNodeText(this XElement? parent, string xPath)
     {
-        var rawXmlValue = parent?.Element(prop)?.Value;
+        var rawXmlValue = parent?.XPathSelectElement(xPath)?.Value;
         return !string.IsNullOrWhiteSpace(rawXmlValue)
             ? Regex.Replace(rawXmlValue, "\\s{2,}", " ").Trim()
             : null;

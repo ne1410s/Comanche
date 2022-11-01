@@ -5,6 +5,7 @@
 using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Comanche.OldNBusted;
 using Comanche.Services;
 
 namespace Comanche.Tests

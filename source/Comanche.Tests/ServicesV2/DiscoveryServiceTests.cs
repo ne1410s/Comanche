@@ -5,24 +5,26 @@
 namespace Comanche.Tests.ServicesV2;
 
 using System.Reflection;
-using Comanche.ServicesV2;
+using Comanche.Extensions;
+using Comanche.Models;
 
 /// <summary>
-/// Tests for the <see cref="DiscoveryService"/>.
+/// Tests for the <see cref="DiscoveryExtensions"/>.
 /// </summary>
 public class DiscoveryServiceTests
 {
     private static readonly Assembly TestCli = Assembly.GetAssembly(typeof(CliTest.NumbersModule))!;
 
     [Fact]
-    public void Discover_WithAssembly_FindsModules()
+    public void Ctor_WithAssembly_FindsModules()
     {
         // Arrange
-        var sut = new DiscoveryService();
+        var sut = TestCli.Discover();
 
         // Act
-        var result = sut.Discover(TestCli);
+        var result = sut.Route(new[] { "--help" });
 
         // Assert
+
     }
 }
