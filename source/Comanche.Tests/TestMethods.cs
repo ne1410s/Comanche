@@ -5,7 +5,7 @@
 namespace Comanche.Tests
 {
     using System.Reflection;
-    using Comanche.AttributesV2;
+    using Comanche.Attributes;
 
     /// <summary>
     /// Test methods.

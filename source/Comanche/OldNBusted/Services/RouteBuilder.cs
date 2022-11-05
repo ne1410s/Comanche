@@ -9,7 +9,7 @@ namespace Comanche.Services
     using System.Linq;
     using System.Reflection;
     using System.Text.RegularExpressions;
-    using Comanche.AttributesV2;
+    using Comanche.Attributes;
 
     /// <inheritdoc cref="IRouteBuilder"/>
     public class RouteBuilder : IRouteBuilder

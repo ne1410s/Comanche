@@ -11,7 +11,7 @@ using Comanche.Models;
 /// <summary>
 /// Tests for the <see cref="DiscoveryExtensions"/>.
 /// </summary>
-public class DiscoveryServiceTests
+public class DiscoveryExtensionsTests
 {
     private static readonly Assembly TestCli = Assembly.GetAssembly(typeof(CliTest.NumbersModule))!;
 

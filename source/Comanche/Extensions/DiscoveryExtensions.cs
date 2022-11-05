@@ -23,9 +23,13 @@ public static class DiscoveryExtensions
 {
     private const string XPathParameterMethodFormat = "./doc/members/member[starts-with(@name, '{0}(')]";
     private const string XPathMemberFormat = "./doc/members/member[@name='{0}']";
+    private const string Space = " ";
 
     private static readonly IFormatProvider Invariant = CultureInfo.InvariantCulture;
     private static readonly IEqualityComparer<string> Ordinal = StringComparer.OrdinalIgnoreCase;
+    private static readonly Regex TermRemovalRegex = new("[^a-zA-Z0-9-_]+");
+    private static readonly Regex HeadRemovalRegex = new("^[^a-zA-Z]+");
+    private static readonly Regex TermRespaceRegex = new("\\s{2,}");
 
     /// <summary>
     /// Obtains Comanche capability metadata.
@@ -47,7 +51,7 @@ public static class DiscoveryExtensions
 
     private static ComancheModule? ToModule(this Type t, XDocument? xDoc)
     {
-        var moduleName = t.GetCustomAttribute<ModuleAttribute>()?.Name;
+        var moduleName = t.GetCustomAttribute<ModuleAttribute>()?.Name?.Sanitise();
         if (moduleName == null)
         {
             return null;
@@ -80,26 +84,27 @@ public static class DiscoveryExtensions
         var xPath = string.Format(Invariant, xPathFormat, $"M:{xmlMemberName}.{m.Name}");
         var xmlMethod = xDoc?.XPathSelectElement(xPath);
         var xmlSummary = xmlMethod.GetNodeText("summary");
-        var methodName = m.GetCustomAttribute<AliasAttribute>()?.Name ?? m.Name;
+        var methodName = (m.GetCustomAttribute<AliasAttribute>()?.Name ?? m.Name).Sanitise();
 
         var parameters = paramInfos
             .Select(p => p.ToParam(xmlMethod))
             .ToList();
 
-        return new(methodName, xmlSummary, resolver, m.Invoke, parameters);
+        return new(methodName!, xmlSummary, resolver, m.Invoke, parameters);
     }
 
     private static ComancheParam ToParam(this ParameterInfo p, XElement? xmlMethod)
     {
         var xmlSummary = xmlMethod.GetNodeText($"param[@name='{p.Name}']");
-        var alias = p.GetCustomAttribute<AliasAttribute>()?.Name;
+        var alias = p.GetCustomAttribute<AliasAttribute>()?.Name?.Sanitise();
         var hidden = p.GetCustomAttribute<HiddenAttribute>() != null;
         var typeName = p.ParameterType.Name;
+        var term = p.Name.Sanitise();
         var converter = (string? input) => input == null && p.HasDefaultValue
             ? p.DefaultValue
             : Convert.ChangeType(input, p.ParameterType, Invariant);
 
-        return new(p.Name, xmlSummary, converter, alias, typeName, hidden, p.HasDefaultValue, p.DefaultValue);
+        return new(term!, xmlSummary, converter, alias, typeName, hidden, p.HasDefaultValue, p.DefaultValue);
     }
 
     private static XDocument? LoadXDoc(this Assembly asm)
@@ -114,7 +119,19 @@ public static class DiscoveryExtensions
     {
         var rawXmlValue = parent?.XPathSelectElement(xPath)?.Value;
         return !string.IsNullOrWhiteSpace(rawXmlValue)
-            ? Regex.Replace(rawXmlValue, "\\s{2,}", " ").Trim()
+            ? TermRespaceRegex.Replace(rawXmlValue, Space).Trim()
             : null;
+    }
+
+    private static string? Sanitise(this string? term)
+    {
+        if (term != null)
+        {
+            term = TermRemovalRegex.Replace(term, string.Empty);
+            term = HeadRemovalRegex.Replace(term, string.Empty);
+            term = TermRespaceRegex.Replace(term, Space);
+        }
+
+        return term?.Trim();
     }
 }

@@ -4,7 +4,7 @@
 
 namespace Comanche.CliTest
 {
-    using Comanche.AttributesV2;
+    using Comanche.Attributes;
 
     /// <summary>
     /// All about... numbers.

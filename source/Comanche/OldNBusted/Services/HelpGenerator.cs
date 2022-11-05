@@ -12,7 +12,7 @@ namespace Comanche.Services
     using System.Text.RegularExpressions;
     using System.Xml.Linq;
     using System.Xml.XPath;
-    using Comanche.AttributesV2;
+    using Comanche.Attributes;
     using Comanche.Models;
 
     /// <inheritdoc cref="IHelpGenerator"/>
