@@ -4,11 +4,8 @@
 
 namespace Comanche.Extensions;
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using Comanche.Exceptions;
 using Comanche.Models;
@@ -19,23 +16,6 @@ using Comanche.Models;
 public static class RoutingExtensions
 {
     private static readonly List<string> HelpArgs = new() { "-h", "--help", "/?" };
-
-    /// <summary>
-    /// Routes arguments for a pre-loaded session.
-    /// </summary>
-    /// <param name="session">The Comanche session.</param>
-    /// <param name="args">The command line arguments.</param>
-    /// <returns>The result.</returns>
-    public static object? Route(this ComancheSession session, string[]? args = null)
-    {
-        args ??= Environment.GetCommandLineArgs().Skip(1).ToArray();
-        var route = args.BuildRoute();
-
-        //TODO: If route is ComancheRoute isHelp, or RouteBuilderEx or RouteFinderEx
-        // then we should show help for the deepest valid terms
-
-        throw new NotImplementedException();
-    }
 
     /// <summary>
     /// Builds a route from arguments supplied.

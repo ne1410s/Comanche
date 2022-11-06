@@ -16,7 +16,7 @@ public class RouteBuilderException : Exception
     /// Initialises a new instance of the <see cref="RouteBuilderException"/> class.
     /// </summary>
     /// <param name="deepestValidTerms">The deepest valid route terms.</param>
-    public RouteBuilderException(List<string> deepestValidTerms)
+    public RouteBuilderException(IList<string> deepestValidTerms)
     {
         this.DeepestValidTerms = deepestValidTerms;
     }
@@ -24,5 +24,5 @@ public class RouteBuilderException : Exception
     /// <summary>
     /// Gets the deepest valid route terms.
     /// </summary>
-    public List<string> DeepestValidTerms { get; }
+    public IList<string> DeepestValidTerms { get; }
 }
