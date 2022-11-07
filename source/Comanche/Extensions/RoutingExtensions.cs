@@ -4,6 +4,7 @@
 
 namespace Comanche.Extensions;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -35,7 +36,7 @@ public static class RoutingExtensions
         // Kick out no routes or have anything pre-route
         if (routeTerms.FirstOrDefault()?.index != 0)
         {
-            throw new RouteBuilderException(new());
+            throw new RouteBuilderException(Array.Empty<string>());
         }
 
         // Kick out if any args neither route nor parameter

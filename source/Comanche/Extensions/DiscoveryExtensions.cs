@@ -26,7 +26,6 @@ public static class DiscoveryExtensions
     private const string Space = " ";
 
     private static readonly IFormatProvider Invariant = CultureInfo.InvariantCulture;
-    private static readonly IEqualityComparer<string> Ordinal = StringComparer.OrdinalIgnoreCase;
     private static readonly Regex TermRemovalRegex = new("[^a-zA-Z0-9-_]+");
     private static readonly Regex HeadRemovalRegex = new("^[^a-zA-Z]+");
     private static readonly Regex TermRespaceRegex = new("\\s{2,}");
@@ -44,7 +43,7 @@ public static class DiscoveryExtensions
             .Where(t => t.DeclaringType == null)
             .Select(t => t.ToModule(xDoc))
             .Where(m => m != null)
-            .ToDictionary(m => m!.Name, m => m!, Ordinal);
+            .ToDictionary(m => m!.Name, m => m!);
 
         return new(topLevelModules);
     }
@@ -71,7 +70,7 @@ public static class DiscoveryExtensions
         var subModules = t.GetNestedTypes()
             .Select(n => n.ToModule(xDoc))
             .Where(m => m != null)
-            .ToDictionary(m => m!.Name, m => m!, Ordinal);
+            .ToDictionary(m => m!.Name, m => m!);
 
         return new(moduleName, xmlSummary, methods, subModules);
     }

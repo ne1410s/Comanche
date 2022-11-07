@@ -5,6 +5,7 @@
 namespace Comanche.Extensions;
 
 using System;
+using System.Collections.Generic;
 using Comanche.Exceptions;
 using Comanche.Models;
 
@@ -21,9 +22,35 @@ public static class MatchingExtensions
     /// <returns>A method.</returns>
     public static ComancheMethod Match(this ComancheSession session, ComancheRoute route)
     {
-        if (route.IsHelp)
+        var matchedTerms = new List<string>();
+        if (route.RouteTerms.Count == 0 || !session.Modules.ContainsKey(route.RouteTerms[0]))
         {
-            throw new RouteBuilderException(route.RouteTerms);
+            throw new RouteBuilderException(Array.Empty<string>());
         }
+
+        var firstTerm = route.RouteTerms[0];
+        var module = session.Modules[firstTerm];
+        matchedTerms.Add(firstTerm);
+        var retVal = (ComancheMethod?)null;
+
+        for (var i = 1; i < route.RouteTerms.Count; i++)
+        {
+            var iterRoute = route.RouteTerms[i];
+            if (!route.IsHelp && i == route.RouteTerms.Count - 1 && module.Methods.ContainsKey(iterRoute))
+            {
+               retVal = module.Methods[iterRoute];
+            }
+            else if (module.SubModules.ContainsKey(iterRoute))
+            {
+                module = module.SubModules[iterRoute];
+                matchedTerms.Add(iterRoute);
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return retVal ?? throw new RouteBuilderException(matchedTerms);
     }
 }
