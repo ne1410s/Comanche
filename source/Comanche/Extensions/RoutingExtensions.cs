@@ -31,7 +31,7 @@ public static class RoutingExtensions
             .ToList();
 
         var routeTerms = numberedArgs.Where(kvp => Regex.IsMatch(kvp.arg, "^[a-zA-Z]"));
-        var parameters = numberedArgs.Where(kvp => Regex.IsMatch(kvp.arg, "^[-/]")).ToList();
+        var firstParamAt = numberedArgs.Find(kvp => Regex.IsMatch(kvp.arg, "^[-/]"))?.index ?? -1;
 
         // Kick out no routes or have anything pre-route
         if (routeTerms.FirstOrDefault()?.index != 0)
@@ -39,31 +39,30 @@ public static class RoutingExtensions
             throw new RouteBuilderException(Array.Empty<string>());
         }
 
-        // Kick out if any args neither route nor parameter
-        var termsList = routeTerms.Select(kvp => kvp.arg).ToList();
-        var paramList = parameters.ConvertAll(kvp => kvp.arg);
-        var firstFail = numberedArgs.FirstOrDefault(kvp =>
-            !termsList.Contains(kvp.arg) && !paramList.Contains(kvp.arg));
-        if (firstFail != null)
-        {
-            var preTerms = routeTerms.Where(r => r.index < firstFail.index);
-            throw new RouteBuilderException(preTerms.Select(r => r.arg).ToList());
-        }
-
         // Kick out if any parameter precedes a routes
         var maxTermAt = routeTerms.Last().index;
-        if (parameters.Count != 0 && parameters[0].index < maxTermAt)
+        if (firstParamAt != 1 && firstParamAt < maxTermAt)
         {
-            var preTerms = routeTerms.Where(r => r.index < parameters[0].index);
+            var preTerms = routeTerms.Where(r => r.index < firstParamAt);
             throw new RouteBuilderException(preTerms.Select(r => r.arg).ToList());
         }
 
-        var nonHelpParams = parameters
-            .Where(kvp => !HelpArgs.Contains(kvp.arg))
-            .Select(kvp => kvp.arg)
-            .ToList();
+        var isHelp = numberedArgs.Any(kvp => HelpArgs.Contains(kvp.arg));
+        var routeTermsList = routeTerms.Select(kvp => kvp.arg).ToList();
+        var paramMap = new Dictionary<string, string>();
 
-        var isHelp = nonHelpParams.Count < parameters.Count;
-        return new(termsList, nonHelpParams, isHelp);
+        if (firstParamAt != -1)
+        {
+            var concatParams = string.Join(' ', numberedArgs.Skip(firstParamAt));
+            paramMap = Regex.Split(concatParams, @"\s+-+|\s+\/\?\b")
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .Select(x => x.Split(" ", StringSplitOptions.RemoveEmptyEntries))
+                .ToDictionary(kvp => kvp[0], kvp => string.Join(" ", kvp.Skip(1)));
+
+            // TODO: Dedupe params (probs not in ROUTING extensions tho..) - inc aliases
+            // TODO: Think about array handling? eg --myIntVars 12 32 33
+        }
+
+        return new(routeTermsList, paramMap, isHelp);
     }
 }

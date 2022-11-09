@@ -2,7 +2,7 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche.Tests.ServicesV2;
+namespace Comanche.Tests.Extensions;
 
 using System.Reflection;
 using Comanche.Extensions;

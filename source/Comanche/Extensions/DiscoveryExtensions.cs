@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using Comanche.Attributes;
@@ -89,7 +90,25 @@ public static class DiscoveryExtensions
             .Select(p => p.ToParam(xmlMethod))
             .ToList();
 
-        return new(methodName!, xmlSummary, resolver, m.Invoke, parameters);
+        Func<object?, object?[], Task<object?>> taskCall = async (inst, parms) =>
+        {
+            var result = m.Invoke(inst, parms);
+            if (result is Task t)
+            {
+                await t;
+                return Task.FromResult((object?)null);
+            }
+            else if (m.ReturnType == typeof(Task<>))
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                return Task.FromResult(result);
+            }
+        };
+
+        return new(methodName!, xmlSummary, resolver, taskCall, parameters);
     }
 
     private static ComancheParam ToParam(this ParameterInfo p, XElement? xmlMethod)

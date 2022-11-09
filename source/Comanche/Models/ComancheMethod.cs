@@ -7,13 +7,14 @@ namespace Comanche.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 /// <summary>
 /// A modelled method.
 /// </summary>
 public class ComancheMethod
 {
-    private readonly Func<object?, object?[], object?> call;
+    private readonly Func<object?, object?[], Task<object?>> taskCall;
     private readonly Func<object?> resolver;
 
     /// <summary>
@@ -22,17 +23,17 @@ public class ComancheMethod
     /// <param name="name">The method name.</param>
     /// <param name="summary">The method summary.</param>
     /// <param name="resolver">The caller resolver.</param>
-    /// <param name="invoker">The call function.</param>
+    /// <param name="taskCall">The call function.</param>
     /// <param name="parameters">The parameter definitions.</param>
     public ComancheMethod(
         string name,
         string? summary,
         Func<object?> resolver,
-        Func<object?, object?[], object?> invoker,
+        Func<object?, object?[], Task<object?>> taskCall,
         List<ComancheParam> parameters)
     {
         this.resolver = resolver;
-        this.call = invoker;
+        this.taskCall = taskCall;
         this.Name = name;
         this.Summary = summary;
         this.Parameters = parameters;
@@ -58,13 +59,13 @@ public class ComancheMethod
     /// </summary>
     /// <param name="callParams">The call parameters.</param>
     /// <returns>The result.</returns>
-    public object? Call(IDictionary<ComancheParam, string?> callParams)
+    public async Task<object?> CallAsync(IDictionary<ComancheParam, string?> callParams)
     {
         object?[] parameterVals = this.Parameters
             .Select(p => callParams.ContainsKey(p) ? p.Convert(callParams[p]) : null)
             .ToArray();
 
         var caller = this.resolver();
-        return this.call(caller, parameterVals);
+        return await this.taskCall(caller, parameterVals);
     }
 }

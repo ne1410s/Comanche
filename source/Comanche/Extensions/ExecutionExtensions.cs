@@ -6,6 +6,7 @@ namespace Comanche.Extensions;
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Comanche.Models;
 
 /// <summary>
@@ -19,10 +20,13 @@ public static class ExecutionExtensions
     /// <param name="method">The method.</param>
     /// <param name="parameters">The parameters.</param>
     /// <returns>The result.</returns>
-    public static object? Execute(this ComancheMethod method, IList<string> parameters)
+    public static async Task<object?> ExecuteAsync(
+        this ComancheMethod method,
+        IList<string> parameters)
     {
-        // TODO!
+        var ppp = parameters
+            .Sele
 
-        throw new NotImplementedException();
+        return await method.CallAsync();
     }
 }
