@@ -57,15 +57,11 @@ public class ComancheMethod
     /// <summary>
     /// Calls the function.
     /// </summary>
-    /// <param name="callParams">The call parameters.</param>
+    /// <param name="parameters">The call parameters.</param>
     /// <returns>The result.</returns>
-    public async Task<object?> CallAsync(IDictionary<ComancheParam, string?> callParams)
+    public async Task<object?> CallAsync(object?[] parameters)
     {
-        object?[] parameterVals = this.Parameters
-            .Select(p => callParams.ContainsKey(p) ? p.Convert(callParams[p]) : null)
-            .ToArray();
-
         var caller = this.resolver();
-        return await this.taskCall(caller, parameterVals);
+        return await this.taskCall(caller, parameters);
     }
 }

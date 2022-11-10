@@ -41,7 +41,7 @@ public static class RoutingExtensions
 
         // Kick out if any parameter precedes a routes
         var maxTermAt = routeTerms.Last().index;
-        if (firstParamAt != 1 && firstParamAt < maxTermAt)
+        if (firstParamAt != -1 && firstParamAt < maxTermAt)
         {
             var preTerms = routeTerms.Where(r => r.index < firstParamAt);
             throw new RouteBuilderException(preTerms.Select(r => r.arg).ToList());
@@ -53,8 +53,12 @@ public static class RoutingExtensions
 
         if (firstParamAt != -1)
         {
-            var concatParams = string.Join(' ', numberedArgs.Skip(firstParamAt));
-            paramMap = Regex.Split(concatParams, @"\s+-+|\s+\/\?\b")
+            var concatParams = string.Join(' ', numberedArgs
+                .Skip(firstParamAt)
+                .Where(p => !HelpArgs.Contains(p.arg))
+                .Select(a => a.arg));
+            var piped = Regex.Replace(concatParams, @"\s+([-/]+)", "|%%|$1");
+            paramMap = piped.Split("|%%|")
                 .Where(p => !string.IsNullOrWhiteSpace(p))
                 .Select(x => x.Split(" ", StringSplitOptions.RemoveEmptyEntries))
                 .ToDictionary(kvp => kvp[0], kvp => string.Join(" ", kvp.Skip(1)));

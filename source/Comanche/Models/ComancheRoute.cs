@@ -20,7 +20,7 @@ public class ComancheRoute
     public ComancheRoute(IList<string> routeTerms, Dictionary<string, string> parameters, bool isHelp)
     {
         this.RouteTerms = routeTerms;
-        this.Parameters = parameters;
+        this.ParamMap = parameters;
         this.IsHelp = isHelp;
     }
 
@@ -32,7 +32,7 @@ public class ComancheRoute
     /// <summary>
     /// Gets the parameters.
     /// </summary>
-    public IReadOnlyDictionary<string, string> Parameters { get; }
+    public IReadOnlyDictionary<string, string> ParamMap { get; }
 
     /// <summary>
     /// Gets a value indicating whether help was requested.

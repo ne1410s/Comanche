@@ -41,8 +41,9 @@ public class ComancheSession
         try
         {
             var route = args.BuildRoute();
-            var method = this.Match(route);
-            return method.Execute(route.Parameters);
+            var method = this.MatchMethod(route);
+            var paramMap = method.GetParamMap(route.ParamMap);
+            return method.ExecuteAsync(paramMap);
         }
         catch (RouteBuilderException buildEx)
         {

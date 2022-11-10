@@ -5,6 +5,7 @@
 namespace Comanche.Tests.Extensions;
 
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Comanche.Exceptions;
 using Comanche.Extensions;
@@ -22,13 +23,15 @@ public class RoutingExtensionsTests
     [InlineData("  one  TWO  --a -BB ", "one TWO", "--a -BB", false)]
     [InlineData("func -h", "func", "", true)]
     [InlineData("a b  c  /?", "a b c", "", true)]
+    [InlineData("a b  c /oth /? /moar", "a b c", "/oth /moar", true)]
     [InlineData("one --help -D", "one", "-D", true)]
     [InlineData("  one  TWO  --a -BB -h ", "one TWO", "--a -BB", true)]
-    public void BuildRoute_ValidCommands_ReturnExpected(string command, string expRoute, string expParams, bool expHelp)
+    public void BuildRoute_ValidFlags_ReturnExpected(string command, string expRoute, string expParams, bool expHelp)
     {
         // Arrange
         var args = SplitOnSpace(command);
-        var expected = new ComancheRoute(SplitOnSpace(expRoute), SplitOnSpace(expParams), expHelp);
+        var expectParams = SplitOnSpace(expParams).ToDictionary(f => f, _ => string.Empty);
+        var expected = new ComancheRoute(SplitOnSpace(expRoute), expectParams, expHelp);
 
         // Act
         var result = args.BuildRoute();

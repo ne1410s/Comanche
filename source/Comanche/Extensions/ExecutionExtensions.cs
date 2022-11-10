@@ -22,11 +22,10 @@ public static class ExecutionExtensions
     /// <returns>The result.</returns>
     public static async Task<object?> ExecuteAsync(
         this ComancheMethod method,
-        IList<string> parameters)
+        object?[] parameters)
     {
-        var ppp = parameters
-            .Sele
+        // TODO: Wrap in exception handling, etc.
 
-        return await method.CallAsync();
+        return await method.CallAsync(parameters);
     }
 }

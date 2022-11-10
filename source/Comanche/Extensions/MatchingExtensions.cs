@@ -6,6 +6,7 @@ namespace Comanche.Extensions;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Comanche.Exceptions;
 using Comanche.Models;
 
@@ -20,7 +21,7 @@ public static class MatchingExtensions
     /// <param name="session">The session.</param>
     /// <param name="route">The route.</param>
     /// <returns>A method.</returns>
-    public static ComancheMethod Match(this ComancheSession session, ComancheRoute route)
+    public static ComancheMethod MatchMethod(this ComancheSession session, ComancheRoute route)
     {
         var matchedTerms = new List<string>();
         if (route.RouteTerms.Count == 0 || !session.Modules.ContainsKey(route.RouteTerms[0]))
@@ -38,7 +39,7 @@ public static class MatchingExtensions
             var iterRoute = route.RouteTerms[i];
             if (!route.IsHelp && i == route.RouteTerms.Count - 1 && module.Methods.ContainsKey(iterRoute))
             {
-               retVal = module.Methods[iterRoute];
+                retVal = module.Methods[iterRoute];
             }
             else if (module.SubModules.ContainsKey(iterRoute))
             {
@@ -52,5 +53,22 @@ public static class MatchingExtensions
         }
 
         return retVal ?? throw new RouteBuilderException(matchedTerms);
+    }
+
+    /// <summary>
+    /// Prepares a boxed array of parameters, ready to be fed into the method.
+    /// </summary>
+    /// <param name="method">A method.</param>
+    /// <param name="paramMap">A parameter map.</param>
+    /// <returns>An array of parameters.</returns>
+    public static object?[] GetParamMap(
+        this ComancheMethod method,
+        IReadOnlyDictionary<string, string> paramMap)
+    {
+        //object?[] parameterVals = method.Parameters
+        //    .Select(p => paramMap.ContainsKey(p) ? p.Convert(paramMap[p]) : null)
+        //    .ToArray();
+
+        throw new NotImplementedException();
     }
 }

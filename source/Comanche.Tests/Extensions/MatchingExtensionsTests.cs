@@ -24,7 +24,7 @@ public class MatchingExtensionsTests
         var route = GetRoute(string.Empty);
 
         // Act
-        var act = () => sut.Match(route);
+        var act = () => sut.MatchMethod(route);
 
         // Assert
         act.Should().ThrowExactly<RouteBuilderException>()
@@ -39,7 +39,7 @@ public class MatchingExtensionsTests
         var route = GetRoute("doesnotexist");
 
         // Act
-        var act = () => sut.Match(route);
+        var act = () => sut.MatchMethod(route);
 
         // Assert
         act.Should().ThrowExactly<RouteBuilderException>()
@@ -58,7 +58,7 @@ public class MatchingExtensionsTests
         var route = GetRoute(command);
 
         // Act
-        var result = sut.Match(route);
+        var result = sut.MatchMethod(route);
 
         // Assert
         result.Name.Should().Be(expectedName);
@@ -90,7 +90,7 @@ public class MatchingExtensionsTests
             n => new ComancheMethod(n, null, null!, null!, null!));
 
     private static ComancheRoute GetRoute(string termsInput, bool isHelp = false)
-        => new(SplitOnSpace(termsInput), Array.Empty<string>(), isHelp);
+        => new(SplitOnSpace(termsInput), new(), isHelp);
 
     private static string[] SplitOnSpace(string input)
         => input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
