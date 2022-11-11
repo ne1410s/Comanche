@@ -31,7 +31,6 @@ public static class RoutingExtensions
             .ToList();
 
         var routeTerms = numberedArgs.Where(kvp => Regex.IsMatch(kvp.arg, "^[a-zA-Z]"));
-        var firstParamAt = numberedArgs.Find(kvp => Regex.IsMatch(kvp.arg, "^[-/]"))?.index ?? -1;
 
         // Kick out no routes or have anything pre-route
         if (routeTerms.FirstOrDefault()?.index != 0)
@@ -40,10 +39,11 @@ public static class RoutingExtensions
         }
 
         // Kick out if any parameter precedes a routes
+        var firstNonRouteAt = numberedArgs.Find(kvp => !Regex.IsMatch(kvp.arg, "^[a-zA-Z]"))?.index ?? -1;
         var maxTermAt = routeTerms.Last().index;
-        if (firstParamAt != -1 && firstParamAt < maxTermAt)
+        if (firstNonRouteAt != -1 && firstNonRouteAt < maxTermAt)
         {
-            var preTerms = routeTerms.Where(r => r.index < firstParamAt);
+            var preTerms = routeTerms.Where(r => r.index < firstNonRouteAt);
             throw new RouteBuilderException(preTerms.Select(r => r.arg).ToList());
         }
 
@@ -51,10 +51,10 @@ public static class RoutingExtensions
         var routeTermsList = routeTerms.Select(kvp => kvp.arg).ToList();
         var paramMap = new Dictionary<string, string>();
 
-        if (firstParamAt != -1)
+        if (firstNonRouteAt != -1)
         {
             var concatParams = string.Join(' ', numberedArgs
-                .Skip(firstParamAt)
+                .Skip(firstNonRouteAt)
                 .Where(p => !HelpArgs.Contains(p.arg))
                 .Select(a => a.arg));
             var piped = Regex.Replace(concatParams, @"\s+([-/]+)", "|%%|$1");
@@ -63,8 +63,14 @@ public static class RoutingExtensions
                 .Select(x => x.Split(" ", StringSplitOptions.RemoveEmptyEntries))
                 .ToDictionary(kvp => kvp[0], kvp => string.Join(" ", kvp.Skip(1)));
 
+            var badParams = paramMap.Where(kvp => !Regex.IsMatch(kvp.Key, @"^([-]{1,2}|\/)[a-zA-Z]"));
+            if (badParams.Any())
+            {
+                throw new RouteBuilderException(routeTermsList);
+            }
+
             // TODO: Dedupe params (probs not in ROUTING extensions tho..) - inc aliases
-            // TODO: Think about array handling? eg --myIntVars 12 32 33
+            // ... Think about array handling? eg --myIntVars 12 32 33 vs -t table1 -t table2, etc..
         }
 
         return new(routeTermsList, paramMap, isHelp);

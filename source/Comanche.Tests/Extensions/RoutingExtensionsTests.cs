@@ -5,8 +5,8 @@
 namespace Comanche.Tests.Extensions;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Comanche.Exceptions;
 using Comanche.Extensions;
 using Comanche.Models;
@@ -32,6 +32,29 @@ public class RoutingExtensionsTests
         var args = SplitOnSpace(command);
         var expectParams = SplitOnSpace(expParams).ToDictionary(f => f, _ => string.Empty);
         var expected = new ComancheRoute(SplitOnSpace(expRoute), expectParams, expHelp);
+
+        // Act
+        var result = args.BuildRoute();
+
+        // Assert
+        result.Should().BeEquivalentTo(expected);
+    }
+
+    [Fact]
+    public void BuildRoute_ValidParams_ReturnExpected()
+    {
+        const string command = "func -t table1 -t table2 --force -t table3";
+        var args = SplitOnSpace(command);
+        var expectRoutes = new string[] { "func" };
+        var expectParams = new Dictionary<string, string>
+        {
+            ["-t"] = "table1",
+            ["-t"] = "table2",
+            ["-t"] = "table3",
+            ["--force"] = string.Empty,
+        };
+
+        var expected = new ComancheRoute(expectRoutes, expectParams, false);
 
         // Act
         var result = args.BuildRoute();
@@ -100,6 +123,7 @@ public class RoutingExtensionsTests
     [InlineData("one _ two", "one")]
     [InlineData("one two ~h zz", "one two")]
     [InlineData("one two _three", "one two")]
+    [InlineData("t3 -a --b ---c", "t3")]
     [InlineData("9z one", "")]
     public void BuildRoute_TermNotRouteOrParamOrHelp_ThrowsExpected(string command, string expectedRoute)
     {

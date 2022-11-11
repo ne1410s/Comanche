@@ -5,7 +5,6 @@
 namespace Comanche.Extensions;
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -90,7 +89,7 @@ public static class DiscoveryExtensions
             .Select(p => p.ToParam(xmlMethod))
             .ToList();
 
-        Func<object?, object?[], Task<object?>> taskCall = async (inst, parms) =>
+        async Task<object?> TaskCall(object? inst, object?[] parms)
         {
             var result = m.Invoke(inst, parms);
             if (result is Task t)
@@ -106,9 +105,9 @@ public static class DiscoveryExtensions
             {
                 return Task.FromResult(result);
             }
-        };
+        }
 
-        return new(methodName!, xmlSummary, resolver, taskCall, parameters);
+        return new(methodName!, xmlSummary, resolver, TaskCall, parameters);
     }
 
     private static ComancheParam ToParam(this ParameterInfo p, XElement? xmlMethod)

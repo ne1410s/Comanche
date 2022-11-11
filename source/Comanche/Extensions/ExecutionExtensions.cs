@@ -3,9 +3,6 @@
 // </copyright>
 
 namespace Comanche.Extensions;
-
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Comanche.Models;
 

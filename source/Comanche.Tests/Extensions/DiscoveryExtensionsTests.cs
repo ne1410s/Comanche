@@ -6,7 +6,6 @@ namespace Comanche.Tests.Extensions;
 
 using System.Reflection;
 using Comanche.Extensions;
-using Comanche.Models;
 
 /// <summary>
 /// Tests for the <see cref="DiscoveryExtensions"/>.
