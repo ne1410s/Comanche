@@ -27,11 +27,10 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-    <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Analyse" Version="1.0.0" />
+    <PackageReference Include="Analyse" Version="1.0.3" />
   </ItemGroup>
 
 </Project>

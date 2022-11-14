@@ -159,10 +159,12 @@ public class RoutingExtensionsTests
     }
 
     [Theory]
+    [InlineData("Test 7even", "Test")]
     [InlineData("one two 9z", "one two")]
     [InlineData("one _ two", "one")]
     [InlineData("one two ~h zz", "one two")]
     [InlineData("one two _three", "one two")]
+    [InlineData("t3 --a tr tb tc --b r /h", "t3")]
     [InlineData("t3 -a --b ---c", "t3")]
     [InlineData("9z one", "")]
     public void BuildRoute_TermNotRouteOrParamOrHelp_ThrowsExpected(string command, string expectedRoute)
