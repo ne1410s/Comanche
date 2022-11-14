@@ -7,6 +7,7 @@ namespace Comanche.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Comanche.Exceptions;
 using Comanche.Models;
@@ -16,6 +17,8 @@ using Comanche.Models;
 /// </summary>
 public static class RoutingExtensions
 {
+    private const char Space = ' ';
+    private const string ParamDelimiter = "|%%|";
     private static readonly List<string> HelpArgs = new() { "-h", "--help", "/?" };
 
     /// <summary>
@@ -26,53 +29,48 @@ public static class RoutingExtensions
     public static ComancheRoute BuildRoute(this string[] args)
     {
         var numberedArgs = args
-            .Select((arg, index) => new { arg, index })
-            .Where(kvp => !string.IsNullOrWhiteSpace(kvp.arg))
+            .Where(arg => !string.IsNullOrWhiteSpace(arg))
+            .Select((arg, index) => new { arg, index, qRoute = char.IsLetter(arg[0]), help = HelpArgs.Contains(arg) })
             .ToList();
 
-        var routeTerms = numberedArgs.Where(kvp => Regex.IsMatch(kvp.arg, "^[a-zA-Z]"));
-
         // Kick out no routes or have anything pre-route
-        if (routeTerms.FirstOrDefault()?.index != 0)
+        if (numberedArgs.Find(kvp => kvp.qRoute)?.index != 0)
         {
             throw new RouteBuilderException(Array.Empty<string>());
         }
 
-        // Kick out if any parameter precedes a routes
-        var firstNonRouteAt = numberedArgs.Find(kvp => !Regex.IsMatch(kvp.arg, "^[a-zA-Z]"))?.index ?? -1;
-        var maxTermAt = routeTerms.Last().index;
-        if (firstNonRouteAt != -1 && firstNonRouteAt < maxTermAt)
+        var isHelp = numberedArgs.Any(kvp => kvp.help);
+        var routeCount = numberedArgs.Find(kvp => !kvp.qRoute)?.index ?? numberedArgs.Count;
+        var routes = numberedArgs.Take(routeCount).Select(kvp => kvp.arg).ToList();
+        var parameters = numberedArgs.Skip(routeCount).Where(kvp => !kvp.help).ToList();
+        var paramMap = new Dictionary<string, List<string>>();
+
+        if (parameters.Count != 0)
         {
-            var preTerms = routeTerms.Where(r => r.index < firstNonRouteAt);
-            throw new RouteBuilderException(preTerms.Select(r => r.arg).ToList());
-        }
-
-        var isHelp = numberedArgs.Any(kvp => HelpArgs.Contains(kvp.arg));
-        var routeTermsList = routeTerms.Select(kvp => kvp.arg).ToList();
-        var paramMap = new Dictionary<string, string>();
-
-        if (firstNonRouteAt != -1)
-        {
-            var concatParams = string.Join(' ', numberedArgs
-                .Skip(firstNonRouteAt)
-                .Where(p => !HelpArgs.Contains(p.arg))
-                .Select(a => a.arg));
-            var piped = Regex.Replace(concatParams, @"\s+([-/]+)", "|%%|$1");
-            paramMap = piped.Split("|%%|")
-                .Where(p => !string.IsNullOrWhiteSpace(p))
-                .Select(x => x.Split(" ", StringSplitOptions.RemoveEmptyEntries))
-                .ToDictionary(kvp => kvp[0], kvp => string.Join(" ", kvp.Skip(1)));
-
-            var badParams = paramMap.Where(kvp => !Regex.IsMatch(kvp.Key, @"^([-]{1,2}|\/)[a-zA-Z]"));
-            if (badParams.Any())
+            var concatParams = string.Join(Space, parameters.Select(kvp => kvp.arg));
+            var piped = Regex.Replace(concatParams, @"\s+([-/]+)", ParamDelimiter + "$1");
+            foreach (var param in piped.Split(ParamDelimiter))
             {
-                throw new RouteBuilderException(routeTermsList);
+                var pArgs = param.Split(Space, StringSplitOptions.RemoveEmptyEntries);
+                var paramId = pArgs[0];
+                var paramVals = pArgs.Skip(1);
+                if (paramMap.ContainsKey(paramId))
+                {
+                    paramMap[paramId].AddRange(paramVals);
+                }
+                else
+                {
+                    paramMap[paramId] = paramVals.ToList();
+                }
             }
 
-            // TODO: Dedupe params (probs not in ROUTING extensions tho..) - inc aliases
-            // ... Think about array handling? eg --myIntVars 12 32 33 vs -t table1 -t table2, etc..
+            var badParams = paramMap.Where(kvp => !Regex.IsMatch(kvp.Key, "^([-]{1,2})[a-zA-Z]"));
+            if (badParams.Any())
+            {
+                throw new RouteBuilderException(routes);
+            }
         }
 
-        return new(routeTermsList, paramMap, isHelp);
+        return new(routes, paramMap, isHelp);
     }
 }

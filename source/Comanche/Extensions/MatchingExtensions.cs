@@ -62,7 +62,7 @@ public static class MatchingExtensions
     /// <returns>An array of parameters.</returns>
     public static object?[] GetParamMap(
         this ComancheMethod method,
-        IReadOnlyDictionary<string, string> paramMap)
+        IReadOnlyDictionary<string, List<string>> paramMap)
     {
         //object?[] parameterVals = method.Parameters
         //    .Select(p => paramMap.ContainsKey(p) ? p.Convert(paramMap[p]) : null)

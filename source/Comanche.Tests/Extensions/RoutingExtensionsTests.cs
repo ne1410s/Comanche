@@ -23,14 +23,14 @@ public class RoutingExtensionsTests
     [InlineData("  one  TWO  --a -BB ", "one TWO", "--a -BB", false)]
     [InlineData("func -h", "func", "", true)]
     [InlineData("a b  c  /?", "a b c", "", true)]
-    [InlineData("a b  c /oth /? /moar", "a b c", "/oth /moar", true)]
+    [InlineData("a b  c -x /? --y", "a b c", "-x --y", true)]
     [InlineData("one --help -D", "one", "-D", true)]
     [InlineData("  one  TWO  --a -BB -h ", "one TWO", "--a -BB", true)]
-    public void BuildRoute_ValidFlags_ReturnExpected(string command, string expRoute, string expParams, bool expHelp)
+    public void BuildRoute_ValidFlags_ReturnsExpected(string command, string expRoute, string expParams, bool expHelp)
     {
         // Arrange
         var args = SplitOnSpace(command);
-        var expectParams = SplitOnSpace(expParams).ToDictionary(f => f, _ => string.Empty);
+        var expectParams = SplitOnSpace(expParams).ToDictionary(f => f, _ => new List<string>());
         var expected = new ComancheRoute(SplitOnSpace(expRoute), expectParams, expHelp);
 
         // Act
@@ -41,17 +41,57 @@ public class RoutingExtensionsTests
     }
 
     [Fact]
-    public void BuildRoute_ValidParams_ReturnExpected()
+    public void BuildRoute_SplitArrayParams_ReturnsExpected()
     {
         const string command = "func -t table1 -t table2 --force -t table3";
         var args = SplitOnSpace(command);
         var expectRoutes = new string[] { "func" };
-        var expectParams = new Dictionary<string, string>
+        var expectParams = new Dictionary<string, List<string>>
         {
-            ["-t"] = "table1",
-            ["-t"] = "table2",
-            ["-t"] = "table3",
-            ["--force"] = string.Empty,
+            ["-t"] = new(new[] { "table1", "table2", "table3" }),
+            ["--force"] = new(),
+        };
+
+        var expected = new ComancheRoute(expectRoutes, expectParams, false);
+
+        // Act
+        var result = args.BuildRoute();
+
+        // Assert
+        result.Should().BeEquivalentTo(expected);
+    }
+
+    [Fact]
+    public void BuildRoute_WhiteSpaceParams_ReturnsExpected()
+    {
+        const string command = "func -t table1 table2 table3 --force";
+        var args = SplitOnSpace(command);
+        var expectRoutes = new string[] { "func" };
+        var expectParams = new Dictionary<string, List<string>>
+        {
+            ["-t"] = new(new[] { "table1", "table2", "table3" }),
+            ["--force"] = new(),
+        };
+
+        var expected = new ComancheRoute(expectRoutes, expectParams, false);
+
+        // Act
+        var result = args.BuildRoute();
+
+        // Assert
+        result.Should().BeEquivalentTo(expected);
+    }
+
+    [Fact]
+    public void BuildRoute_LiteralSpacesParam_ReturnsExpected()
+    {
+        const string command = "func -t \"table1 table2 table3\" --force";
+        var args = SplitOnSpace(command);
+        var expectRoutes = new string[] { "func" };
+        var expectParams = new Dictionary<string, List<string>>
+        {
+            ["-t"] = new(new[] { "table1 table2 table3" }),
+            ["--force"] = new(),
         };
 
         var expected = new ComancheRoute(expectRoutes, expectParams, false);
@@ -102,9 +142,9 @@ public class RoutingExtensionsTests
 
     [Theory]
     [InlineData("one two /bb three", "one two")]
-    [InlineData("one --yo three", "one")]
-    [InlineData("-h two", "")]
-    public void BuildRoute_ParamPrecedesRoute_ThrowsExpected(string command, string expectedRoute)
+    [InlineData("one ---yo three", "one")]
+    [InlineData("one 222", "one")]
+    public void BuildRoute_BadParamPrefix_ThrowsExpected(string command, string expectedRoute)
     {
         // Arrange
         var args = SplitOnSpace(command);
