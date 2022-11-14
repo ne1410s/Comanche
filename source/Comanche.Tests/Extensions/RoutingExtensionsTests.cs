@@ -69,7 +69,7 @@ public class RoutingExtensionsTests
         var expectRoutes = new string[] { "func" };
         var expectParams = new Dictionary<string, List<string>>
         {
-            ["-t"] = new(new[] { "table1", "table2", "table3" }),
+            ["-t"] = new(new[] { "table1 table2 table3" }),
             ["--force"] = new(),
         };
 
@@ -85,7 +85,7 @@ public class RoutingExtensionsTests
     [Fact]
     public void BuildRoute_LiteralSpacesParam_ReturnsExpected()
     {
-        const string command = "func -t \"table1 table2 table3\" --force";
+        const string command = "func -t table1 table2 table3 --force";
         var args = SplitOnSpace(command);
         var expectRoutes = new string[] { "func" };
         var expectParams = new Dictionary<string, List<string>>

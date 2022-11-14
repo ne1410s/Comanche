@@ -7,7 +7,6 @@ namespace Comanche.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using Comanche.Exceptions;
 using Comanche.Models;
@@ -45,7 +44,7 @@ public static class RoutingExtensions
         var parameters = numberedArgs.Skip(routeCount).Where(kvp => !kvp.help).ToList();
         var paramMap = new Dictionary<string, List<string>>();
 
-        if (parameters.Count != 0)
+        if (parameters.Count > 0)
         {
             var concatParams = string.Join(Space, parameters.Select(kvp => kvp.arg));
             var piped = Regex.Replace(concatParams, @"\s+([-/]+)", ParamDelimiter + "$1");
@@ -53,14 +52,16 @@ public static class RoutingExtensions
             {
                 var pArgs = param.Split(Space, StringSplitOptions.RemoveEmptyEntries);
                 var paramId = pArgs[0];
-                var paramVals = pArgs.Skip(1);
-                if (paramMap.ContainsKey(paramId))
+                var paramValue = string.Join(Space, pArgs.Skip(1));
+                if (paramMap.TryGetValue(paramId, out List<string> value))
                 {
-                    paramMap[paramId].AddRange(paramVals);
+                    value.Add(paramValue);
                 }
                 else
                 {
-                    paramMap[paramId] = paramVals.ToList();
+                    paramMap[paramId] = pArgs.Length > 1
+                        ? new(new[] { paramValue })
+                        : new();
                 }
             }
 
