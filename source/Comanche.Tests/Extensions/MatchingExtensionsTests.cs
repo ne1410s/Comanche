@@ -64,6 +64,23 @@ public class MatchingExtensionsTests
         result.Name.Should().Be(expectedName);
     }
 
+    [Theory]
+    [InlineData("mod1 m1a", "m1a")]
+    [InlineData("mod1 sub3 m1d", "m1d")]
+    [InlineData("mod1 sub3 sub2x1 m2e", "m2e")]
+    public void Match_ValidNestedRoute_ReturnsExpected(string command, string expectedName)
+    {
+        // Arrange
+        var sut = GetSut_SingleNestedModule();
+        var route = GetRoute(command);
+
+        // Act
+        var result = sut.MatchMethod(route);
+
+        // Assert
+        result.Name.Should().Be(expectedName);
+    }
+
     private static ComancheSession GetSut_MultipleFlatModules() => new(new()
     {
         ["mod1"] = new("mod1", null, GetMethods("mod1_m1"), new()),
@@ -73,13 +90,13 @@ public class MatchingExtensionsTests
 
     private static ComancheSession GetSut_SingleNestedModule() => new(new()
     {
-        ["mod1"] = new("mod1", null, GetMethods("m1", "m2"), new()
+        ["mod1"] = new("mod1", null, GetMethods("m1a", "m2a"), new()
         {
-            ["sub1"] = new("sub1", null, GetMethods("m1", "m2"), new()),
-            ["sub2"] = new("sub2", null, GetMethods("m1", "m2", "m3", "m4"), new()),
-            ["sub3"] = new("sub3", null, GetMethods("m1"), new()
+            ["sub1"] = new("sub1", null, GetMethods("m1b", "m2b"), new()),
+            ["sub2"] = new("sub2", null, GetMethods("m1c", "m2c", "m3c", "m4c"), new()),
+            ["sub3"] = new("sub3", null, GetMethods("m1d"), new()
             {
-                ["sub2x1"] = new("subtoo1", null, GetMethods("m1", "m2"), new()),
+                ["sub2x1"] = new("sub2x1", null, GetMethods("m1e", "m2e"), new()),
             }),
         }),
     });

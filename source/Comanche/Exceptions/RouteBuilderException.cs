@@ -1,4 +1,4 @@
-﻿// <copyright file="RouteArgumentException.cs" company="ne1410s">
+﻿// <copyright file="RouteBuilderException.cs" company="ne1410s">
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
