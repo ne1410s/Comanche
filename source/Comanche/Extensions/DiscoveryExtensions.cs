@@ -115,13 +115,9 @@ public static class DiscoveryExtensions
         var xmlSummary = xmlMethod.GetNodeText($"param[@name='{p.Name}']");
         var alias = p.GetCustomAttribute<AliasAttribute>()?.Name?.Sanitise();
         var hidden = p.GetCustomAttribute<HiddenAttribute>() != null;
-        var typeName = p.ParameterType.Name;
         var term = p.Name.Sanitise();
-        var converter = (string? input) => input == null && p.HasDefaultValue
-            ? p.DefaultValue
-            : Convert.ChangeType(input, p.ParameterType, Invariant);
 
-        return new(term!, xmlSummary, converter, alias, typeName, hidden, p.HasDefaultValue, p.DefaultValue);
+        return new(term!, xmlSummary, alias, p.ParameterType, hidden, p.HasDefaultValue, p.DefaultValue);
     }
 
     private static XDocument? LoadXDoc(this Assembly asm)

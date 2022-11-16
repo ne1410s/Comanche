@@ -11,34 +11,29 @@ using System;
 /// </summary>
 public class ComancheParam
 {
-    private readonly Func<string?, object?> converter;
-
     /// <summary>
-    /// Initialises a new instance of the <see cref="ComancheParam"/> class.
+    /// Initializes a new instance of the <see cref="ComancheParam"/> class.
     /// </summary>
     /// <param name="name">The parameter name.</param>
     /// <param name="summary">The parameter summary.</param>
-    /// <param name="converter">The converter.</param>
     /// <param name="alias">The parameter alias, if applicable.</param>
-    /// <param name="typeName">The parameter type name.</param>
+    /// <param name="parameterType">The parameter type.</param>
     /// <param name="hidden">Whether the parameter is hidden.</param>
     /// <param name="hasDefaultValue">Whether a default value has been specified.</param>
     /// <param name="defaultValue">The default value.</param>
     public ComancheParam(
         string name,
         string? summary,
-        Func<string?, object?> converter,
         string? alias,
-        string typeName,
+        Type parameterType,
         bool hidden,
         bool hasDefaultValue,
         object? defaultValue)
     {
         this.Name = name;
         this.Summary = summary;
-        this.converter = converter;
         this.Alias = alias;
-        this.TypeName = typeName;
+        this.ParameterType = parameterType;
         this.Hidden = hidden;
         this.HasDefault = hasDefaultValue;
         this.DefaultValue = defaultValue;
@@ -60,9 +55,9 @@ public class ComancheParam
     public string? Alias { get; }
 
     /// <summary>
-    /// Gets the parameter type name.
+    /// Gets the parameter type.
     /// </summary>
-    public string TypeName { get; }
+    public Type ParameterType { get; }
 
     /// <summary>
     /// Gets a value indicating whether the value is hidden.
@@ -78,11 +73,4 @@ public class ComancheParam
     /// Gets the default value.
     /// </summary>
     public object? DefaultValue { get; }
-
-    /// <summary>
-    /// Converts input to a value.
-    /// </summary>
-    /// <param name="input">The command line input.</param>
-    /// <returns>A converted value.</returns>
-    public object? Convert(string? input) => this.converter(input);
 }

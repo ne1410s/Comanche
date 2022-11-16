@@ -1,4 +1,4 @@
-﻿// <copyright file="DiscoveryServiceTests.cs" company="ne1410s">
+﻿// <copyright file="DiscoveryExtensionsTests.cs" company="ne1410s">
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
@@ -18,12 +18,9 @@ public class DiscoveryExtensionsTests
     public void Ctor_WithAssembly_FindsModules()
     {
         //// Arrange
-        //var sut = TestCli.Discover();
-
+        ////var sut = TestCli.Discover();
         //// Act
-        //var result = sut.Route(new[] { "--help" });
-
+        ////var result = sut.Route(new[] { "--help" });
         //// Assert
-
     }
 }

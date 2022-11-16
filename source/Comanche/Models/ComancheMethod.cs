@@ -17,7 +17,7 @@ public class ComancheMethod
     private readonly Func<object?> resolver;
 
     /// <summary>
-    /// Initialises a new instance of the <see cref="ComancheMethod"/> class.
+    /// Initializes a new instance of the <see cref="ComancheMethod"/> class.
     /// </summary>
     /// <param name="name">The method name.</param>
     /// <param name="summary">The method summary.</param>

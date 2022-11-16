@@ -16,7 +16,7 @@ using Comanche.Extensions;
 public class ComancheSession
 {
     /// <summary>
-    /// Initialises a new instance of the <see cref="ComancheSession"/> class.
+    /// Initializes a new instance of the <see cref="ComancheSession"/> class.
     /// </summary>
     /// <param name="modules">The top-level modules.</param>
     public ComancheSession(Dictionary<string, ComancheModule> modules)
@@ -42,8 +42,8 @@ public class ComancheSession
         {
             var route = args.BuildRoute();
             var method = this.MatchMethod(route);
-            var paramMap = method.GetParamMap(route.ParamMap);
-            return method.ExecuteAsync(paramMap);
+            var parameters = method.Parameters.ParseMap(route.ParamMap);
+            return method.ExecuteAsync(parameters);
         }
         catch (RouteBuilderException buildEx)
         {
