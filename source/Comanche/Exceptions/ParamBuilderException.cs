@@ -5,6 +5,7 @@
 namespace Comanche.Exceptions;
 
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// Represents errors that occur during the building of parameters.
@@ -12,9 +13,17 @@ using System;
 public class ParamBuilderException : Exception
 {
     /// <summary>
-    /// Initialises a new instance of the <see cref="ParamBuilderException"/> class.
+    /// Initializes a new instance of the <see cref="ParamBuilderException"/> class.
     /// </summary>
-    public ParamBuilderException()
+    /// <param name="errors">The errors.</param>
+    public ParamBuilderException(IReadOnlyDictionary<string, string> errors)
+        : base("Invalid parameters found.")
     {
+        this.Errors = errors;
     }
+
+    /// <summary>
+    /// Gets the errors.
+    /// </summary>
+    public IReadOnlyDictionary<string, string> Errors { get; }
 }

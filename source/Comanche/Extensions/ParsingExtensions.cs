@@ -5,8 +5,10 @@
 namespace Comanche.Extensions;
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Comanche.Exceptions;
 using Comanche.Models;
 
 /// <summary>
@@ -26,6 +28,7 @@ public static class ParsingExtensions
     {
         var retVal = new List<object?>();
         var errors = new Dictionary<ComancheParam, string>();
+        var unmatched = paramMap.Keys.ToList();
 
         foreach (var param in methodParams)
         {
@@ -47,14 +50,33 @@ public static class ParsingExtensions
             {
                 errors[param] = "duplicate";
             }
-            else if (param.ParameterType.IsAssignableFrom(typeof(IEnumerable<>)))
+            else if (param.Hidden)
             {
-                var genArgs = param.ParameterType.GenericTypeArguments;
-                var genType = param.ParameterType.GetGenericTypeDefinition();
-                var iterVal = inputs.Select(i => i.Parse(genType));
-
-                // TODO: Check!!
-                retVal.Add(iterVal);
+                errors[param] = "unrecognised";
+            }
+            else if (typeof(IEnumerable).IsAssignableFrom(param.ParameterType))
+            {
+                if (param.ParameterType.IsArray && !typeof(IEnumerable).IsAssignableFrom(
+                    param.ParameterType.GetElementType()))
+                {
+                    var itemType = param.ParameterType.GetElementType();
+                    var iterVal = inputs.Select(i => i.Parse(itemType));
+                    retVal.Add(iterVal.ToArray());
+                }
+                else if (param.ParameterType.GenericTypeArguments.Length == 1)
+                {
+                    var itemType = param.ParameterType.GenericTypeArguments[0];
+                    var iterVal = inputs.Select(i => i.Parse(itemType));
+                    retVal.Add(iterVal.ToList());
+                }
+                else
+                {
+                    errors[param] = "unsupported";
+                }
+            }
+            else if (param.ParameterType.IsArray && param.ParameterType.GetArrayRank() == 1)
+            {
+                // TODO!
             }
             else if (inputs.Count > 1)
             {
@@ -64,6 +86,18 @@ public static class ParsingExtensions
             {
                 retVal.Add(inputs[0].Parse(param.ParameterType));
             }
+
+            unmatched.Remove(byName ? "--" + param.Name : string.Empty);
+            unmatched.Remove(byAlias ? "-" + param.Alias : string.Empty);
+        }
+
+        if (errors.Count != 0 || unmatched.Count != 0)
+        {
+            var errorMap = errors.ToDictionary(
+                e => "--" + e.Key.Name + (e.Key.Alias == null ? string.Empty : " (-" + e.Key.Alias + ")"),
+                e => e.Value);
+            unmatched.ForEach(u => errorMap[u] = "unrecognised");
+            throw new ParamBuilderException(errorMap);
         }
 
         return retVal.ToArray();
