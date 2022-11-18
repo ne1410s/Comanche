@@ -78,6 +78,30 @@ public class ParsingExtensionsTests
         result.Should().BeEquivalentTo(expected);
     }
 
+    [Theory]
+    [InlineData("", true)]
+    [InlineData("true", true)]
+    [InlineData("False", false)]
+    public void ParseMap_WithBoolPresence_ParsesOk(string inputVal, bool expectedVal)
+    {
+        // Arrange
+        var sut = new[]
+        {
+            new ComancheParam("myBool", null, null, typeof(bool), false, false, null),
+        };
+        var input = new Dictionary<string, List<string>>()
+        {
+            ["--myBool"] = new() { inputVal },
+        };
+        var expected = new object[] { expectedVal };
+
+        // Act
+        var result = sut.ParseMap(input);
+
+        // Assert
+        result.Should().BeEquivalentTo(expected);
+    }
+
     [Fact]
     public void ParseMap_WithArray_ParsesOk()
     {

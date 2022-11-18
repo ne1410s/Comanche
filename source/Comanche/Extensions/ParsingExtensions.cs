@@ -103,11 +103,12 @@ public static class ParsingExtensions
         return retVal.ToArray();
     }
 
-    private static object? Parse(this string input, Type target)
+    private static object? Parse(this string input, Type targetType)
     {
-        return target switch
+        return 1 switch
         {
-            _ => Convert.ChangeType(input, target)
+            1 when targetType == typeof(bool) && input?.Length == 0 => true,
+            _ => Convert.ChangeType(input, targetType)
         };
     }
 }
