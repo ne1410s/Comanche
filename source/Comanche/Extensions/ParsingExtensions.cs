@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using Comanche.Exceptions;
 using Comanche.Models;
 
@@ -59,15 +60,31 @@ public static class ParsingExtensions
                 if (param.ParameterType.IsArray && !typeof(IEnumerable).IsAssignableFrom(
                     param.ParameterType.GetElementType()))
                 {
-                    var itemType = param.ParameterType.GetElementType();
-                    var iterVal = inputs.Select(i => i.Parse(itemType));
-                    retVal.Add(iterVal.ToArray());
+                    var type = param.ParameterType.GetElementType();
+                    var res = inputs.Select(i => new { ok = i.TryParse(type, out var val, out var err), val, err });
+                    var firstError = res.FirstOrDefault(r => !r.ok)?.err;
+                    if (firstError == null)
+                    {
+                        retVal.Add(res.Select(r => r.val).ToList());
+                    }
+                    else
+                    {
+                        errors[param] = firstError;
+                    }
                 }
                 else if (param.ParameterType.GenericTypeArguments.Length == 1)
                 {
-                    var itemType = param.ParameterType.GenericTypeArguments[0];
-                    var iterVal = inputs.Select(i => i.Parse(itemType));
-                    retVal.Add(iterVal.ToList());
+                    var type = param.ParameterType.GenericTypeArguments[0];
+                    var res = inputs.Select(i => new { ok = i.TryParse(type, out var val, out var err), val, err });
+                    var firstError = res.FirstOrDefault(r => !r.ok)?.err;
+                    if (firstError == null)
+                    {
+                        retVal.Add(res.Select(r => r.val).ToList());
+                    }
+                    else
+                    {
+                        errors[param] = firstError;
+                    }
                 }
                 else
                 {
@@ -82,9 +99,13 @@ public static class ParsingExtensions
             {
                 errors[param] = "not array";
             }
+            else if (inputs[0].TryParse(param.ParameterType, out var val, out var err))
+            {
+                retVal.Add(val);
+            }
             else
             {
-                retVal.Add(inputs[0].Parse(param.ParameterType));
+                errors[param] = err!;
             }
 
             unmatched.Remove(byName ? "--" + param.Name : string.Empty);
@@ -103,12 +124,45 @@ public static class ParsingExtensions
         return retVal.ToArray();
     }
 
-    private static object? Parse(this string input, Type targetType)
+    private static bool TryParse(this string input, Type targetType, out object? value, out string? error)
     {
-        return 1 switch
+        error = null;
+        var emptyMeansNull = !targetType.IsValueType
+            || Nullable.GetUnderlyingType(targetType) != null;
+
+        if (targetType == typeof(bool) && input?.Length == 0)
         {
-            1 when targetType == typeof(bool) && input?.Length == 0 => true,
-            _ => Convert.ChangeType(input, targetType)
-        };
+            value = true;
+        }
+        else if (input?.Length == 0 && emptyMeansNull)
+        {
+            value = null;
+        }
+        else if (targetType.IsPrimitive)
+        {
+            try
+            {
+                value = Convert.ChangeType(input, targetType);
+            }
+            catch
+            {
+                value = null;
+                error = "cannot convert";
+            }
+        }
+        else
+        {
+            try
+            {
+                value = JsonSerializer.Deserialize(input!, targetType);
+            }
+            catch
+            {
+                value = null;
+                error = "cannot deserialize";
+            }
+        }
+
+        return error == null;
     }
 }

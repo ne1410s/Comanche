@@ -13,7 +13,7 @@ using System.Collections.Generic;
 public class RouteBuilderException : Exception
 {
     /// <summary>
-    /// Initialises a new instance of the <see cref="RouteBuilderException"/> class.
+    /// Initializes a new instance of the <see cref="RouteBuilderException"/> class.
     /// </summary>
     /// <param name="deepestValidTerms">The deepest valid route terms.</param>
     public RouteBuilderException(IList<string> deepestValidTerms)
