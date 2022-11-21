@@ -7,6 +7,7 @@ namespace Comanche.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Comanche.Exceptions;
 
 /// <summary>
 /// A modelled method.
@@ -58,9 +59,17 @@ public class ComancheMethod
     /// </summary>
     /// <param name="parameters">The call parameters.</param>
     /// <returns>The result.</returns>
+    /// <exception cref="ExecutionException">Execution error.</exception>
     public async Task<object?> CallAsync(object?[] parameters)
     {
-        var caller = this.resolver();
-        return await this.taskCall(caller, parameters);
+        try
+        {
+            var caller = this.resolver();
+            return await this.taskCall(caller, parameters);
+        }
+        catch (Exception ex)
+        {
+            throw new ExecutionException($"Unexpected error calling method '{this.Name}'", ex);
+        }
     }
 }

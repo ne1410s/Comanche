@@ -13,7 +13,7 @@ namespace Comanche.Attributes
     public class ModuleAttribute : AliasAttribute
     {
         /// <summary>
-        /// Initialises a new instance of the <see cref="ModuleAttribute"/> class.
+        /// Initializes a new instance of the <see cref="ModuleAttribute"/> class.
         /// </summary>
         /// <param name="name">The alias name.</param>
         public ModuleAttribute(string name)

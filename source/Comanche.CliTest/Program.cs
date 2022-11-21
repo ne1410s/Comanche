@@ -2,9 +2,10 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-using Comanche.OldNBusted;
+using System.Reflection;
+using Comanche.Extensions;
 
-_ = Session.Route();
+_ = await Assembly.GetEntryAssembly()!.Discover().FulfilAsync();
 
 /// <summary>
 /// The program.

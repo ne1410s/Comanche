@@ -7,8 +7,10 @@ namespace Comanche.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Comanche.Exceptions;
 using Comanche.Extensions;
+using Comanche.Services;
 
 /// <summary>
 /// A modelled session.
@@ -33,22 +35,49 @@ public class ComancheSession
     /// Find, match and execute a command request.
     /// </summary>
     /// <param name="args">The arguments.</param>
+    /// <param name="writer">The output writer.</param>
     /// <returns>The result.</returns>
-    public object? Fulfil(string[]? args = null)
+    public async Task<object?> FulfilAsync(string[]? args = null, IOutputWriter? writer = null)
     {
         args ??= Environment.GetCommandLineArgs().Skip(1).ToArray();
+        writer ??= new ConsoleWriter();
 
         try
         {
             var route = args.BuildRoute();
             var method = this.MatchMethod(route);
             var parameters = method.Parameters.ParseMap(route.ParamMap);
-            return method.ExecuteAsync(parameters);
+            var result = await method.CallAsync(parameters);
+            writer.WriteLine($"{result}");
+            return result;
         }
-        catch (RouteBuilderException buildEx)
+        catch (RouteBuilderException routeEx)
         {
-            // TODO: Print help text
-            return null;
+            this.MatchModule(routeEx.DeepestValidTerms, out var modules, out var methods);
+            writer.WriteLine("Possible options", true);
+            foreach (var kvp in modules)
+            {
+                writer.WriteLine($" > {kvp.Key} < {kvp.Value.Summary}");
+            }
+
+            foreach (var kvp in methods)
+            {
+                writer.WriteLine($" ~ {kvp.Key}() {kvp.Value.Summary}");
+            }
         }
+        catch (ParamBuilderException paramEx)
+        {
+            writer.WriteLine("Invalid parameters", true);
+            foreach (var kvp in paramEx.Errors)
+            {
+                writer.WriteLine($" {kvp.Key}: {kvp.Value}", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            writer.WriteLine(ex.Message, true);
+        }
+
+        return null;
     }
 }

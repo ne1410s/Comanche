@@ -25,6 +25,7 @@ public static class RoutingExtensions
     /// </summary>
     /// <param name="args">The arguments.</param>
     /// <returns>A route.</returns>
+    /// <exception cref="RouteBuilderException">Route builder error.</exception>
     public static ComancheRoute BuildRoute(this string[] args)
     {
         var numberedArgs = args

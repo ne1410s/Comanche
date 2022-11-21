@@ -23,6 +23,7 @@ public static class ParsingExtensions
     /// <param name="methodParams">Method parameter list definition.</param>
     /// <param name="paramMap">A parameter map.</param>
     /// <returns>An array of parameters.</returns>
+    /// <exception cref="ParamBuilderException">Param builder error.</exception>
     public static object?[] ParseMap(
         this IReadOnlyList<ComancheParam> methodParams,
         IReadOnlyDictionary<string, List<string>> paramMap)
@@ -90,10 +91,6 @@ public static class ParsingExtensions
                 {
                     errors[param] = "unsupported";
                 }
-            }
-            else if (param.ParameterType.IsArray && param.ParameterType.GetArrayRank() == 1)
-            {
-                // TODO!
             }
             else if (inputs.Count > 1)
             {

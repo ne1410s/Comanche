@@ -12,7 +12,7 @@ using System.Collections.Generic;
 public class ComancheRoute
 {
     /// <summary>
-    /// Initialises a new instance of the <see cref="ComancheRoute"/> class.
+    /// Initializes a new instance of the <see cref="ComancheRoute"/> class.
     /// </summary>
     /// <param name="routeTerms">The route terms.</param>
     /// <param name="parameters">The parameters.</param>

@@ -12,7 +12,7 @@ using System.Collections.Generic;
 public class ComancheModule
 {
     /// <summary>
-    /// Initialises a new instance of the <see cref="ComancheModule"/> class.
+    /// Initializes a new instance of the <see cref="ComancheModule"/> class.
     /// </summary>
     /// <param name="name">The module name.</param>
     /// <param name="summary">The summary description.</param>
