@@ -6,7 +6,7 @@ namespace Comanche.Models;
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Comanche.Exceptions;
 using Comanche.Extensions;
@@ -37,32 +37,69 @@ public class ComancheSession
     /// <param name="args">The arguments.</param>
     /// <param name="writer">The output writer.</param>
     /// <returns>The result.</returns>
-    public async Task<object?> FulfilAsync(string[]? args = null, IOutputWriter? writer = null)
+    public async Task<object?> FulfilAsync(string[] args, IOutputWriter writer)
     {
-        args ??= Environment.GetCommandLineArgs().Skip(1).ToArray();
-        writer ??= new ConsoleWriter();
-
+        ComancheRoute? route = null;
         try
         {
-            var route = args.BuildRoute();
+            route = args.BuildRoute();
             var method = this.MatchMethod(route);
-            var parameters = method.Parameters.ParseMap(route.ParamMap);
-            var result = await method.CallAsync(parameters);
-            writer.WriteLine($"{result}");
-            return result;
+            if (route.IsHelp)
+            {
+                writer.WriteLine($"- Method: {method.Name}");
+                if (method.Summary != null)
+                {
+                    writer.WriteLine($"- Summary: {method.Summary}");
+                }
+
+                if (method.Parameters.Count > 0)
+                {
+                    writer.WriteLine("- Parameters:");
+                    foreach (var param in method.Parameters)
+                    {
+                        var alias = param.Alias != null ? $" (-{param.Alias})" : string.Empty;
+                        var type = param.ParameterType;
+                        var defVal = param.HasDefault && (type.IsPrimitive || type == typeof(string))
+                            ? $" = {param.DefaultValue}"
+                            : string.Empty;
+                        writer.WriteLine($"  --{param.Name}{alias} [{type.Name}{defVal}] - {param.Summary}");
+                    }
+                }
+
+                return null;
+            }
+            else
+            {
+                var parameters = method.Parameters.ParseMap(route.ParamMap);
+                var result = await method.CallAsync(parameters);
+                writer.WriteLine($"{result}");
+                return result;
+            }
         }
         catch (RouteBuilderException routeEx)
         {
-            this.MatchModule(routeEx.DeepestValidTerms, out var modules, out var methods);
-            writer.WriteLine("Possible options", true);
-            foreach (var kvp in modules)
+            if (route?.IsHelp != true)
             {
-                writer.WriteLine($" > {kvp.Key} < {kvp.Value.Summary}");
+                writer.WriteLine(routeEx.Message, true);
             }
 
-            foreach (var kvp in methods)
+            this.MatchModule(routeEx.DeepestValidTerms, out var modules, out var methods);
+            if (modules.Count > 0)
             {
-                writer.WriteLine($" ~ {kvp.Key}() {kvp.Value.Summary}");
+                writer.WriteLine("- Modules:");
+                foreach (var kvp in modules)
+                {
+                    writer.WriteLine($"  - {kvp.Key} ({kvp.Value.Summary})");
+                }
+            }
+
+            if (methods.Count > 0)
+            {
+                writer.WriteLine("- Methods:");
+                foreach (var kvp in methods)
+                {
+                    writer.WriteLine($"  - {kvp.Key} ({kvp.Value.Summary})");
+                }
             }
         }
         catch (ParamBuilderException paramEx)
@@ -70,7 +107,7 @@ public class ComancheSession
             writer.WriteLine("Invalid parameters", true);
             foreach (var kvp in paramEx.Errors)
             {
-                writer.WriteLine($" {kvp.Key}: {kvp.Value}", true);
+                writer.WriteLine($"{kvp.Key}: {kvp.Value}", true);
             }
         }
         catch (Exception ex)

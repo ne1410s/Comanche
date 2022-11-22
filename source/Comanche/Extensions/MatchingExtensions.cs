@@ -37,7 +37,7 @@ public static class MatchingExtensions
         for (var i = 1; i < route.RouteTerms.Count; i++)
         {
             var iterRoute = route.RouteTerms[i];
-            if (!route.IsHelp && i == route.RouteTerms.Count - 1 && module.Methods.ContainsKey(iterRoute))
+            if (i == route.RouteTerms.Count - 1 && module.Methods.ContainsKey(iterRoute))
             {
                 retVal = module.Methods[iterRoute];
             }

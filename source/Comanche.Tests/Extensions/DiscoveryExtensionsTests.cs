@@ -8,7 +8,7 @@ using System.Reflection;
 using Comanche.Extensions;
 
 /// <summary>
-/// Tests for the <see cref="DiscoveryExtensions"/>.
+/// Tests for the <see cref="Discover"/>.
 /// </summary>
 public class DiscoveryExtensionsTests
 {

@@ -1,4 +1,4 @@
-﻿// <copyright file="DiscoveryExtensions.cs" company="ne1410s">
+﻿// <copyright file="Discover.cs" company="ne1410s">
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
@@ -15,11 +15,12 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using Comanche.Attributes;
 using Comanche.Models;
+using Comanche.Services;
 
 /// <summary>
 /// Extensions relating to Comanche discovery.
 /// </summary>
-public static class DiscoveryExtensions
+public static class Discover
 {
     private const string XPathParameterMethodFormat = "./doc/members/member[starts-with(@name, '{0}(')]";
     private const string XPathMemberFormat = "./doc/members/member[@name='{0}']";
@@ -31,11 +32,31 @@ public static class DiscoveryExtensions
     private static readonly Regex TermRespaceRegex = new("\\s{2,}");
 
     /// <summary>
+    /// Invokes Comanche.
+    /// </summary>
+    /// <param name="asm">An assembly.</param>
+    /// <param name="args">Command arguments.</param>
+    /// <param name="writer">An output writer.</param>
+    /// <returns>The result of the invocation.</returns>
+    public static async Task<object?> GoAsync(
+        Assembly? asm = null,
+        string[]? args = null,
+        IOutputWriter? writer = null)
+    {
+        asm ??= Assembly.GetEntryAssembly();
+        args ??= Environment.GetCommandLineArgs().Skip(1).ToArray();
+        writer ??= new ConsoleWriter();
+
+        var session = asm.GetSession();
+        return await session.FulfilAsync(args, writer);
+    }
+
+    /// <summary>
     /// Obtains Comanche capability metadata.
     /// </summary>
     /// <param name="asm">The assembly.</param>
     /// <returns>Comanche metadata.</returns>
-    public static ComancheSession Discover(this Assembly asm)
+    internal static ComancheSession GetSession(this Assembly asm)
     {
         var xDoc = asm.LoadXDoc();
 

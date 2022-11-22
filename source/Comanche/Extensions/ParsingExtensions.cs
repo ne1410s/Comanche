@@ -35,7 +35,7 @@ public static class ParsingExtensions
         foreach (var param in methodParams)
         {
             var byName = paramMap.TryGetValue("--" + param.Name, out List<string> inputs);
-            var byAlias = param.Alias != null && !byName && paramMap.TryGetValue("-" + param.Alias, out inputs);
+            var byAlias = param.Alias != null && paramMap.TryGetValue("-" + param.Alias, out inputs);
 
             if (!byName && !byAlias)
             {
@@ -56,7 +56,7 @@ public static class ParsingExtensions
             {
                 errors[param] = "unrecognised";
             }
-            else if (param.ParameterType != typeof(string) && typeof(IEnumerable).IsAssignableFrom(param.ParameterType))
+            else if (typeof(IEnumerable).IsAssignableFrom(param.ParameterType))
             {
                 if (param.ParameterType.IsArray && !typeof(IEnumerable).IsAssignableFrom(
                     param.ParameterType.GetElementType()))
@@ -135,7 +135,7 @@ public static class ParsingExtensions
         {
             value = null;
         }
-        else if (targetType.IsPrimitive || targetType == typeof(string))
+        else if (targetType.IsPrimitive)
         {
             try
             {
