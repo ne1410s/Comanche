@@ -92,18 +92,16 @@ public static class DiscoveryExtensions
         async Task<object?> TaskCall(object? inst, object?[] parms)
         {
             var result = m.Invoke(inst, parms);
-            if (result is Task t)
+            if (result is Task task)
             {
-                await t;
-                return Task.FromResult((object?)null);
-            }
-            else if (m.ReturnType == typeof(Task<>))
-            {
-                throw new NotImplementedException();
+                await task.ConfigureAwait(false);
+                return m.ReturnType.IsGenericType
+                    ? ((dynamic)task).Result
+                    : null;
             }
             else
             {
-                return Task.FromResult(result);
+                return result;
             }
         }
 

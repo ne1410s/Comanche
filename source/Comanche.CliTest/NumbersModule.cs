@@ -34,6 +34,20 @@ public static class NumbersModule
     public static int Do() => 1;
 
     /// <summary>
+    /// Does async.
+    /// </summary>
+    /// <returns>Duality.</returns>
+    [Alias("dAsync")]
+    public static async Task<int> DoAsync() => await Task.FromResult(2);
+
+    /// <summary>
+    /// Does async.
+    /// </summary>
+    /// <returns>Duality.</returns>
+    [Alias("actAsync")]
+    public static async Task ActAsync() => await Task.Delay(50);
+
+    /// <summary>
     /// Something special.
     /// </summary>
     [Module("alg!!")]
