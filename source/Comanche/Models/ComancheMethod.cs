@@ -22,12 +22,16 @@ public class ComancheMethod
     /// </summary>
     /// <param name="name">The method name.</param>
     /// <param name="summary">The method summary.</param>
+    /// <param name="returns">The method returns.</param>
+    /// <param name="returnType">The return type.</param>
     /// <param name="resolver">The caller resolver.</param>
     /// <param name="taskCall">The call function.</param>
     /// <param name="parameters">The parameter definitions.</param>
     public ComancheMethod(
         string name,
         string? summary,
+        string? returns,
+        Type returnType,
         Func<object?> resolver,
         Func<object?, object?[], Task<object?>> taskCall,
         List<ComancheParam> parameters)
@@ -37,6 +41,8 @@ public class ComancheMethod
         this.Name = name;
         this.Summary = summary;
         this.Parameters = parameters;
+        this.Returns = returns;
+        this.ReturnType = returnType;
     }
 
     /// <summary>
@@ -53,6 +59,16 @@ public class ComancheMethod
     /// Gets a list of parameters.
     /// </summary>
     public IReadOnlyList<ComancheParam> Parameters { get; }
+
+    /// <summary>
+    /// Gets the method return type.
+    /// </summary>
+    public Type ReturnType { get; }
+
+    /// <summary>
+    /// Gets the method returns.
+    /// </summary>
+    public string? Returns { get; }
 
     /// <summary>
     /// Calls the function.

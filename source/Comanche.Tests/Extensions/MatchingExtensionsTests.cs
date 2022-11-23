@@ -104,7 +104,7 @@ public class MatchingExtensionsTests
     private static Dictionary<string, ComancheMethod> GetMethods(params string[] names)
         => names.ToDictionary(
             n => n,
-            n => new ComancheMethod(n, null, null!, null!, null!));
+            n => new ComancheMethod(n, null, null, typeof(void), null!, null!, null!));
 
     private static ComancheRoute GetRoute(string termsInput, bool isHelp = false)
         => new(SplitOnSpace(termsInput), new(), isHelp);

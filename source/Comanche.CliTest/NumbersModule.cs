@@ -9,6 +9,7 @@ using Comanche.Attributes;
 /// <summary>
 /// All about... numbers.
 /// </summary>
+[Module("num")]
 public static class NumbersModule
 {
     /// <summary>
@@ -49,6 +50,7 @@ public static class NumbersModule
     /// <summary>
     /// Something special.
     /// </summary>
+    [Module("alg!")]
     public static class AlgebraModule
     {
         /// <summary>
@@ -79,6 +81,7 @@ public static class NumbersModule
     /// <summary>
     /// Should not be exported.
     /// </summary>
+    [Hidden]
     public abstract class Unexposed
     {
         /// <summary>
@@ -89,7 +92,7 @@ public static class NumbersModule
     }
 
     /// <summary>
-    /// Should not be exported.
+    /// Should not be exported in opt-in mode.
     /// </summary>
     public sealed class Unexposed2
     {

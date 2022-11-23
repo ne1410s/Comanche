@@ -6,7 +6,6 @@ namespace Comanche.Models;
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading.Tasks;
 using Comanche.Exceptions;
 using Comanche.Extensions;
@@ -66,6 +65,8 @@ public class ComancheSession
                     }
                 }
 
+                writer.WriteLine($"- Returns: [{method.ReturnType.Name}] {method.Returns}");
+
                 return null;
             }
             else
@@ -89,7 +90,8 @@ public class ComancheSession
                 writer.WriteLine("- Modules:");
                 foreach (var kvp in modules)
                 {
-                    writer.WriteLine($"  - {kvp.Key} ({kvp.Value.Summary})");
+                    var summary = kvp.Value.Summary != null ? $" ({kvp.Value.Summary})" : string.Empty;
+                    writer.WriteLine($"  - {kvp.Key}{summary}");
                 }
             }
 
@@ -98,7 +100,8 @@ public class ComancheSession
                 writer.WriteLine("- Methods:");
                 foreach (var kvp in methods)
                 {
-                    writer.WriteLine($"  - {kvp.Key} ({kvp.Value.Summary})");
+                    var summary = kvp.Value.Summary != null ? $" ({kvp.Value.Summary})" : string.Empty;
+                    writer.WriteLine($"  - {kvp.Key}{summary}");
                 }
             }
         }

@@ -14,6 +14,8 @@ using Comanche.Models;
 /// </summary>
 public class ExecutionExtensionsTests
 {
+    private static readonly Type Void = typeof(void);
+
     [Theory]
     [InlineData(2)]
     [InlineData("")]
@@ -22,7 +24,7 @@ public class ExecutionExtensionsTests
     public async Task Execute_Inline_ReturnsExpected(object? expected)
     {
         // Arrange
-        var sut = new ComancheMethod("m1", null, () => null, (_, _) => Task.FromResult(expected), new());
+        var sut = new ComancheMethod("m1", null, null, Void, () => null, (_, _) => Task.FromResult(expected), new());
 
         // Act
         var result = await sut.CallAsync(Array.Empty<object?>());
@@ -37,7 +39,7 @@ public class ExecutionExtensionsTests
         // Arrange
         var info = typeof(SampleClass).GetMethod(nameof(SampleClass.ParseBool));
         var taskCall = (object? _, object?[] p) => Task.FromResult(info!.Invoke(null, p));
-        var sut = new ComancheMethod("m1", null, () => null, taskCall, new());
+        var sut = new ComancheMethod("m1", null, null, Void, () => null, taskCall, new());
 
         // Act
         var result = await sut.CallAsync(new object?[] { "true" });
@@ -52,7 +54,7 @@ public class ExecutionExtensionsTests
         // Arrange
         var info = typeof(SampleClass).GetMethod(nameof(SampleClass.Add));
         var taskCall = (object? inst, object?[] p) => Task.FromResult(info!.Invoke(inst, p));
-        var sut = new ComancheMethod("m1", null, () => new SampleClass { Seed = 12 }, taskCall, new());
+        var sut = new ComancheMethod("m1", null, null, Void, () => new SampleClass { Seed = 12 }, taskCall, new());
 
         // Act
         var result = await sut.CallAsync(new object?[] { 4 });
@@ -73,7 +75,7 @@ public class ExecutionExtensionsTests
             return (object?)((dynamic)task).Result;
         }
 
-        var sut = new ComancheMethod("m1", null, () => new SampleClass { Seed = 2 }, TaskCall, new());
+        var sut = new ComancheMethod("m1", null, null, Void, () => new SampleClass { Seed = 2 }, TaskCall, new());
 
         // Act
         var result = await sut.CallAsync(Array.Empty<object?>());
@@ -88,7 +90,7 @@ public class ExecutionExtensionsTests
         // Arrange
         var info = typeof(SampleClass).GetMethod(nameof(SampleClass.ParseBool));
         var taskCall = (object? _, object?[] p) => Task.FromResult(info!.Invoke(null, p));
-        var sut = new ComancheMethod("m1", null, () => null, taskCall, new());
+        var sut = new ComancheMethod("m1", null, null, Void, () => null, taskCall, new());
 
         // Act
         var act = () => sut.CallAsync(new object?[] { "lol-bool" });

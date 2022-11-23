@@ -78,8 +78,8 @@ public static class Discover
     private static ComancheModule? ToModule(this Type t, XDocument? xDoc, bool moduleOptIn)
     {
         var moduleName = t.GetCustomAttribute<ModuleAttribute>()?.Name?.Sanitise();
-        if (!moduleOptIn && t.GetCustomAttribute<HiddenAttribute>() != null && moduleName == null)
-        {       
+        if (!moduleOptIn && t.GetCustomAttribute<HiddenAttribute>() == null && moduleName == null)
+        {
             moduleName = ModuleElideRegex.Replace(t.Name.ToLower().Sanitise(), string.Empty);
         }
 
@@ -88,7 +88,8 @@ public static class Discover
             return null;
         }
 
-        var xPath = string.Format(Invariant, XPathMemberFormat, $"T:{t.FullName}");
+        var xmlMemberName = t.FullName.Replace("+", ".", StringComparison.OrdinalIgnoreCase);
+        var xPath = string.Format(Invariant, XPathMemberFormat, $"T:{xmlMemberName}");
         var xmlType = xDoc?.XPathSelectElement(xPath);
         var xmlSummary = GetNodeText(xmlType, "summary");
         var isStatic = t.IsAbstract && t.IsSealed;
@@ -104,6 +105,11 @@ public static class Discover
             .Where(m => m != null)
             .ToDictionary(m => m!.Name, m => m!);
 
+        if (methods.Count + subModules.Count == 0)
+        {
+            return null;
+        }
+
         return new(moduleName, xmlSummary, methods, subModules);
     }
 
@@ -115,6 +121,7 @@ public static class Discover
         var xPath = string.Format(Invariant, xPathFormat, $"M:{xmlMemberName}.{m.Name}");
         var xmlMethod = xDoc?.XPathSelectElement(xPath);
         var xmlSummary = xmlMethod.GetNodeText("summary");
+        var xmlReturns = xmlMethod.GetNodeText("returns");
         var methodName = (m.GetCustomAttribute<AliasAttribute>()?.Name ?? m.Name.ToLower()).Sanitise();
 
         var parameters = paramInfos
@@ -137,7 +144,7 @@ public static class Discover
             }
         }
 
-        return new(methodName!, xmlSummary, resolver, TaskCall, parameters);
+        return new(methodName!, xmlSummary, xmlReturns, m.ReturnType, resolver, TaskCall, parameters);
     }
 
     private static ComancheParam ToParam(this ParameterInfo p, XElement? xmlMethod)
