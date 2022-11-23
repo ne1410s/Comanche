@@ -2,14 +2,13 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche.Attributes
-{
-    using System;
+namespace Comanche.Attributes;
 
-    /// <summary>
-    /// Prevents a module, method or parameter from being exposed to Comanche.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter)]
-    public class HiddenAttribute : Attribute
-    { }
-}
+using System;
+
+/// <summary>
+/// Prevents a module, method or parameter from being exposed to Comanche.
+/// </summary>
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter)]
+public class HiddenAttribute : Attribute
+{ }

@@ -9,7 +9,7 @@ using System.Collections.Generic;
 /// <summary>
 /// A modelled module.
 /// </summary>
-public class ComancheModule
+internal class ComancheModule
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="ComancheModule"/> class.

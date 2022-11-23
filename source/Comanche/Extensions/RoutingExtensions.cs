@@ -14,7 +14,7 @@ using Comanche.Models;
 /// <summary>
 /// Extensions relating to command routing.
 /// </summary>
-public static class RoutingExtensions
+internal static class RoutingExtensions
 {
     private const char Space = ' ';
     private const string ParamDelimiter = "|%%|";

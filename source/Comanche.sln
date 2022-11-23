@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Comanche.CliTest", "Comanche.CliTest\Comanche.CliTest.csproj", "{B88BFE51-E423-43F3-ADAD-9B4D4887CC4D}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Comanche", "Comanche\Comanche.csproj", "{87C0C6F8-029E-4756-BA2B-641FDC027F2B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Comanche.Tests", "Comanche.Tests\Comanche.Tests.csproj", "{C8A8F766-25F8-4641-B2A0-7A02565DC75C}"
@@ -28,10 +26,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B88BFE51-E423-43F3-ADAD-9B4D4887CC4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B88BFE51-E423-43F3-ADAD-9B4D4887CC4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B88BFE51-E423-43F3-ADAD-9B4D4887CC4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B88BFE51-E423-43F3-ADAD-9B4D4887CC4D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{87C0C6F8-029E-4756-BA2B-641FDC027F2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{87C0C6F8-029E-4756-BA2B-641FDC027F2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{87C0C6F8-029E-4756-BA2B-641FDC027F2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -45,7 +39,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{B88BFE51-E423-43F3-ADAD-9B4D4887CC4D} = {472CDFAA-3AD4-46BB-B3A4-B604DA0C99D0}
 		{C8A8F766-25F8-4641-B2A0-7A02565DC75C} = {472CDFAA-3AD4-46BB-B3A4-B604DA0C99D0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

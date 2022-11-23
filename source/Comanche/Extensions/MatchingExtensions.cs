@@ -12,7 +12,7 @@ using Comanche.Models;
 /// <summary>
 /// Extensions relating to matching requests to functionality.
 /// </summary>
-public static class MatchingExtensions
+internal static class MatchingExtensions
 {
     /// <summary>
     /// Finds a method.

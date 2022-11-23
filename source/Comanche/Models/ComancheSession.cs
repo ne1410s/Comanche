@@ -14,7 +14,7 @@ using Comanche.Services;
 /// <summary>
 /// A modelled session.
 /// </summary>
-public class ComancheSession
+internal class ComancheSession
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="ComancheSession"/> class.
@@ -87,21 +87,19 @@ public class ComancheSession
             this.MatchModule(routeEx.DeepestValidTerms, out var modules, out var methods);
             if (modules.Count > 0)
             {
-                writer.WriteLine("- Modules:");
                 foreach (var kvp in modules)
                 {
                     var summary = kvp.Value.Summary != null ? $" ({kvp.Value.Summary})" : string.Empty;
-                    writer.WriteLine($"  - {kvp.Key}{summary}");
+                    writer.WriteLine($"MODULE: {kvp.Key}{summary}");
                 }
             }
 
             if (methods.Count > 0)
             {
-                writer.WriteLine("- Methods:");
                 foreach (var kvp in methods)
                 {
                     var summary = kvp.Value.Summary != null ? $" ({kvp.Value.Summary})" : string.Empty;
-                    writer.WriteLine($"  - {kvp.Key}{summary}");
+                    writer.WriteLine($"METHOD: {kvp.Key}{summary}");
                 }
             }
         }

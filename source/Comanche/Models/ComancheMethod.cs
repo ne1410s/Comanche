@@ -12,7 +12,7 @@ using Comanche.Exceptions;
 /// <summary>
 /// A modelled method.
 /// </summary>
-public class ComancheMethod
+internal class ComancheMethod
 {
     private readonly Func<object?, object?[], Task<object?>> taskCall;
     private readonly Func<object?> resolver;

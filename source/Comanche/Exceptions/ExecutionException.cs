@@ -9,7 +9,7 @@ using System;
 /// <summary>
 /// Represents errors that occur during execution.
 /// </summary>
-public class ExecutionException : Exception
+internal class ExecutionException : Exception
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="ExecutionException"/> class.

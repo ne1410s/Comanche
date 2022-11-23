@@ -16,7 +16,7 @@ using Comanche.Models;
 /// <summary>
 /// Extenions relating to parameter parsing.
 /// </summary>
-public static class ParsingExtensions
+internal static class ParsingExtensions
 {
     /// <summary>
     /// Prepares a boxed array of parameters, ready to be fed into the method.

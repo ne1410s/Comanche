@@ -2,28 +2,27 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche.Attributes
+namespace Comanche.Attributes;
+
+using System;
+
+/// <summary>
+/// Provides a member or parameter with an alternative name.
+/// </summary>
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Parameter)]
+public class AliasAttribute : Attribute
 {
-    using System;
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AliasAttribute"/> class.
+    /// </summary>
+    /// <param name="name">The alias name.</param>
+    public AliasAttribute(string name)
+    {
+        this.Name = name;
+    }
 
     /// <summary>
-    /// Provides a member or parameter with an alternative name.
+    /// Gets the alias name.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Parameter)]
-    public class AliasAttribute : Attribute
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AliasAttribute"/> class.
-        /// </summary>
-        /// <param name="name">The alias name.</param>
-        public AliasAttribute(string name)
-        {
-            this.Name = name;
-        }
-
-        /// <summary>
-        /// Gets the alias name.
-        /// </summary>
-        public string Name { get; }
-    }
+    public string Name { get; }
 }

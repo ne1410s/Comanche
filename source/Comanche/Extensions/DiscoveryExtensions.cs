@@ -20,7 +20,7 @@ using Comanche.Services;
 /// <summary>
 /// Extensions relating to Comanche discovery.
 /// </summary>
-public static class Discover
+public static class DiscoveryExtensions
 {
     private const string XPathParameterMethodFormat = "./doc/members/member[starts-with(@name, '{0}(')]";
     private const string XPathMemberFormat = "./doc/members/member[@name='{0}']";
@@ -31,29 +31,6 @@ public static class Discover
     private static readonly Regex HeadRemovalRegex = new("^[^a-zA-Z]+");
     private static readonly Regex TermRespaceRegex = new("\\s{2,}");
     private static readonly Regex ModuleElideRegex = new("module$");
-
-    /// <summary>
-    /// Invokes Comanche.
-    /// </summary>
-    /// <param name="moduleOptIn">If true, modules are only included if they
-    /// possess a <see cref="ModuleAttribute"/>.</param>
-    /// <param name="asm">An assembly.</param>
-    /// <param name="args">Command arguments.</param>
-    /// <param name="writer">An output writer.</param>
-    /// <returns>The result of the invocation.</returns>
-    public static async Task<object?> GoAsync(
-        bool moduleOptIn = false,
-        Assembly? asm = null,
-        string[]? args = null,
-        IOutputWriter? writer = null)
-    {
-        asm ??= Assembly.GetEntryAssembly();
-        args ??= Environment.GetCommandLineArgs().Skip(1).ToArray();
-        writer ??= new ConsoleWriter();
-
-        var session = asm.GetSession(moduleOptIn);
-        return await session.FulfilAsync(args, writer);
-    }
 
     /// <summary>
     /// Obtains Comanche capability metadata.

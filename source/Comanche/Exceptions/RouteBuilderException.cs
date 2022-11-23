@@ -10,7 +10,7 @@ using System.Collections.Generic;
 /// <summary>
 /// Represents errors that occur during the building of a route.
 /// </summary>
-public class RouteBuilderException : Exception
+internal class RouteBuilderException : Exception
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="RouteBuilderException"/> class.

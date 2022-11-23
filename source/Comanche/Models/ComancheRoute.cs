@@ -9,7 +9,7 @@ using System.Collections.Generic;
 /// <summary>
 /// A modelled route.
 /// </summary>
-public class ComancheRoute
+internal class ComancheRoute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="ComancheRoute"/> class.
