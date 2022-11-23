@@ -7,6 +7,7 @@ namespace Comanche.Extensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text.Json;
 using Comanche.Exceptions;
@@ -58,7 +59,7 @@ public static class ParsingExtensions
             }
             else if (param.ParameterType != typeof(string) && typeof(IEnumerable).IsAssignableFrom(param.ParameterType))
             {
-                if (param.ParameterType.IsArray && !typeof(IEnumerable).IsAssignableFrom(
+                if (param.ParameterType.IsArray && typeof(IEnumerable).IsAssignableFrom(
                     param.ParameterType.GetElementType()))
                 {
                     var type = param.ParameterType.GetElementType();
@@ -66,7 +67,13 @@ public static class ParsingExtensions
                     var firstError = res.FirstOrDefault(r => !r.ok)?.err;
                     if (firstError == null)
                     {
-                        retVal.Add(res.Select(r => r.val).ToList());
+                        var typedArray = Array.CreateInstance(type, inputs.Count);
+                        for (var i = 0; i < inputs.Count; i++)
+                        {
+                            typedArray.SetValue(res.ElementAt(i).val, i);
+                        }
+
+                        retVal.Add(typedArray);
                     }
                     else
                     {
@@ -80,7 +87,14 @@ public static class ParsingExtensions
                     var firstError = res.FirstOrDefault(r => !r.ok)?.err;
                     if (firstError == null)
                     {
-                        retVal.Add(res.Select(r => r.val).ToList());
+                        var listType = typeof(List<>).MakeGenericType(type);
+                        var typedList = (IList)Activator.CreateInstance(listType);
+                        for (var i = 0; i < inputs.Count; i++)
+                        {
+                            typedList.Add(res.ElementAt(i).val);
+                        }
+
+                        retVal.Add(typedList);
                     }
                     else
                     {

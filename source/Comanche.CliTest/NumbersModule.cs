@@ -71,11 +71,25 @@ public static class NumbersModule
     public static class SecretSubModule
     {
         /// <summary>
-        /// Joins strings.
+        /// Joins strings from an array.
         /// </summary>
         /// <param name="items">The strings.</param>
         /// <returns>Joined.</returns>
         public static string JoinArray(string[] items) => string.Join(", ", items);
+
+        /// <summary>
+        /// Joins strings from any old enumerable.
+        /// </summary>
+        /// <param name="items">The strings.</param>
+        /// <returns>Joined.</returns>
+        public static string JoinSeq(IEnumerable<string> items) => string.Join(", ", items);
+
+        /// <summary>
+        /// Joins strings from a list.
+        /// </summary>
+        /// <param name="items">The strings.</param>
+        /// <returns>Joined.</returns>
+        public static string JoinList(List<string> items) => string.Join(", ", items);
     }
 
     /// <summary>
