@@ -9,7 +9,6 @@ using Comanche.Attributes;
 /// <summary>
 /// All about... numbers.
 /// </summary>
-[Module("num")]
 public static class NumbersModule
 {
     /// <summary>
@@ -23,7 +22,7 @@ public static class NumbersModule
         [Alias("stringy pants")] string myStr,
         [Alias("os")] bool otherThing = true)
     {
-        return double.TryParse(myStr, out _);
+        return !otherThing || double.TryParse(myStr, out _);
     }
 
     /// <summary>
@@ -50,7 +49,6 @@ public static class NumbersModule
     /// <summary>
     /// Something special.
     /// </summary>
-    [Module("alg!!")]
     public static class AlgebraModule
     {
         /// <summary>
@@ -63,6 +61,19 @@ public static class NumbersModule
         {
             return firstNumber + second;
         }
+    }
+
+    /// <summary>
+    /// A sub-module.
+    /// </summary>
+    public static class SecretSubModule
+    {
+        /// <summary>
+        /// Joins strings.
+        /// </summary>
+        /// <param name="items">The strings.</param>
+        /// <returns>Joined.</returns>
+        public static string JoinArray(string[] items) => string.Join(", ", items);
     }
 
     /// <summary>

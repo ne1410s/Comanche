@@ -7,9 +7,9 @@ namespace Comanche.Attributes
     using System;
 
     /// <summary>
-    /// Prevents a method or parameter from being exposed in routing.
+    /// Prevents a module, method or parameter from being exposed to Comanche.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Parameter)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter)]
     public class HiddenAttribute : Attribute
     { }
 }

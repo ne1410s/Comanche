@@ -7,7 +7,7 @@ namespace Comanche.Attributes
     using System;
 
     /// <summary>
-    /// Provides a member with an alias in routing and execution.
+    /// Provides a member or parameter with an alternative name.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Parameter)]
     public class AliasAttribute : Attribute
