@@ -1,4 +1,4 @@
-﻿// <copyright file="Discover.cs" company="ne1410s">
+﻿// <copyright file="DiscoveryExtensions.cs" company="ne1410s">
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
@@ -15,7 +15,6 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using Comanche.Attributes;
 using Comanche.Models;
-using Comanche.Services;
 
 /// <summary>
 /// Extensions relating to Comanche discovery.

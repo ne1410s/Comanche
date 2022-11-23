@@ -49,18 +49,17 @@ internal static class ParsingExtensions
                     retVal.Add(param.DefaultValue);
                 }
             }
-            else if (byName && byAlias)
-            {
-                errors[param] = "duplicate";
-            }
+            //else if (byName && byAlias)
+            //{
+            //    errors[param] = "duplicate";
+            //}
             else if (param.Hidden)
             {
                 errors[param] = "unrecognised";
             }
             else if (param.ParameterType != typeof(string) && typeof(IEnumerable).IsAssignableFrom(param.ParameterType))
             {
-                if (param.ParameterType.IsArray && typeof(IEnumerable).IsAssignableFrom(
-                    param.ParameterType.GetElementType()))
+                if (param.ParameterType.IsArray)
                 {
                     var type = param.ParameterType.GetElementType();
                     var res = inputs.Select(i => new { ok = i.TryParse(type, out var val, out var err), val, err });
@@ -80,7 +79,8 @@ internal static class ParsingExtensions
                         errors[param] = firstError;
                     }
                 }
-                else if (param.ParameterType.GenericTypeArguments.Length == 1)
+                else if (param.ParameterType.GenericTypeArguments.Length == 1
+                    && param.ParameterType.GenericTypeArguments[0].GenericTypeArguments.Length == 0)
                 {
                     var type = param.ParameterType.GenericTypeArguments[0];
                     var res = inputs.Select(i => new { ok = i.TryParse(type, out var val, out var err), val, err });
