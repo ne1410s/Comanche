@@ -4,6 +4,8 @@
 
 namespace Comanche.Tests;
 
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Comanche.Attributes;
@@ -13,38 +15,38 @@ using Comanche.Services;
 public class DiscoverE2ETests
 {
     [Fact]
-    public async Task Discover_NoOptIn_FindsClasses()
+    public async Task Discover_StringArray_ReturnsExpected()
     {
         // Arrange
-        var mockWriter = new Mock<IOutputWriter>();
+        const string command = "e2e commented joinarray --s hello --s world";
 
         // Act
-        var result = await Invoke(mockWriter.Object, moduleOptIn: false);
+        var result = await Invoke(command);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine("MODULE: e2e", false), Times.Once());
+        result.Should().BeEquivalentTo("hello, world");
     }
 
     [Fact]
-    public async Task Discover_SubModule_FindsClasses()
+    public async Task Discover_IntList_ReturnsExpected()
     {
         // Arrange
-        var mockWriter = new Mock<IOutputWriter>();
+        const string command = "e2e commented sum -n 3 -n 4 -n 1";
 
         // Act
-        var result = await Invoke(mockWriter.Object, "e2e");
+        var result = await Invoke(command);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine("MODULE: commented (Commented module.)", false), Times.Once());
+        result.Should().BeEquivalentTo(20);
     }
 
     private static async Task<object?> Invoke(
-        IOutputWriter? writer = null,
         string? command = null,
+        IOutputWriter? writer = null,
         bool moduleOptIn = false)
     {
-        var asm = Assembly.GetAssembly(typeof(DiscoverE2ETests));
         writer ??= new Mock<IOutputWriter>().Object;
+        var asm = Assembly.GetAssembly(typeof(DiscoverE2ETests));
         return await Discover.GoAsync(moduleOptIn, asm, command?.Split(' '), writer);
     }
 
@@ -53,6 +55,22 @@ public class DiscoverE2ETests
     /// </summary>
     public sealed class CommentedModule
     {
-        public static int Add1(int integer) => integer + 1;
+        private int Seed { get; } = 12;
+
+        /// <summary>
+        /// Joins an array of strings.
+        /// </summary>
+        /// <param name="s">Strings.</param>
+        /// <returns>Single string.</returns>
+        public static async Task<string> JoinArray(string[] s) =>
+            await Task.FromResult(string.Join(", ", s));
+
+        /// <summary>
+        /// Sums a list of integers and the seed.
+        /// </summary>
+        /// <param name="numbers">Integers.</param>
+        /// <returns>Sum plus a seed.</returns>
+        [Alias("sum")]
+        public int SumList([Alias("n")]List<int> numbers) => this.Seed + numbers.Sum();
     }
 }
