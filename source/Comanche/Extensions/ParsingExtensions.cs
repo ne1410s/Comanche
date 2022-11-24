@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using Comanche.Exceptions;
 using Comanche.Models;
@@ -49,15 +50,30 @@ internal static class ParsingExtensions
                     retVal.Add(param.DefaultValue);
                 }
             }
-            //else if (byName && byAlias)
-            //{
-            //    errors[param] = "duplicate";
-            //}
             else if (param.Hidden)
             {
                 errors[param] = "unrecognised";
             }
-            else if (param.ParameterType != typeof(string) && typeof(IEnumerable).IsAssignableFrom(param.ParameterType))
+            else if (inputs.Count == 0)
+            {
+                if (param.ParameterType == typeof(bool))
+                {
+                    retVal.Add(true);
+                }
+                else if (!param.ParameterType.IsValueType || Nullable.GetUnderlyingType(param.ParameterType) != null)
+                {
+                    retVal.Add(null);
+                }
+                else
+                {
+                    //retVal.Add(GetDefault(param.ParameterType));
+                    errors[param] = "missing";
+                }
+            }
+            else if (param.ParameterType != typeof(string) && typeof(IEnumerable).IsAssignableFrom(param.ParameterType)
+                && (param.ParameterType.IsArray 
+                || (param.ParameterType.GenericTypeArguments.Length == 1
+                    && param.ParameterType.GenericTypeArguments[0].GenericTypeArguments.Length == 0)))
             {
                 if (param.ParameterType.IsArray)
                 {
@@ -79,8 +95,7 @@ internal static class ParsingExtensions
                         errors[param] = firstError;
                     }
                 }
-                else if (param.ParameterType.GenericTypeArguments.Length == 1
-                    && param.ParameterType.GenericTypeArguments[0].GenericTypeArguments.Length == 0)
+                else 
                 {
                     var type = param.ParameterType.GenericTypeArguments[0];
                     var res = inputs.Select(i => new { ok = i.TryParse(type, out var val, out var err), val, err });
@@ -100,10 +115,6 @@ internal static class ParsingExtensions
                     {
                         errors[param] = firstError;
                     }
-                }
-                else
-                {
-                    errors[param] = "unsupported";
                 }
             }
             else if (inputs.Count > 1)
@@ -138,22 +149,13 @@ internal static class ParsingExtensions
     private static bool TryParse(this string input, Type targetType, out object? value, out string? error)
     {
         error = null;
-        var emptyMeansNull = !targetType.IsValueType
-            || Nullable.GetUnderlyingType(targetType) != null;
-
-        if (targetType == typeof(bool) && input?.Length == 0)
-        {
-            value = true;
-        }
-        else if (input?.Length == 0 && emptyMeansNull)
-        {
-            value = null;
-        }
-        else if (targetType.IsPrimitive || targetType == typeof(string))
+        var nullableType = Nullable.GetUnderlyingType(targetType);
+        if (targetType.IsPrimitive || targetType == typeof(string)
+            || nullableType?.IsPrimitive == true || nullableType == typeof(string))
         {
             try
             {
-                value = Convert.ChangeType(input, targetType);
+                value = Convert.ChangeType(input, nullableType ?? targetType);
             }
             catch
             {
@@ -176,4 +178,10 @@ internal static class ParsingExtensions
 
         return error == null;
     }
+
+    //private static object GetDefault(Type t) => typeof(ParsingExtensions)
+    //    .GetMethod(nameof(GetDefaultGeneric), BindingFlags.NonPublic | BindingFlags.Static)
+    //    .MakeGenericMethod(t).Invoke(null, null);
+
+    //private static T? GetDefaultGeneric<T>() => default;
 }

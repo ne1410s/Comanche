@@ -51,7 +51,7 @@ public static class DiscoveryExtensions
         return new(topLevelModules);
     }
 
-    private static ComancheModule? ToModule(this Type t, XDocument? xDoc, bool moduleOptIn)
+    private static ComancheModule? ToModule(this Type t, XDocument xDoc, bool moduleOptIn)
     {
         var moduleName = t.GetCustomAttribute<ModuleAttribute>()?.Name?.Sanitise();
         if (!moduleOptIn && t.GetCustomAttribute<HiddenAttribute>() == null && moduleName == null)
@@ -66,7 +66,7 @@ public static class DiscoveryExtensions
 
         var xmlMemberName = t.FullName.Replace("+", ".", StringComparison.OrdinalIgnoreCase);
         var xPath = string.Format(Invariant, XPathMemberFormat, $"T:{xmlMemberName}");
-        var xmlType = xDoc?.XPathSelectElement(xPath);
+        var xmlType = xDoc.XPathSelectElement(xPath);
         var xmlSummary = GetNodeText(xmlType, "summary");
         var isStatic = t.IsAbstract && t.IsSealed;
         var resolver = () => isStatic ? null : Activator.CreateInstance(t);
@@ -89,13 +89,13 @@ public static class DiscoveryExtensions
         return new(moduleName, xmlSummary, methods, subModules);
     }
 
-    private static ComancheMethod ToMethod(this MethodInfo m, Func<object?> resolver, XDocument? xDoc)
+    private static ComancheMethod ToMethod(this MethodInfo m, Func<object?> resolver, XDocument xDoc)
     {
         var paramInfos = m.GetParameters();
         var xmlMemberName = m.DeclaringType.FullName.Replace("+", ".", StringComparison.OrdinalIgnoreCase);
         var xPathFormat = paramInfos.Length == 0 ? XPathMemberFormat : XPathParameterMethodFormat;
         var xPath = string.Format(Invariant, xPathFormat, $"M:{xmlMemberName}.{m.Name}");
-        var xmlMethod = xDoc?.XPathSelectElement(xPath);
+        var xmlMethod = xDoc.XPathSelectElement(xPath);
         var xmlSummary = xmlMethod.GetNodeText("summary");
         var xmlReturns = xmlMethod.GetNodeText("returns");
         var methodName = (m.GetCustomAttribute<AliasAttribute>()?.Name ?? m.Name.ToLower()).Sanitise();
@@ -133,31 +133,28 @@ public static class DiscoveryExtensions
         return new(term!, xmlSummary, alias, p.ParameterType, hidden, p.HasDefaultValue, p.DefaultValue);
     }
 
-    private static XDocument? LoadXDoc(this Assembly asm)
+    private static XDocument LoadXDoc(this Assembly asm)
     {
         // IL3000: Assembly.Location is empty in apps built for single-file
         // This approach appears to support single-file and regular builds
         var xmlPath = Path.Combine(AppContext.BaseDirectory, asm.GetName().Name + ".xml");
-        return File.Exists(xmlPath) ? XDocument.Load(xmlPath) : null;
+        return File.Exists(xmlPath) ? XDocument.Load(xmlPath) : new();
     }
 
     private static string? GetNodeText(this XElement? parent, string xPath)
     {
-        var rawXmlValue = parent?.XPathSelectElement(xPath)?.Value;
+        var rawXmlValue = parent?.XPathSelectElement(xPath).Value;
         return !string.IsNullOrWhiteSpace(rawXmlValue)
             ? TermRespaceRegex.Replace(rawXmlValue, Space).Trim()
             : null;
     }
 
-    private static string? Sanitise(this string? term)
+    private static string Sanitise(this string term)
     {
-        if (term != null)
-        {
-            term = TermRemovalRegex.Replace(term, string.Empty);
-            term = HeadRemovalRegex.Replace(term, string.Empty);
-            term = TermRespaceRegex.Replace(term, Space);
-        }
+        term = TermRemovalRegex.Replace(term, string.Empty);
+        term = HeadRemovalRegex.Replace(term, string.Empty);
+        term = TermRespaceRegex.Replace(term, Space);
 
-        return term?.Trim();
+        return term.Trim();
     }
 }

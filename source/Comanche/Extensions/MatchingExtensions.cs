@@ -78,7 +78,10 @@ internal static class MatchingExtensions
             for (var i = 1; i < routes.Count; i++)
             {
                 var iterRoute = routes[i];
-                module = module.SubModules[iterRoute];
+                if (i < routes.Count - 1 || module.SubModules.ContainsKey(iterRoute))
+                {
+                    module = module.SubModules[iterRoute];
+                }
             }
 
             modules = module.SubModules;

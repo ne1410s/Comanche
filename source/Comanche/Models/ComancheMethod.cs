@@ -85,7 +85,7 @@ internal class ComancheMethod
         }
         catch (Exception ex)
         {
-            throw new ExecutionException($"Unexpected error calling method '{this.Name}'", ex);
+            throw new ExecutionException($"Error calling '{this.Name}': {ex.InnerException.Message}", ex);
         }
     }
 }

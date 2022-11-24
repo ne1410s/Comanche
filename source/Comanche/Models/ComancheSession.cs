@@ -57,11 +57,12 @@ internal class ComancheSession
                     foreach (var param in method.Parameters)
                     {
                         var alias = param.Alias != null ? $" (-{param.Alias})" : string.Empty;
+                        var summary = param.Summary != null ? $" - {param.Summary}" : string.Empty;
                         var type = param.ParameterType;
                         var defVal = param.HasDefault && (type.IsPrimitive || type == typeof(string))
                             ? $" = {param.DefaultValue}"
                             : string.Empty;
-                        writer.WriteLine($"  --{param.Name}{alias} [{type.Name}{defVal}] - {param.Summary}");
+                        writer.WriteLine($"  --{param.Name}{alias} [{type.Name}{defVal}]{summary}");
                     }
                 }
 
