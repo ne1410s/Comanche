@@ -16,7 +16,9 @@ internal class RouteBuilderException : Exception
     /// Initializes a new instance of the <see cref="RouteBuilderException"/> class.
     /// </summary>
     /// <param name="deepestValidTerms">The deepest valid route terms.</param>
-    public RouteBuilderException(IList<string> deepestValidTerms)
+    /// <param name="message">The message.</param>
+    public RouteBuilderException(IList<string> deepestValidTerms, string message)
+        : base(message)
     {
         this.DeepestValidTerms = deepestValidTerms;
     }

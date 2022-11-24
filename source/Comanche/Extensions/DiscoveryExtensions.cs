@@ -53,7 +53,7 @@ public static class DiscoveryExtensions
 
     private static ComancheModule? ToModule(this Type t, XDocument xDoc, bool moduleOptIn)
     {
-        var moduleName = t.GetCustomAttribute<ModuleAttribute>()?.Name?.Sanitise();
+        var moduleName = t.GetCustomAttribute<ModuleAttribute>()?.Name.Sanitise();
         if (!moduleOptIn && t.GetCustomAttribute<HiddenAttribute>() == null && moduleName == null)
         {
             moduleName = ModuleElideRegex.Replace(t.Name.ToLower().Sanitise(), string.Empty);
@@ -109,7 +109,7 @@ public static class DiscoveryExtensions
             var result = m.Invoke(inst, parms);
             if (result is Task task)
             {
-                await task.ConfigureAwait(false);
+                await task;
                 return m.ReturnType.IsGenericType
                     ? ((dynamic)task).Result
                     : null;

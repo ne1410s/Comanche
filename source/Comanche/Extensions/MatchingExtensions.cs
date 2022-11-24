@@ -26,7 +26,7 @@ internal static class MatchingExtensions
         var matchedTerms = new List<string>();
         if (route.RouteTerms.Count == 0 || !session.Modules.ContainsKey(route.RouteTerms[0]))
         {
-            throw new RouteBuilderException(Array.Empty<string>());
+            throw new RouteBuilderException(Array.Empty<string>(), "Invalid route.");
         }
 
         var firstTerm = route.RouteTerms[0];
@@ -46,13 +46,9 @@ internal static class MatchingExtensions
                 module = module.SubModules[iterRoute];
                 matchedTerms.Add(iterRoute);
             }
-            else
-            {
-                break;
-            }
         }
 
-        return retVal ?? throw new RouteBuilderException(matchedTerms);
+        return retVal ?? throw new RouteBuilderException(matchedTerms, "No such method.");
     }
 
     /// <summary>
@@ -78,7 +74,7 @@ internal static class MatchingExtensions
             for (var i = 1; i < routes.Count; i++)
             {
                 var iterRoute = routes[i];
-                if (i < routes.Count - 1 || module.SubModules.ContainsKey(iterRoute))
+                if (module.SubModules.ContainsKey(iterRoute))
                 {
                     module = module.SubModules[iterRoute];
                 }

@@ -16,7 +16,7 @@ using Comanche.Services;
 public class DiscoverE2ETests
 {
     [Fact]
-    public async Task Discover_AltParams_WritesExpected()
+    public async Task Discover_AltParams_ReturnsExpected()
     {
         // Act
         var result = await Discover.GoAsync(true);
@@ -117,11 +117,11 @@ public class DiscoverE2ETests
     }
 
     [Fact]
-    public async Task Discover_NoRoute_WritesExpected()
+    public async Task Discover_Help_WritesExpected()
     {
         // Arrange
-        const string command = "bloort";
-        const string expected = "MODULE: e2e";
+        const string command = "e2e --help";
+        const string expected = "MODULE: commented (Commented module.)";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
@@ -132,10 +132,44 @@ public class DiscoverE2ETests
     }
 
     [Fact]
-    public async Task Discover_MethodHelp_WritesExpected()
+    public async Task Discover_ModuleOptIn_WritesExpected()
     {
         // Arrange
-        const string command = "e2e commented sum --help";
+        const string command = "e2e commented --help";
+        const string expectedZero = "MODULE: static";
+        var mockWriter = new Mock<IOutputWriter>();
+
+        // Act
+        await Invoke(command, mockWriter.Object, true);
+
+        // Assert
+        mockWriter.Verify(m => m.WriteLine(expectedZero, false), Times.Never());
+    }
+
+    [Fact]
+    public async Task Discover_OptedInEmptyMod_WritesExpected()
+    {
+        // Arrange
+        const string command = "e2e commented --help";
+        const string expectedZero = "MODULE: empty";
+        var mockWriter = new Mock<IOutputWriter>();
+        _ = CommentedModule.EmptyModule.Do();
+
+        // Act
+        await Invoke(command, mockWriter.Object, true);
+
+        // Assert
+        mockWriter.Verify(m => m.WriteLine(expectedZero, false), Times.Never());
+    }
+
+    [Theory]
+    [InlineData("--help")]
+    [InlineData("-h")]
+    [InlineData("/?")]
+    public async Task Discover_MethodHelp_WritesExpected(string helpCommand)
+    {
+        // Arrange
+        var command = $"e2e commented sum {helpCommand}";
         const string expected = "  --numbers (-n) [List`1] - Integers.";
         var mockWriter = new Mock<IOutputWriter>();
 
@@ -166,14 +200,45 @@ public class DiscoverE2ETests
     {
         // Arrange
         const string command = "e2e commented sum doesnotexist";
-        const string expected = "METHOD: sum (Sums ints.)";
+        const string expected1 = "METHOD: sum (Sums ints.)";
+        const string expected2 = "No such method.";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
         await Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, false));
+        mockWriter.Verify(m => m.WriteLine(expected1, false));
+        mockWriter.Verify(m => m.WriteLine(expected2, true));
+    }
+
+    [Fact]
+    public async Task Discover_NoRoute_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "bloort";
+        const string expected = "Invalid route.";
+        var mockWriter = new Mock<IOutputWriter>();
+
+        // Act
+        await Invoke(command, mockWriter.Object);
+
+        // Assert
+        mockWriter.Verify(m => m.WriteLine(expected, true));
+    }
+
+    [Fact]
+    public async Task Discover_DefaultArgs_WritesExpectedError()
+    {
+        // Arrange
+        var mockWriter = new Mock<IOutputWriter>();
+        const string expected = "Invalid route: --port";
+
+        // Act
+        await Invoke(writer: mockWriter.Object);
+
+        // Assert
+        mockWriter.Verify(m => m.WriteLine(expected, true));
     }
 
     [Fact]
@@ -181,7 +246,7 @@ public class DiscoverE2ETests
     {
         // Arrange
         const string command = "--lol";
-        const string expected = "Exception of type 'Comanche.Exceptions.RouteBuilderException' was thrown.";
+        const string expected = "No routes found.";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
@@ -241,14 +306,16 @@ public class DiscoverE2ETests
     {
         // Arrange
         const string command = "e2e commented sum --notaparam";
-        const string expected = "--numbers (-n): missing";
+        const string expected1 = "--numbers (-n): missing";
+        const string expected2 = "--notaparam: unrecognised";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
         await Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, true));
+        mockWriter.Verify(m => m.WriteLine(expected1, true));
+        mockWriter.Verify(m => m.WriteLine(expected2, true));
     }
 
     [Fact]
@@ -256,14 +323,17 @@ public class DiscoverE2ETests
     {
         // Arrange
         const string command = "e2e commented sum ---notaparam";
-        const string expected = "Exception of type 'Comanche.Exceptions.RouteBuilderException' was thrown.";
+        const string expected1 = "Bad parameter: '---notaparam'.";
+        const string expected2 = "MODULE: static";
         var mockWriter = new Mock<IOutputWriter>();
+        CommentedModule.StaticModule.SingleMod.Do();
 
         // Act
         await Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, true));
+        mockWriter.Verify(m => m.WriteLine(expected1, true));
+        mockWriter.Verify(m => m.WriteLine(expected2, false));
     }
 
     [Fact]
@@ -373,24 +443,28 @@ public class DiscoverE2ETests
     }
 
     private static async Task<object?> Invoke(
-        string command,
+        string? command = null,
         IOutputWriter? writer = null,
         bool moduleOptIn = false)
     {
         writer ??= new Mock<IOutputWriter>().Object;
         var asm = Assembly.GetAssembly(typeof(DiscoverE2ETests));
-        return await Discover.GoAsync(moduleOptIn, asm, command.Split(' '), writer);
+        return await Discover.GoAsync(moduleOptIn, asm, command?.Split(' '), writer);
     }
 
     /// <summary>
     /// Commented module.
     /// </summary>
+    [Module("9commented:")]
     public sealed class CommentedModule
     {
         private int Seed { get; } = 12;
 
-        public static async Task<string> JoinArray(string[] s, string x = "!") =>
-            await Task.FromResult(string.Join(", ", s) + x);
+        public static async Task<string> JoinArray(string[] s, string x = "!")
+        {
+            await Task.CompletedTask;
+            return string.Join(", ", s) + x;
+        }
 
         public static void Throw(bool test = false) =>
             throw new ArgumentException(test ? "1" : "2", nameof(test));
@@ -412,12 +486,21 @@ public class DiscoverE2ETests
             [Alias("n")] List<int> numbers,
             [Hidden] int otherSeed = 0) => this.Seed + otherSeed + numbers.Sum();
 
-        [Module(null!)]
         public static class StaticModule
         {
             public static async Task Delay(int ms) => await Task.Delay(ms);
 
-            public static class EmptyMod { }
+            public static class SingleMod
+            {
+                public static void Do() { }
+            }
+        }
+
+        [Module("empty")]
+        public static class EmptyModule
+        {
+            [Hidden]
+            public static int Do() => 42;
         }
     }
 }

@@ -34,9 +34,11 @@ internal static class RoutingExtensions
             .ToList();
 
         // Kick out no routes or have anything pre-route
-        if (numberedArgs.Find(kvp => kvp.qRoute)?.index != 0)
+        var firstRoute = numberedArgs.FirstOrDefault(kvp => kvp.qRoute);
+        if (firstRoute?.index != 0)
         {
-            throw new RouteBuilderException(Array.Empty<string>());
+            var message = firstRoute == null ? "No routes found." : $"Invalid route: {numberedArgs[0].arg}";
+            throw new RouteBuilderException(Array.Empty<string>(), message);
         }
 
         var isHelp = numberedArgs.Any(kvp => kvp.help);
@@ -66,10 +68,14 @@ internal static class RoutingExtensions
                 }
             }
 
-            var badParams = paramMap.Where(kvp => !Regex.IsMatch(kvp.Key, "^([-]{1,2})[a-zA-Z]"));
-            if (badParams.Any())
+            var badParams = paramMap
+                .Where(kvp => !Regex.IsMatch(kvp.Key, "^([-]{1,2})[a-zA-Z]"))
+                .Select(kvp => kvp.Key)
+                .ToList();
+            if (badParams.Count != 0)
             {
-                throw new RouteBuilderException(routes);
+                var badArg = numberedArgs.First(n => badParams.Contains(n.arg)).arg;
+                throw new RouteBuilderException(routes, $"Bad parameter: '{badArg}'.");
             }
         }
 

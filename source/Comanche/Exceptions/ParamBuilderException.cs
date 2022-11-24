@@ -17,7 +17,6 @@ internal class ParamBuilderException : Exception
     /// </summary>
     /// <param name="errors">The errors.</param>
     public ParamBuilderException(IReadOnlyDictionary<string, string> errors)
-        : base("Invalid parameters found.")
     {
         this.Errors = errors;
     }

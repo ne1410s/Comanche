@@ -10,6 +10,11 @@ using System.Collections.Generic;
 /// <inheritdoc cref="IOutputWriter"/>
 public class ConsoleWriter : IOutputWriter
 {
+    /// <summary>
+    /// Gets the error count.
+    /// </summary>
+    public Dictionary<string, int> Counter { get; } = new();
+
     /// <inheritdoc/>
     public void WriteLine(string text, bool isError = false) =>
         this.WriteLineInternal(text, isError);
@@ -17,7 +22,9 @@ public class ConsoleWriter : IOutputWriter
     private void WriteLineInternal(string text, bool error)
     {
         ConsoleColor priorForeground = Console.ForegroundColor;
-        Console.ForegroundColor = error ? ConsoleColor.Red : ConsoleColor.White;
+        var color = error ? ConsoleColor.Red : ConsoleColor.White;
+        Console.ForegroundColor = color;
+        this.Counter[$"{color}"] = this.Counter.TryGetValue($"{color}", out var val) ? val + 1 : 1;
         if (error)
         {
             Console.Error.WriteLine(text);

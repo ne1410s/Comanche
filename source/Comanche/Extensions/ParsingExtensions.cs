@@ -130,8 +130,11 @@ internal static class ParsingExtensions
                 errors[param] = err!;
             }
 
-            unmatched.Remove(byName ? "--" + param.Name : string.Empty);
-            unmatched.Remove(byAlias ? "-" + param.Alias : string.Empty);
+            var matchToRemove = byName ? "--" + param.Name : byAlias ? "-" + param.Alias : null;
+            if (matchToRemove != null)
+            {
+                unmatched.Remove(matchToRemove);
+            }
         }
 
         if (errors.Count != 0 || unmatched.Count != 0)
