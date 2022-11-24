@@ -95,7 +95,7 @@ internal static class ParsingExtensions
                         errors[param] = firstError;
                     }
                 }
-                else 
+                else
                 {
                     var type = param.ParameterType.GenericTypeArguments[0];
                     var res = inputs.Select(i => new { ok = i.TryParse(type, out var val, out var err), val, err });

@@ -55,7 +55,7 @@ public class DiscoverE2ETests
     public async Task Discover_IntList_ReturnsExpected()
     {
         // Arrange
-        const string command = "e2e commented sum -n 3 -n 4 -n 1";
+        const string command = "e2e commented sum -n 3 -n 4 -n 1 --n 0";
 
         // Act
         var result = await Invoke(command);
@@ -185,14 +185,22 @@ public class DiscoverE2ETests
     {
         // Arrange
         const string command = "e2e commented joinarray --help";
-        const string expected = "  --x [String = !]";
+        const string expected1 = "- Method: joinarray";
+        const string expected2 = "- Summary: Join array.";
+        const string expected3 = "- Parameters:";
+        const string expected4 = "  --x [String = !] - The x.";
+        const string expected5 = "- Returns: [Task`1] Val.";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
         await Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, false));
+        mockWriter.Verify(m => m.WriteLine(expected1, false));
+        mockWriter.Verify(m => m.WriteLine(expected2, false));
+        mockWriter.Verify(m => m.WriteLine(expected3, false));
+        mockWriter.Verify(m => m.WriteLine(expected4, false));
+        mockWriter.Verify(m => m.WriteLine(expected5, false));
     }
 
     [Fact]
@@ -210,6 +218,21 @@ public class DiscoverE2ETests
         // Assert
         mockWriter.Verify(m => m.WriteLine(expected1, false));
         mockWriter.Verify(m => m.WriteLine(expected2, true));
+    }
+
+    [Fact]
+    public async Task Discover_BadAliasedParam_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "e2e commented sum -numbers NaN";
+        const string expected = "--n (-numbers): cannot convert";
+        var mockWriter = new Mock<IOutputWriter>();
+
+        // Act
+        await Invoke(command, mockWriter.Object);
+
+        // Assert
+        mockWriter.Verify(m => m.WriteLine(expected, true));
     }
 
     [Fact]
@@ -460,6 +483,12 @@ public class DiscoverE2ETests
     {
         private int Seed { get; } = 12;
 
+        /// <summary>
+        /// Join array.
+        /// </summary>
+        /// <param name="s">The s.</param>
+        /// <param name="x">The x.</param>
+        /// <returns>Val.</returns>
         public static async Task<string> JoinArray(string[] s, string x = "!")
         {
             await Task.CompletedTask;
@@ -479,12 +508,14 @@ public class DiscoverE2ETests
         /// Sums ints.
         /// </summary>
         /// <param name="numbers">Integers.</param>
+        /// <param name="n">N.</param>
         /// <param name="otherSeed">Other seed.</param>
         /// <returns>Sum plus a seed.</returns>
         [Alias("sum")]
         public int SumList(
             [Alias("n")] List<int> numbers,
-            [Hidden] int otherSeed = 0) => this.Seed + otherSeed + numbers.Sum();
+            [Alias("numbers")]int n = 34,
+            [Hidden] int otherSeed = 0) => this.Seed + n + otherSeed + numbers.Sum();
 
         public static class StaticModule
         {
