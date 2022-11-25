@@ -104,19 +104,18 @@ public static class DiscoveryExtensions
             .Select(p => p.ToParam(xmlMethod))
             .ToList();
 
-        async Task<object?> TaskCall(object? inst, object?[] parms)
+        object? TaskCall(object? inst, object?[] parms)
         {
-            var result = m.Invoke(inst, parms);
-            if (result is Task task)
+            if (typeof(Task).IsAssignableFrom(m.ReturnType))
             {
-                await task;
+                var task = Task.Run(() => m.Invoke(inst, parms)).Result;
                 return m.ReturnType.IsGenericType
                     ? ((dynamic)task).Result
                     : null;
             }
             else
             {
-                return result;
+                return m.Invoke(inst, parms);
             }
         }
 

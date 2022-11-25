@@ -36,7 +36,7 @@ internal class ComancheSession
     /// <param name="args">The arguments.</param>
     /// <param name="writer">The output writer.</param>
     /// <returns>The result.</returns>
-    public async Task<object?> FulfilAsync(string[] args, IOutputWriter writer)
+    public object? Fulfil(string[] args, IOutputWriter writer)
     {
         ComancheRoute? route = null;
         try
@@ -66,14 +66,15 @@ internal class ComancheSession
                     }
                 }
 
-                writer.WriteLine($"- Returns: [{method.ReturnType.Name}] {method.Returns}");
+                var returns = method.Returns != null ? $" {method.Returns}" : string.Empty;
+                writer.WriteLine($"- Returns: [{method.ReturnType.Name}]{returns}");
 
                 return null;
             }
             else
             {
                 var parameters = method.Parameters.ParseMap(route.ParamMap);
-                var result = await method.CallAsync(parameters);
+                var result = method.Call(parameters);
                 writer.WriteLine($"{result}");
                 return result;
             }
@@ -86,22 +87,16 @@ internal class ComancheSession
             }
 
             this.MatchModule(routeEx.DeepestValidTerms, out var modules, out var methods);
-            if (modules.Count > 0)
+            foreach (var kvp in modules)
             {
-                foreach (var kvp in modules)
-                {
-                    var summary = kvp.Value.Summary != null ? $" ({kvp.Value.Summary})" : string.Empty;
-                    writer.WriteLine($"MODULE: {kvp.Key}{summary}");
-                }
+                var summary = kvp.Value.Summary != null ? $" ({kvp.Value.Summary})" : string.Empty;
+                writer.WriteLine($"MODULE: {kvp.Key}{summary}");
             }
 
-            if (methods.Count > 0)
+            foreach (var kvp in methods)
             {
-                foreach (var kvp in methods)
-                {
-                    var summary = kvp.Value.Summary != null ? $" ({kvp.Value.Summary})" : string.Empty;
-                    writer.WriteLine($"METHOD: {kvp.Key}{summary}");
-                }
+                var summary = kvp.Value.Summary != null ? $" ({kvp.Value.Summary})" : string.Empty;
+                writer.WriteLine($"METHOD: {kvp.Key}{summary}");
             }
         }
         catch (ParamBuilderException paramEx)

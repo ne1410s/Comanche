@@ -7,7 +7,6 @@ namespace Comanche;
 using System;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using Comanche.Attributes;
 using Comanche.Extensions;
 using Comanche.Services;
@@ -26,7 +25,7 @@ public static class Discover
     /// <param name="args">Command arguments.</param>
     /// <param name="writer">An output writer.</param>
     /// <returns>The result of the invocation.</returns>
-    public static async Task<object?> GoAsync(
+    public static object? Go(
         bool moduleOptIn = false,
         Assembly? asm = null,
         string[]? args = null,
@@ -37,6 +36,6 @@ public static class Discover
         writer ??= new ConsoleWriter();
 
         var session = asm.GetSession(moduleOptIn);
-        return await session.FulfilAsync(args, writer);
+        return session.Fulfil(args, writer);
     }
 }

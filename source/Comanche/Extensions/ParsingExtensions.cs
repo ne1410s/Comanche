@@ -9,7 +9,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Reflection;
 using System.Text.Json;
 using Comanche.Exceptions;
 using Comanche.Models;
@@ -66,12 +65,11 @@ internal static class ParsingExtensions
                 }
                 else
                 {
-                    //retVal.Add(GetDefault(param.ParameterType));
                     errors[param] = "missing";
                 }
             }
             else if (param.ParameterType != typeof(string) && typeof(IEnumerable).IsAssignableFrom(param.ParameterType)
-                && (param.ParameterType.IsArray 
+                && (param.ParameterType.IsArray
                 || (param.ParameterType.GenericTypeArguments.Length == 1
                     && param.ParameterType.GenericTypeArguments[0].GenericTypeArguments.Length == 0)))
             {
@@ -182,9 +180,9 @@ internal static class ParsingExtensions
         return error == null;
     }
 
-    //private static object GetDefault(Type t) => typeof(ParsingExtensions)
-    //    .GetMethod(nameof(GetDefaultGeneric), BindingFlags.NonPublic | BindingFlags.Static)
-    //    .MakeGenericMethod(t).Invoke(null, null);
+    ////private static object GetDefault(Type t) => typeof(ParsingExtensions)
+    ////    .GetMethod(nameof(GetDefaultGeneric), BindingFlags.NonPublic | BindingFlags.Static)
+    ////    .MakeGenericMethod(t).Invoke(null, null);
 
-    //private static T? GetDefaultGeneric<T>() => default;
+    ////private static T? GetDefaultGeneric<T>() => default;
 }

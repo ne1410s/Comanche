@@ -6,7 +6,6 @@ namespace Comanche.Models;
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Comanche.Exceptions;
 
 /// <summary>
@@ -14,7 +13,7 @@ using Comanche.Exceptions;
 /// </summary>
 internal class ComancheMethod
 {
-    private readonly Func<object?, object?[], Task<object?>> taskCall;
+    private readonly Func<object?, object?[], object?> call;
     private readonly Func<object?> resolver;
 
     /// <summary>
@@ -25,7 +24,7 @@ internal class ComancheMethod
     /// <param name="returns">The method returns.</param>
     /// <param name="returnType">The return type.</param>
     /// <param name="resolver">The caller resolver.</param>
-    /// <param name="taskCall">The call function.</param>
+    /// <param name="call">The call function.</param>
     /// <param name="parameters">The parameter definitions.</param>
     public ComancheMethod(
         string name,
@@ -33,11 +32,11 @@ internal class ComancheMethod
         string? returns,
         Type returnType,
         Func<object?> resolver,
-        Func<object?, object?[], Task<object?>> taskCall,
+        Func<object?, object?[], object?> call,
         List<ComancheParam> parameters)
     {
         this.resolver = resolver;
-        this.taskCall = taskCall;
+        this.call = call;
         this.Name = name;
         this.Summary = summary;
         this.Parameters = parameters;
@@ -76,12 +75,12 @@ internal class ComancheMethod
     /// <param name="parameters">The call parameters.</param>
     /// <returns>The result.</returns>
     /// <exception cref="ExecutionException">Execution error.</exception>
-    public async Task<object?> CallAsync(object?[] parameters)
+    public object? Call(object?[] parameters)
     {
         try
         {
             var caller = this.resolver();
-            return await this.taskCall(caller, parameters);
+            return this.call(caller, parameters);
         }
         catch (Exception ex)
         {

@@ -16,108 +16,136 @@ using Comanche.Services;
 public class DiscoverE2ETests
 {
     [Fact]
-    public async Task Discover_AltParams_ReturnsExpected()
+    public void Discover_AltParams_ReturnsExpected()
     {
         // Act
-        var result = await Discover.GoAsync(true);
+        var result = Discover.Go(true);
 
         // Assert
         result.Should().BeNull();
     }
 
     [Fact]
-    public async Task Discover_StringArray_ReturnsExpected()
+    public void Discover_StringArray_ReturnsExpected()
     {
         // Arrange
         const string command = "e2e commented joinarray --s hello --s world";
 
         // Act
-        var result = await Invoke(command);
+        var result = Invoke(command);
 
         // Assert
         result.Should().BeEquivalentTo("hello, world!");
     }
 
     [Fact]
-    public async Task Discover_IntArray_ReturnsExpected()
+    public void Discover_IntArray_ReturnsExpected()
     {
         // Arrange
         const string command = "e2e commented sumarray --n 3 --n 4 --n 1";
 
         // Act
-        var result = await Invoke(command);
+        var result = Invoke(command);
 
         // Assert
         result.Should().BeEquivalentTo(8);
     }
 
     [Fact]
-    public async Task Discover_IntList_ReturnsExpected()
+    public void Discover_IntList_ReturnsExpected()
     {
         // Arrange
         const string command = "e2e commented sum -n 3 -n 4 -n 1 --n 0";
 
         // Act
-        var result = await Invoke(command);
+        var result = Invoke(command);
 
         // Assert
         result.Should().BeEquivalentTo(20);
     }
 
     [Fact]
-    public async Task Discover_NullableWithValue_ReturnsExpected()
+    public void Discover_NullableWithValue_ReturnsExpected()
     {
         // Arrange
         const string command = "e2e commented next --b 110";
 
         // Act
-        var result = await Invoke(command);
+        var result = Invoke(command);
 
         // Assert
         result.Should().BeEquivalentTo(111);
     }
 
     [Fact]
-    public async Task Discover_NullableWithFlag_ReturnsExpected()
+    public void Discover_NullableWithFlag_ReturnsExpected()
     {
         // Arrange
         const string command = "e2e commented next --b";
 
         // Act
-        var result = await Invoke(command);
+        var result = Invoke(command);
 
         // Assert
         result.Should().BeEquivalentTo(256);
     }
 
     [Fact]
-    public async Task Discover_GoodJson_ReturnsExpected()
+    public void Discover_GoodJson_ReturnsExpected()
     {
         // Arrange
         const string command = "e2e commented sumdicto --d { \"a\": 1, \"b\": 2 }";
 
         // Act
-        var result = await Invoke(command);
+        var result = Invoke(command);
 
         // Assert
         result.Should().BeEquivalentTo(3);
     }
 
     [Fact]
-    public async Task Discover_ReturnBareTask_ReturnsExpected()
+    public void Discover_ComplexTypeDefault_ReturnsExpected()
+    {
+        // Arrange
+        const string command = "e2e commented sumdicto";
+
+        // Act
+        var result = Invoke(command);
+
+        // Assert
+        result.Should().BeEquivalentTo(0);
+    }
+
+    [Fact]
+    public void Discover_ReturnBareTask_ReturnsExpected()
     {
         // Arrange
         const string command = "e2e commented static delay --ms 1";
 
         // Act
-        var result = await Invoke(command);
+        var result = Invoke(command);
 
         // Assert
         result.Should().BeNull();
     }
 
     [Fact]
-    public async Task Discover_Help_WritesExpected()
+    public void Discover_IntList_WritesExpected()
+    {
+        // Arrange
+        const string command = "e2e commented sum -n 3 -n 4 -n 1 --n 0";
+        const string expected = "20";
+        var mockWriter = new Mock<IOutputWriter>();
+
+        // Act
+        var result = Invoke(command, mockWriter.Object);
+
+        // Assert
+        mockWriter.Verify(m => m.WriteLine(expected, false));
+    }
+
+    [Fact]
+    public void Discover_Help_WritesExpected()
     {
         // Arrange
         const string command = "e2e --help";
@@ -125,63 +153,69 @@ public class DiscoverE2ETests
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
-        await Invoke(command, mockWriter.Object);
+        Invoke(command, mockWriter.Object);
 
         // Assert
         mockWriter.Verify(m => m.WriteLine(expected, false));
     }
 
     [Fact]
-    public async Task Discover_ModuleOptIn_WritesExpected()
+    public void Discover_ModuleOptIn_WritesExpected()
     {
         // Arrange
         const string command = "e2e commented --help";
-        const string expectedZero = "MODULE: static";
+        const string unexpected = "MODULE: static";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
-        await Invoke(command, mockWriter.Object, true);
+        Invoke(command, mockWriter.Object, true);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expectedZero, false), Times.Never());
+        mockWriter.Verify(m => m.WriteLine(unexpected, It.IsAny<bool>()), Times.Never());
     }
 
     [Fact]
-    public async Task Discover_OptedInEmptyMod_WritesExpected()
+    public void Discover_OptedInEmptyMod_WritesExpected()
     {
         // Arrange
         const string command = "e2e commented --help";
-        const string expectedZero = "MODULE: empty";
+        const string unexpected = "MODULE: empty";
         var mockWriter = new Mock<IOutputWriter>();
         _ = CommentedModule.EmptyModule.Do();
 
         // Act
-        await Invoke(command, mockWriter.Object, true);
+        Invoke(command, mockWriter.Object, true);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expectedZero, false), Times.Never());
+        mockWriter.Verify(m => m.WriteLine(unexpected, It.IsAny<bool>()), Times.Never());
     }
 
     [Theory]
     [InlineData("--help")]
     [InlineData("-h")]
     [InlineData("/?")]
-    public async Task Discover_MethodHelp_WritesExpected(string helpCommand)
+    public void Discover_MethodHelpWithoutDocs_WritesExpected(string helpCommand)
     {
         // Arrange
-        var command = $"e2e commented sum {helpCommand}";
-        const string expected = "  --numbers (-n) [List`1] - Integers.";
+        var command = $"e2e commented sumarray {helpCommand}";
+        const string expected1 = "- Method: sumarray";
+        const string expected2 = "- Parameters:";
+        const string expected3 = "  --n (-numbers) [Int32[]]";
+        const string expected4 = "- Returns: [Int32]";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
-        await Invoke(command, mockWriter.Object);
+        Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, false));
+        mockWriter.Verify(m => m.WriteLine(expected1, false));
+        mockWriter.Verify(m => m.WriteLine(expected2, false));
+        mockWriter.Verify(m => m.WriteLine(expected3, false));
+        mockWriter.Verify(m => m.WriteLine(expected4, false));
     }
 
     [Fact]
-    public async Task Discover_MethodHelpWithString_WritesExpected()
+    public void Discover_MethodHelpWithDocs_WritesExpected()
     {
         // Arrange
         const string command = "e2e commented joinarray --help";
@@ -193,7 +227,7 @@ public class DiscoverE2ETests
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
-        await Invoke(command, mockWriter.Object);
+        Invoke(command, mockWriter.Object);
 
         // Assert
         mockWriter.Verify(m => m.WriteLine(expected1, false));
@@ -204,39 +238,73 @@ public class DiscoverE2ETests
     }
 
     [Fact]
-    public async Task Discover_BadRoute_WritesExpected()
+    public void Discover_MethodHelpNoParams_WritesExpected()
     {
         // Arrange
-        const string command = "e2e commented sum doesnotexist";
-        const string expected1 = "METHOD: sum (Sums ints.)";
-        const string expected2 = "No such method.";
+        const string command = "e2e commented static singlemod do --help";
+        const string unexpected = "- Parameters:";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
-        await Invoke(command, mockWriter.Object);
+        Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected1, false));
+        mockWriter.Verify(m => m.WriteLine(unexpected, It.IsAny<bool>()), Times.Never());
+    }
+
+    [Fact]
+    public void Discover_MethodHelpComplexParam_WritesExpected()
+    {
+        // Arrange
+        const string command = "e2e commented sumdicto --help";
+        const string expected = "  --d [Dictionary`2]";
+        var mockWriter = new Mock<IOutputWriter>();
+
+        // Act
+        Invoke(command, mockWriter.Object);
+
+        // Assert
+        mockWriter.Verify(m => m.WriteLine(expected, false));
+    }
+
+    [Fact]
+    public void Discover_BadRoute_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "e2e commented sum doesnotexist";
+        const string expected1 = "No such method.";
+        const string expected2 = "METHOD: sum (Sums ints.)";
+        const string expected3 = "METHOD: next";
+        var mockWriter = new Mock<IOutputWriter>();
+
+        // Act
+        Invoke(command, mockWriter.Object);
+
+        // Assert
+        mockWriter.Verify(m => m.WriteLine(expected1, true));
+        mockWriter.Verify(m => m.WriteLine(expected2, false));
+        mockWriter.Verify(m => m.WriteLine(expected3, false));
+    }
+
+    [Fact]
+    public void Discover_BadAliasedParam_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "e2e commented sum -numbers NaN";
+        const string expected1 = "Invalid parameters";
+        const string expected2 = "--n (-numbers): cannot convert";
+        var mockWriter = new Mock<IOutputWriter>();
+
+        // Act
+        Invoke(command, mockWriter.Object);
+
+        // Assert
+        mockWriter.Verify(m => m.WriteLine(expected1, true));
         mockWriter.Verify(m => m.WriteLine(expected2, true));
     }
 
     [Fact]
-    public async Task Discover_BadAliasedParam_WritesExpectedError()
-    {
-        // Arrange
-        const string command = "e2e commented sum -numbers NaN";
-        const string expected = "--n (-numbers): cannot convert";
-        var mockWriter = new Mock<IOutputWriter>();
-
-        // Act
-        await Invoke(command, mockWriter.Object);
-
-        // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, true));
-    }
-
-    [Fact]
-    public async Task Discover_NoRoute_WritesExpectedError()
+    public void Discover_NoRoute_WritesExpectedError()
     {
         // Arrange
         const string command = "bloort";
@@ -244,28 +312,28 @@ public class DiscoverE2ETests
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
-        await Invoke(command, mockWriter.Object);
+        Invoke(command, mockWriter.Object);
 
         // Assert
         mockWriter.Verify(m => m.WriteLine(expected, true));
     }
 
     [Fact]
-    public async Task Discover_DefaultArgs_WritesExpectedError()
+    public void Discover_DefaultArgs_WritesExpectedError()
     {
         // Arrange
         var mockWriter = new Mock<IOutputWriter>();
         const string expected = "Invalid route: --port";
 
         // Act
-        await Invoke(writer: mockWriter.Object);
+        Invoke(writer: mockWriter.Object);
 
         // Assert
         mockWriter.Verify(m => m.WriteLine(expected, true));
     }
 
     [Fact]
-    public async Task Discover_PreRouteParam_WritesExpectedError()
+    public void Discover_PreRouteParam_WritesExpectedError()
     {
         // Arrange
         const string command = "--lol";
@@ -273,14 +341,14 @@ public class DiscoverE2ETests
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
-        await Invoke(command, mockWriter.Object);
+        Invoke(command, mockWriter.Object);
 
         // Assert
         mockWriter.Verify(m => m.WriteLine(expected, true));
     }
 
     [Fact]
-    public async Task Discover_DefaultBoolFlagWithError_WritesExpectedError()
+    public void Discover_DefaultBoolFlagWithError_WritesExpectedError()
     {
         // Arrange
         const string command = "e2e commented throw --test";
@@ -288,14 +356,14 @@ public class DiscoverE2ETests
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
-        await Invoke(command, mockWriter.Object);
+        Invoke(command, mockWriter.Object);
 
         // Assert
         mockWriter.Verify(m => m.WriteLine(expected, true));
     }
 
     [Fact]
-    public async Task Discover_NullableMissing_WritesExpectedError()
+    public void Discover_NullableMissing_WritesExpectedError()
     {
         // Arrange
         const string command = "e2e commented next";
@@ -303,14 +371,14 @@ public class DiscoverE2ETests
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
-        await Invoke(command, mockWriter.Object);
+        Invoke(command, mockWriter.Object);
 
         // Assert
         mockWriter.Verify(m => m.WriteLine(expected, true));
     }
 
     [Fact]
-    public async Task Discover_NonNullableOnlyFlag_WritesExpectedError()
+    public void Discover_NonNullableOnlyFlag_WritesExpectedError()
     {
         // Arrange
         const string command = "e2e commented static delay --ms";
@@ -318,14 +386,14 @@ public class DiscoverE2ETests
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
-        await Invoke(command, mockWriter.Object);
+        Invoke(command, mockWriter.Object);
 
         // Assert
         mockWriter.Verify(m => m.WriteLine(expected, true));
     }
 
     [Fact]
-    public async Task Discover_BadParam_WritesExpectedError()
+    public void Discover_BadParam_WritesExpectedError()
     {
         // Arrange
         const string command = "e2e commented sum --notaparam";
@@ -334,7 +402,7 @@ public class DiscoverE2ETests
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
-        await Invoke(command, mockWriter.Object);
+        Invoke(command, mockWriter.Object);
 
         // Assert
         mockWriter.Verify(m => m.WriteLine(expected1, true));
@@ -342,7 +410,7 @@ public class DiscoverE2ETests
     }
 
     [Fact]
-    public async Task Discover_BadParamFormat_WritesExpectedError()
+    public void Discover_BadParamFormat_WritesExpectedError()
     {
         // Arrange
         const string command = "e2e commented sum ---notaparam";
@@ -352,7 +420,7 @@ public class DiscoverE2ETests
         CommentedModule.StaticModule.SingleMod.Do();
 
         // Act
-        await Invoke(command, mockWriter.Object);
+        Invoke(command, mockWriter.Object);
 
         // Assert
         mockWriter.Verify(m => m.WriteLine(expected1, true));
@@ -360,7 +428,7 @@ public class DiscoverE2ETests
     }
 
     [Fact]
-    public async Task Discover_BadCall_WritesExpectedError()
+    public void Discover_BadCall_WritesExpectedError()
     {
         // Arrange
         const string command = "e2e commented throw";
@@ -368,14 +436,14 @@ public class DiscoverE2ETests
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
-        await Invoke(command, mockWriter.Object);
+        Invoke(command, mockWriter.Object);
 
         // Assert
         mockWriter.Verify(m => m.WriteLine(expected, true));
     }
 
     [Fact]
-    public async Task Discover_HiddenParam_WritesExpectedError()
+    public void Discover_HiddenParam_WritesExpectedError()
     {
         // Arrange
         const string command = "e2e commented sum -n 1 --otherSeed 2";
@@ -383,14 +451,14 @@ public class DiscoverE2ETests
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
-        await Invoke(command, mockWriter.Object);
+        Invoke(command, mockWriter.Object);
 
         // Assert
         mockWriter.Verify(m => m.WriteLine(expected, true));
     }
 
     [Fact]
-    public async Task Discover_MultipleButNotSequence_WritesExpectedError()
+    public void Discover_MultipleButNotSequence_WritesExpectedError()
     {
         // Arrange
         const string command = "e2e commented throw --test true --test false";
@@ -398,14 +466,14 @@ public class DiscoverE2ETests
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
-        await Invoke(command, mockWriter.Object);
+        Invoke(command, mockWriter.Object);
 
         // Assert
         mockWriter.Verify(m => m.WriteLine(expected, true));
     }
 
     [Fact]
-    public async Task Discover_BadItemInList_WritesExpectedError()
+    public void Discover_BadItemInList_WritesExpectedError()
     {
         // Arrange
         const string command = "e2e commented sum -n yo";
@@ -413,29 +481,29 @@ public class DiscoverE2ETests
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
-        await Invoke(command, mockWriter.Object);
+        Invoke(command, mockWriter.Object);
 
         // Assert
         mockWriter.Verify(m => m.WriteLine(expected, true));
     }
 
     [Fact]
-    public async Task Discover_BadItemInArray_WritesExpectedError()
+    public void Discover_BadItemInArray_WritesExpectedError()
     {
         // Arrange
         const string command = "e2e commented sumarray --n yo";
-        const string expected = "--n: cannot convert";
+        const string expected = "--n (-numbers): cannot convert";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
-        await Invoke(command, mockWriter.Object);
+        Invoke(command, mockWriter.Object);
 
         // Assert
         mockWriter.Verify(m => m.WriteLine(expected, true));
     }
 
     [Fact]
-    public async Task Discover_InvalidJson_WritesExpectedError()
+    public void Discover_InvalidJson_WritesExpectedError()
     {
         // Arrange
         const string command = "e2e commented sumdicto --d xyz";
@@ -444,14 +512,14 @@ public class DiscoverE2ETests
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
-        await Invoke(command, mockWriter.Object);
+        Invoke(command, mockWriter.Object);
 
         // Assert
         mockWriter.Verify(m => m.WriteLine(expected, true));
     }
 
     [Fact]
-    public async Task Discover_InvalidParam_WritesExpectedError()
+    public void Discover_InvalidParam_WritesExpectedError()
     {
         // Arrange
         const string command = "e2e commented next --b 933";
@@ -459,20 +527,20 @@ public class DiscoverE2ETests
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
-        await Invoke(command, mockWriter.Object);
+        Invoke(command, mockWriter.Object);
 
         // Assert
         mockWriter.Verify(m => m.WriteLine(expected, true));
     }
 
-    private static async Task<object?> Invoke(
+    private static object? Invoke(
         string? command = null,
         IOutputWriter? writer = null,
         bool moduleOptIn = false)
     {
         writer ??= new Mock<IOutputWriter>().Object;
         var asm = Assembly.GetAssembly(typeof(DiscoverE2ETests));
-        return await Discover.GoAsync(moduleOptIn, asm, command?.Split(' '), writer);
+        return Discover.Go(moduleOptIn, asm, command?.Split(' '), writer);
     }
 
     /// <summary>
@@ -498,11 +566,11 @@ public class DiscoverE2ETests
         public static void Throw(bool test = false) =>
             throw new ArgumentException(test ? "1" : "2", nameof(test));
 
-        public static int SumArray(int[] n) => n.Sum();
+        public static int SumArray([Alias("numbers")]int[] n) => n.Sum();
 
         public static short Next([Alias(null!)]byte? b) => (short)((b ?? byte.MaxValue) + 1);
 
-        public static int SumDicto(Dictionary<string, int> d) => d.Values.Sum();
+        public static int SumDicto(Dictionary<string, int>? d = null) => (d ?? new()).Values.Sum();
 
         /// <summary>
         /// Sums ints.
