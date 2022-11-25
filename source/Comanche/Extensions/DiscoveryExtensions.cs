@@ -110,7 +110,7 @@ public static class DiscoveryExtensions
             {
                 var task = Task.Run(() => m.Invoke(inst, parms)).Result;
                 return m.ReturnType.IsGenericType
-                    ? ((dynamic)task).Result
+                    ? task.GetType().GetProperty("Result").GetValue(task)
                     : null;
             }
             else

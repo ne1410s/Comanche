@@ -30,8 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Analyse" Version="1.0.3" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Analyse" Version="1.0.4-pre.15" />
     <PackageReference Include="System.Text.Json" Version="7.0.0" />
   </ItemGroup>
 

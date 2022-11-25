@@ -138,7 +138,7 @@ public class DiscoverE2ETests
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
-        var result = Invoke(command, mockWriter.Object);
+        _ = Invoke(command, mockWriter.Object);
 
         // Assert
         mockWriter.Verify(m => m.WriteLine(expected, false));
@@ -591,7 +591,10 @@ public class DiscoverE2ETests
 
             public static class SingleMod
             {
-                public static void Do() { }
+                public static void Do()
+                {
+                    // Empty
+                }
             }
         }
 
