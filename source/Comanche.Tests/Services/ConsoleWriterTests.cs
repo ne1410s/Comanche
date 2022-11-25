@@ -23,9 +23,11 @@ namespace Comanche.Tests.Services
 
             // Act
             sut.WriteLine("foo", true);
+            sut.WriteLine("foo", true);
 
             // Assert
-            writer.ToString().Should().Be("foo" + Environment.NewLine);
+            writer.ToString().Should().Contain("foo" + Environment.NewLine);
+            sut.Counter["Red"].Should().Be(2);
         }
 
         [Fact]
@@ -38,9 +40,11 @@ namespace Comanche.Tests.Services
 
             // Act
             sut.WriteLine("bar", false);
+            sut.WriteLine("bar", false);
 
             // Assert
-            writer.ToString().Should().Be("bar" + Environment.NewLine);
+            writer.ToString().Should().Contain("bar" + Environment.NewLine);
+            sut.Counter["White"].Should().Be(2);
         }
     }
 }
