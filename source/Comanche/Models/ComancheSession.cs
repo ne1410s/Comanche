@@ -6,7 +6,6 @@ namespace Comanche.Models;
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Comanche.Exceptions;
 using Comanche.Extensions;
 using Comanche.Services;

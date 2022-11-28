@@ -128,10 +128,13 @@ internal static class ParsingExtensions
                 errors[param] = err!;
             }
 
-            var matchToRemove = byName ? "--" + param.Name : byAlias ? "-" + param.Alias : null;
-            if (matchToRemove != null)
+            if (byName)
             {
-                unmatched.Remove(matchToRemove);
+                unmatched.Remove("--" + param.Name);
+            }
+            else if (byAlias)
+            {
+                unmatched.Remove("-" + param.Alias);
             }
         }
 

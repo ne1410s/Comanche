@@ -34,7 +34,7 @@ internal static class RoutingExtensions
             .ToList();
 
         // Kick out no routes or have anything pre-route
-        var firstRoute = numberedArgs.FirstOrDefault(kvp => kvp.qRoute);
+        var firstRoute = numberedArgs.Find(kvp => kvp.qRoute);
         if (firstRoute?.index != 0)
         {
             var message = firstRoute == null ? "No routes found." : $"Invalid route: {numberedArgs[0].arg}";
