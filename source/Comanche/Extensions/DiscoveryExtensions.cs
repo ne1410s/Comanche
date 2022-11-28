@@ -142,7 +142,7 @@ public static class DiscoveryExtensions
 
     private static string? GetNodeText(this XElement? parent, string xPath)
     {
-        var rawXmlValue = parent?.XPathSelectElement(xPath).Value;
+        var rawXmlValue = parent?.XPathSelectElement(xPath)?.Value;
         return !string.IsNullOrWhiteSpace(rawXmlValue)
             ? TermRespaceRegex.Replace(rawXmlValue, Space).Trim()
             : null;

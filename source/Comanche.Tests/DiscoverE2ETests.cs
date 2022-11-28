@@ -215,6 +215,25 @@ public class DiscoverE2ETests
     }
 
     [Fact]
+    public void Discover_MethodHelpPartialDocs_WritesExpected()
+    {
+        // Arrange
+        const string command = "e2e commented throw --help";
+        const string expected1 = "- Method: throw";
+        const string expected2 = "- Summary: Throws a thing.";
+        const string expected3 = "- Returns: [Void]";
+        var mockWriter = new Mock<IOutputWriter>();
+
+        // Act
+        Invoke(command, mockWriter.Object);
+
+        // Assert
+        mockWriter.Verify(m => m.WriteLine(expected1, false));
+        mockWriter.Verify(m => m.WriteLine(expected2, false));
+        mockWriter.Verify(m => m.WriteLine(expected3, false));
+    }
+
+    [Fact]
     public void Discover_MethodHelpWithDocs_WritesExpected()
     {
         // Arrange
@@ -563,6 +582,10 @@ public class DiscoverE2ETests
             return string.Join(", ", s) + x;
         }
 
+        /// <summary>
+        /// Throws a thing.
+        /// </summary>
+        /// <param name="test">Test.</param>
         public static void Throw(bool test = false) =>
             throw new ArgumentException(test ? "1" : "2", nameof(test));
 
