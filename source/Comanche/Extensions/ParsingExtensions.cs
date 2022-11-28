@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using Comanche.Exceptions;
@@ -159,7 +160,7 @@ internal static class ParsingExtensions
         {
             try
             {
-                value = Convert.ChangeType(input, nullableType ?? targetType);
+                value = Convert.ChangeType(input, nullableType ?? targetType, CultureInfo.InvariantCulture);
             }
             catch (FormatException)
             {
