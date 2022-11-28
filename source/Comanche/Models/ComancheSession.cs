@@ -4,7 +4,6 @@
 
 namespace Comanche.Models;
 
-using System;
 using System.Collections.Generic;
 using Comanche.Exceptions;
 using Comanche.Extensions;
@@ -106,7 +105,7 @@ internal class ComancheSession
                 writer.WriteLine($"{kvp.Key}: {kvp.Value}", true);
             }
         }
-        catch (Exception ex)
+        catch (ExecutionException ex)
         {
             writer.WriteLine(ex.Message, true);
         }

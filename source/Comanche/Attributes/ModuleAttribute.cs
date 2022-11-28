@@ -10,13 +10,19 @@ using System;
 /// Configures a class as an execution module.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class)]
-public class ModuleAttribute : AliasAttribute
+public sealed class ModuleAttribute : Attribute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="ModuleAttribute"/> class.
     /// </summary>
-    /// <param name="name">The alias name.</param>
+    /// <param name="name">The module name.</param>
     public ModuleAttribute(string name)
-        : base(name)
-    { }
+    {
+        this.Name = name;
+    }
+
+    /// <summary>
+    /// Gets the module name.
+    /// </summary>
+    public string Name { get; }
 }

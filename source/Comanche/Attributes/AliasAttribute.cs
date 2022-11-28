@@ -10,7 +10,7 @@ using System;
 /// Provides a member or parameter with an alternative name.
 /// </summary>
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Parameter)]
-public class AliasAttribute : Attribute
+public sealed class AliasAttribute : Attribute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="AliasAttribute"/> class.

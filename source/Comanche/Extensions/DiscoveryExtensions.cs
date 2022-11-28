@@ -25,7 +25,7 @@ public static class DiscoveryExtensions
     private const string XPathMemberFormat = "./doc/members/member[@name='{0}']";
     private const string Space = " ";
 
-    private static readonly IFormatProvider Invariant = CultureInfo.InvariantCulture;
+    private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
     private static readonly Regex TermRemovalRegex = new("[^a-zA-Z0-9-_]+");
     private static readonly Regex HeadRemovalRegex = new("^[^a-zA-Z]+");
     private static readonly Regex TermRespaceRegex = new("\\s{2,}");
@@ -56,7 +56,7 @@ public static class DiscoveryExtensions
         var moduleName = t.GetCustomAttribute<ModuleAttribute>()?.Name.Sanitise();
         if (!moduleOptIn && t.GetCustomAttribute<HiddenAttribute>() == null && moduleName == null)
         {
-            moduleName = ModuleElideRegex.Replace(t.Name.ToLower().Sanitise(), string.Empty);
+            moduleName = ModuleElideRegex.Replace(t.Name.ToLower(Invariant).Sanitise(), string.Empty);
         }
 
         if (moduleName == null)
@@ -98,7 +98,7 @@ public static class DiscoveryExtensions
         var xmlMethod = xDoc.XPathSelectElement(xPath);
         var xmlSummary = xmlMethod.GetNodeText("summary");
         var xmlReturns = xmlMethod.GetNodeText("returns");
-        var methodName = (m.GetCustomAttribute<AliasAttribute>()?.Name ?? m.Name.ToLower()).Sanitise();
+        var methodName = (m.GetCustomAttribute<AliasAttribute>()?.Name ?? m.Name.ToLower(Invariant)).Sanitise();
 
         var parameters = paramInfos
             .Select(p => p.ToParam(xmlMethod))

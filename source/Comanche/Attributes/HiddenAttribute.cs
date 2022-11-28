@@ -10,5 +10,5 @@ using System;
 /// Prevents a module, method or parameter from being exposed to Comanche.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter)]
-public class HiddenAttribute : Attribute
+public sealed class HiddenAttribute : Attribute
 { }

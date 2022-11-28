@@ -161,7 +161,12 @@ internal static class ParsingExtensions
             {
                 value = Convert.ChangeType(input, nullableType ?? targetType);
             }
-            catch
+            catch (FormatException)
+            {
+                value = null;
+                error = "cannot convert";
+            }
+            catch (OverflowException)
             {
                 value = null;
                 error = "cannot convert";
@@ -173,7 +178,7 @@ internal static class ParsingExtensions
             {
                 value = JsonSerializer.Deserialize(input!, targetType);
             }
-            catch
+            catch (JsonException)
             {
                 value = null;
                 error = "cannot deserialize";
