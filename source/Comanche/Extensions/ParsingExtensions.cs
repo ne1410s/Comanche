@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text.Json;
 using Comanche.Exceptions;
 using Comanche.Models;
+using Comanche.Services;
 
 /// <summary>
 /// Extenions relating to parameter parsing.
@@ -24,11 +25,13 @@ internal static class ParsingExtensions
     /// </summary>
     /// <param name="methodParams">Method parameter list definition.</param>
     /// <param name="paramMap">A parameter map.</param>
+    /// <param name="writer">An output writer.</param>
     /// <returns>An array of parameters.</returns>
     /// <exception cref="ParamBuilderException">Param builder error.</exception>
     public static object?[] ParseMap(
         this IReadOnlyList<ComancheParam> methodParams,
-        IReadOnlyDictionary<string, List<string>> paramMap)
+        IReadOnlyDictionary<string, List<string>> paramMap,
+        IOutputWriter writer)
     {
         var retVal = new List<object?>();
         var errors = new Dictionary<ComancheParam, string>();
@@ -39,7 +42,11 @@ internal static class ParsingExtensions
             var byName = paramMap.TryGetValue("--" + param.Name, out List<string> inputs);
             var byAlias = param.Alias != null && !byName && paramMap.TryGetValue("-" + param.Alias, out inputs);
 
-            if (!byName && !byAlias)
+            if (param.ParameterType == typeof(IOutputWriter))
+            {
+                retVal.Add(writer);
+            }
+            else if (!byName && !byAlias)
             {
                 if (!param.HasDefault)
                 {

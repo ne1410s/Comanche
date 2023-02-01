@@ -552,6 +552,20 @@ public class DiscoverE2ETests
         mockWriter.Verify(m => m.WriteLine(expected, true));
     }
 
+    [Fact]
+    public void Discover_IOutputWriter_AutoInjected()
+    {
+        // Arrange
+        const string command = "e2e commented passthru";
+        var mockWriter = new Mock<IOutputWriter>();
+
+        // Act
+        var result = Invoke(command, mockWriter.Object);
+
+        // Assert
+        result.Should().Be(mockWriter.Object);
+    }
+
     private static object? Invoke(
         string? command = null,
         IOutputWriter? writer = null,
@@ -590,6 +604,8 @@ public class DiscoverE2ETests
             throw new ArgumentException(test ? "1" : "2", nameof(test));
 
         public static int SumArray([Alias("numbers")]int[] n) => n.Sum();
+
+        public static IOutputWriter PassThru(IOutputWriter writer) => writer;
 
         public static short Next([Alias(null!)]byte? b) => (short)((b ?? byte.MaxValue) + 1);
 

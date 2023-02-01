@@ -71,7 +71,7 @@ internal class ComancheSession
             }
             else
             {
-                var parameters = method.Parameters.ParseMap(route.ParamMap);
+                var parameters = method.Parameters.ParseMap(route.ParamMap, writer);
                 var result = method.Call(parameters);
                 writer.WriteLine($"{result}");
                 return result;
