@@ -6,6 +6,7 @@ namespace Comanche.Services;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 /// <inheritdoc cref="IOutputWriter"/>
 public class ConsoleWriter : IOutputWriter
@@ -18,6 +19,28 @@ public class ConsoleWriter : IOutputWriter
     /// <inheritdoc/>
     public void WriteLine(string text, bool isError = false) =>
         this.WriteLineInternal(text, isError);
+
+    /// <inheritdoc/>
+    [ExcludeFromCodeCoverage]
+    public List<string> CaptureStrings(string prompt = "Input: ")
+    {
+        Console.Write(prompt);
+        var passList = new List<string>();
+        while (true)
+        {
+            var read = Console.ReadLine();
+            if (!string.IsNullOrEmpty(read))
+            {
+                passList.Add(read);
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return passList;
+    }
 
     private void WriteLineInternal(string text, bool error)
     {

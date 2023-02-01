@@ -1,6 +1,5 @@
 {
   "stryker-config": {
-    "project": "Comanche.csproj",
     "thresholds": {
       "high": 100,
       "low": 100,
