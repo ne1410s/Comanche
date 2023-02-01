@@ -4,7 +4,7 @@
 
 namespace Comanche.Services;
 
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 /// <summary>
 /// Writes output.
@@ -23,5 +23,5 @@ public interface IOutputWriter
     /// </summary>
     /// <param name="prompt">The prompt text.</param>
     /// <returns>The result.</returns>
-    public List<string> CaptureStrings(string prompt = "Input: ");
+    public Collection<string> CaptureStrings(string prompt = "Input: ");
 }

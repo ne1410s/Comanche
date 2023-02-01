@@ -6,6 +6,7 @@ namespace Comanche.Services;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 
 /// <inheritdoc cref="IOutputWriter"/>
@@ -22,16 +23,16 @@ public class ConsoleWriter : IOutputWriter
 
     /// <inheritdoc/>
     [ExcludeFromCodeCoverage]
-    public List<string> CaptureStrings(string prompt = "Input: ")
+    public Collection<string> CaptureStrings(string prompt = "Input: ")
     {
         Console.Write(prompt);
-        var passList = new List<string>();
+        var retVal = new Collection<string>();
         while (true)
         {
             var read = Console.ReadLine();
             if (!string.IsNullOrEmpty(read))
             {
-                passList.Add(read);
+                retVal.Add(read);
             }
             else
             {
@@ -39,7 +40,7 @@ public class ConsoleWriter : IOutputWriter
             }
         }
 
-        return passList;
+        return retVal;
     }
 
     private void WriteLineInternal(string text, bool error)
