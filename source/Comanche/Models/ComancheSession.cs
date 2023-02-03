@@ -5,6 +5,7 @@
 namespace Comanche.Models;
 
 using System.Collections.Generic;
+using System.Linq;
 using Comanche.Exceptions;
 using Comanche.Extensions;
 using Comanche.Services;
@@ -52,7 +53,7 @@ internal class ComancheSession
                 if (method.Parameters.Count > 0)
                 {
                     writer.WriteLine("- Parameters:");
-                    foreach (var param in method.Parameters)
+                    foreach (var param in method.Parameters.Where(p => !p.Hidden))
                     {
                         var alias = param.Alias != null ? $" (-{param.Alias})" : string.Empty;
                         var summary = param.Summary != null ? $" - {param.Summary}" : string.Empty;

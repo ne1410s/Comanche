@@ -42,13 +42,13 @@ internal static class ParsingExtensions
             var byName = paramMap.TryGetValue("--" + param.Name, out List<string> inputs);
             var byAlias = param.Alias != null && !byName && paramMap.TryGetValue("-" + param.Alias, out inputs);
 
-            if (param.ParameterType == typeof(IOutputWriter))
+            if (!byName && !byAlias)
             {
-                retVal.Add(writer);
-            }
-            else if (!byName && !byAlias)
-            {
-                if (!param.HasDefault)
+                if (param.ParameterType == typeof(IOutputWriter))
+                {
+                    retVal.Add(writer);
+                }
+                else if (!param.HasDefault)
                 {
                     errors[param] = "missing";
                 }
