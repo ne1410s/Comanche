@@ -11,7 +11,7 @@ gci **/TestResults/ | ri -r; dotnet test -c Release -s .runsettings; dotnet repo
 gci **/StrykerOutput/ | ri -r; dotnet stryker -o;
 
 # Publish Single File Executable
-#dotnet publish Comanche.CliTest -p:PublishSingleFile=true -r win-x64 -c Release --sc false
+#dotnet publish MY_COMANCHE_PROJECT -p:PublishSingleFile=true -r win-x64 -c Release --sc false
 ```
 
 ## Original Project Setup
