@@ -192,7 +192,6 @@ public class DiscoverE2ETests
 
     [Theory]
     [InlineData("--help")]
-    [InlineData("-h")]
     [InlineData("/?")]
     public void Discover_MethodHelpWithoutDocs_WritesExpected(string helpCommand)
     {

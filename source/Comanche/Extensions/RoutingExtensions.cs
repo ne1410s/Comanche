@@ -18,7 +18,7 @@ internal static class RoutingExtensions
 {
     private const char Space = ' ';
     private const string ParamDelimiter = "|%%|";
-    private static readonly List<string> HelpArgs = new() { "-h", "--help", "/?" };
+    private static readonly List<string> HelpArgs = new() { "--help", "/?" };
 
     /// <summary>
     /// Builds a route from arguments supplied.
@@ -41,7 +41,7 @@ internal static class RoutingExtensions
             throw new RouteBuilderException(Array.Empty<string>(), message);
         }
 
-        var isHelp = numberedArgs.Any(kvp => kvp.help);
+        var isHelp = numberedArgs.Exists(kvp => kvp.help);
         var routeCount = numberedArgs.Find(kvp => !kvp.qRoute)?.index ?? numberedArgs.Count;
         var routes = numberedArgs.Take(routeCount).Select(kvp => kvp.arg).ToList();
         var parameters = numberedArgs.Skip(routeCount).Where(kvp => !kvp.help).ToList();
