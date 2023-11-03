@@ -26,10 +26,11 @@ public static class DiscoveryExtensions
     private const string Space = " ";
 
     private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
-    private static readonly Regex TermRemovalRegex = new("[^a-zA-Z0-9-_]+");
+    private static readonly Regex TermRemovalRegex = new("[^a-zA-Z0-9]+");
     private static readonly Regex HeadRemovalRegex = new("^[^a-zA-Z]+");
     private static readonly Regex TermRespaceRegex = new("\\s{2,}");
-    private static readonly Regex ModuleElideRegex = new("module$");
+    private static readonly Regex DashPrependRegex = new("([^A-Z])([A-Z])");
+    private static readonly Regex ModuleElideRegex = new("[Mm]odule$");
 
     /// <summary>
     /// Obtains Comanche capability metadata.
@@ -53,16 +54,18 @@ public static class DiscoveryExtensions
 
     private static ComancheModule? ToModule(this Type t, XDocument xDoc, bool moduleOptIn)
     {
-        var moduleName = t.GetCustomAttribute<ModuleAttribute>()?.Name.Sanitise();
+        var moduleName = t.GetCustomAttribute<ModuleAttribute>()?.Name;
         if (!moduleOptIn && t.GetCustomAttribute<HiddenAttribute>() == null && moduleName == null)
         {
-            moduleName = ModuleElideRegex.Replace(t.Name.ToLower(Invariant).Sanitise(), string.Empty);
+            moduleName = ModuleElideRegex.Replace(t.Name, string.Empty);
         }
 
         if (moduleName == null)
         {
             return null;
         }
+
+        moduleName = moduleName.Sanitise();
 
         var xmlMemberName = t.FullName.Replace("+", ".", StringComparison.OrdinalIgnoreCase);
         var xPath = string.Format(Invariant, XPathMemberFormat, $"T:{xmlMemberName}");
@@ -98,7 +101,7 @@ public static class DiscoveryExtensions
         var xmlMethod = xDoc.XPathSelectElement(xPath);
         var xmlSummary = xmlMethod.GetNodeText("summary");
         var xmlReturns = xmlMethod.GetNodeText("returns");
-        var methodName = (m.GetCustomAttribute<AliasAttribute>()?.Name ?? m.Name.ToLower(Invariant)).Sanitise();
+        var methodName = (m.GetCustomAttribute<AliasAttribute>()?.Name ?? m.Name).Sanitise();
 
         var parameters = paramInfos
             .Select(p => p.ToParam(xmlMethod))
@@ -153,6 +156,8 @@ public static class DiscoveryExtensions
         term = TermRemovalRegex.Replace(term, string.Empty);
         term = HeadRemovalRegex.Replace(term, string.Empty);
         term = TermRespaceRegex.Replace(term, Space);
+        term = DashPrependRegex.Replace(term, "$1-$2");
+        term = term.ToLower(Invariant);
 
         return term.Trim();
     }

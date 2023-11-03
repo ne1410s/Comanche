@@ -29,7 +29,7 @@ public class DiscoverE2ETests
     public void Discover_StringArray_ReturnsExpected()
     {
         // Arrange
-        const string command = "e2e commented joinarray --s hello --s world";
+        const string command = "e2e commented join-array --s hello --s world";
 
         // Act
         var result = Invoke(command);
@@ -42,7 +42,7 @@ public class DiscoverE2ETests
     public void Discover_IntArray_ReturnsExpected()
     {
         // Arrange
-        const string command = "e2e commented sumarray --n 3 --n 4 --n 1";
+        const string command = "e2e commented sum-array --n 3 --n 4 --n 1";
 
         // Act
         var result = Invoke(command);
@@ -94,7 +94,7 @@ public class DiscoverE2ETests
     public void Discover_GoodJson_ReturnsExpected()
     {
         // Arrange
-        const string command = "e2e commented sumdicto --d { \"a\": 1, \"b\": 2 }";
+        const string command = "e2e commented sum-dicto --d { \"a\": 1, \"b\": 2 }";
 
         // Act
         var result = Invoke(command);
@@ -107,7 +107,7 @@ public class DiscoverE2ETests
     public void Discover_ComplexTypeDefault_ReturnsExpected()
     {
         // Arrange
-        const string command = "e2e commented sumdicto";
+        const string command = "e2e commented sum-dicto";
 
         // Act
         var result = Invoke(command);
@@ -196,8 +196,8 @@ public class DiscoverE2ETests
     public void Discover_MethodHelpWithoutDocs_WritesExpected(string helpCommand)
     {
         // Arrange
-        var command = $"e2e commented sumarray {helpCommand}";
-        const string expected1 = "- Method: sumarray";
+        var command = $"e2e commented sum-array {helpCommand}";
+        const string expected1 = "- Method: sum-array";
         const string expected2 = "- Parameters:";
         const string expected3 = "  --n (-numbers) [Int32[]]";
         const string expected4 = "- Returns: [Int32]";
@@ -236,8 +236,8 @@ public class DiscoverE2ETests
     public void Discover_MethodHelpWithDocs_WritesExpected()
     {
         // Arrange
-        const string command = "e2e commented joinarray --help";
-        const string expected1 = "- Method: joinarray";
+        const string command = "e2e commented join-array --help";
+        const string expected1 = "- Method: join-array";
         const string expected2 = "- Summary: Join array.";
         const string expected3 = "- Parameters:";
         const string expected4 = "  --x [String = !] - The x.";
@@ -274,7 +274,7 @@ public class DiscoverE2ETests
     public void Discover_MethodHelpComplexParam_WritesExpected()
     {
         // Arrange
-        const string command = "e2e commented sumdicto --help";
+        const string command = "e2e commented sum-dicto --help";
         const string expected = "  --d [Dictionary`2]";
         var mockWriter = new Mock<IOutputWriter>();
 
@@ -509,7 +509,7 @@ public class DiscoverE2ETests
     public void Discover_BadItemInArray_WritesExpectedError()
     {
         // Arrange
-        const string command = "e2e commented sumarray --n yo";
+        const string command = "e2e commented sum-array --n yo";
         const string expected = "--n (-numbers): cannot convert";
         var mockWriter = new Mock<IOutputWriter>();
 
@@ -524,7 +524,7 @@ public class DiscoverE2ETests
     public void Discover_InvalidJson_WritesExpectedError()
     {
         // Arrange
-        const string command = "e2e commented sumdicto --d xyz";
+        const string command = "e2e commented sum-dicto --d xyz";
         const string expected = "--d: cannot deserialize";
         _ = CommentedModule.SumDicto(new());
         var mockWriter = new Mock<IOutputWriter>();
@@ -555,7 +555,7 @@ public class DiscoverE2ETests
     public void Discover_IOutputWriter_AutoInjected()
     {
         // Arrange
-        const string command = "e2e commented passthru";
+        const string command = "e2e commented pass-thru";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
