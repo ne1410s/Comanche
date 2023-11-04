@@ -4,15 +4,9 @@
 
 namespace Comanche.Tests;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
-using Comanche.Attributes;
 using Comanche.Services;
 
-[Module("e2e")]
 public class DiscoverE2ETests
 {
     [Fact]
@@ -181,7 +175,7 @@ public class DiscoverE2ETests
         const string command = "e2e commented --help";
         const string unexpected = "MODULE: empty";
         var mockWriter = new Mock<IOutputWriter>();
-        _ = CommentedModule.EmptyModule.Do();
+        _ = E2ETestModule.CommentedModule.EmptyModule.Do();
 
         // Act
         Invoke(command, mockWriter.Object, true);
@@ -435,7 +429,7 @@ public class DiscoverE2ETests
         const string expected1 = "Bad parameter: '---notaparam'.";
         const string expected2 = "MODULE: static";
         var mockWriter = new Mock<IOutputWriter>();
-        CommentedModule.StaticModule.SingleMod.Do();
+        E2ETestModule.CommentedModule.StaticModule.SingleMod.Do();
 
         // Act
         Invoke(command, mockWriter.Object);
@@ -526,7 +520,7 @@ public class DiscoverE2ETests
         // Arrange
         const string command = "e2e commented sum-dicto --d xyz";
         const string expected = "--d: cannot deserialize";
-        _ = CommentedModule.SumDicto(new());
+        _ = E2ETestModule.CommentedModule.SumDicto(new());
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
@@ -573,74 +567,5 @@ public class DiscoverE2ETests
         writer ??= new Mock<IOutputWriter>().Object;
         var asm = Assembly.GetAssembly(typeof(DiscoverE2ETests));
         return Discover.Go(moduleOptIn, asm, command?.Split(' '), writer);
-    }
-
-    /// <summary>
-    /// Commented module.
-    /// </summary>
-    [Module("9commented:")]
-    public sealed class CommentedModule
-    {
-        private int Seed { get; } = 12;
-
-        /// <summary>
-        /// Join array.
-        /// </summary>
-        /// <param name="s">The s.</param>
-        /// <param name="x">The x.</param>
-        /// <returns>Val.</returns>
-        public static async Task<string> JoinArray(string[] s, string x = "!")
-        {
-            await Task.CompletedTask;
-            return string.Join(", ", s) + x;
-        }
-
-        /// <summary>
-        /// Throws a thing.
-        /// </summary>
-        /// <param name="test">Test.</param>
-        public static void Throw(bool test = false) =>
-            throw new ArgumentException(test ? "1" : "2", nameof(test));
-
-        public static int SumArray([Alias("numbers")]int[] n) => n.Sum();
-
-        public static IOutputWriter PassThru(IOutputWriter writer) => writer;
-
-        public static short Next([Alias(null!)]byte? b) => (short)((b ?? byte.MaxValue) + 1);
-
-        public static int SumDicto(Dictionary<string, int>? d = null) => (d ?? new()).Values.Sum();
-
-        /// <summary>
-        /// Sums ints.
-        /// </summary>
-        /// <param name="numbers">Integers.</param>
-        /// <param name="n">N.</param>
-        /// <param name="otherSeed">Other seed.</param>
-        /// <returns>Sum plus a seed.</returns>
-        [Alias("sum")]
-        public int SumList(
-            [Alias("n")] List<int> numbers,
-            [Alias("numbers")]int n = 34,
-            [Hidden] int otherSeed = 0) => this.Seed + n + otherSeed + numbers.Sum();
-
-        public static class StaticModule
-        {
-            public static async Task Delay(int ms) => await Task.Delay(ms);
-
-            public static class SingleMod
-            {
-                public static void Do()
-                {
-                    // Empty
-                }
-            }
-        }
-
-        [Module("empty")]
-        public static class EmptyModule
-        {
-            [Hidden]
-            public static int Do() => 42;
-        }
     }
 }
