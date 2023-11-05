@@ -29,7 +29,7 @@ public static class DiscoveryExtensions
     private static readonly Regex TermRemovalRegex = new("[^a-zA-Z0-9]+");
     private static readonly Regex HeadRemovalRegex = new("^[^a-zA-Z]+");
     private static readonly Regex TermRespaceRegex = new("\\s{2,}");
-    private static readonly Regex DashPrependRegex = new("([^A-Z])([A-Z])");
+    private static readonly Regex DashPrependRegex = new("([^A-Z0-9])([A-Z])");
     private static readonly Regex ModuleElideRegex = new("[Mm]odule$");
 
     /// <summary>

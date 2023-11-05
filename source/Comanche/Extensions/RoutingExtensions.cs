@@ -35,13 +35,13 @@ internal static class RoutingExtensions
 
         // Kick out no routes or have anything pre-route
         var firstRoute = numberedArgs.Find(kvp => kvp.qRoute);
-        if (firstRoute?.index != 0)
+        if (numberedArgs.Count != 0 && firstRoute?.index != 0)
         {
             var message = firstRoute == null ? "No routes found." : $"Invalid route: {numberedArgs[0].arg}";
             throw new RouteBuilderException(Array.Empty<string>(), message);
         }
 
-        var isHelp = numberedArgs.Exists(kvp => kvp.help);
+        var isHelp = numberedArgs.Count == 0 || numberedArgs.Exists(kvp => kvp.help);
         var routeCount = numberedArgs.Find(kvp => !kvp.qRoute)?.index ?? numberedArgs.Count;
         var routes = numberedArgs.Take(routeCount).Select(kvp => kvp.arg).ToList();
         var parameters = numberedArgs.Skip(routeCount).Where(kvp => !kvp.help).ToList();

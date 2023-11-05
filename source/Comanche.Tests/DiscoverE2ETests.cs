@@ -139,6 +139,39 @@ public class DiscoverE2ETests
     }
 
     [Fact]
+    public void Discover_EmptyCommand_DoesNotWriteError()
+    {
+        // Arrange
+        const string command = "";
+        var mockWriter = new Mock<IOutputWriter>();
+
+        // Act
+        Invoke(command, mockWriter.Object);
+
+        // Assert
+        mockWriter.Verify(
+            m => m.WriteLine(It.IsAny<string>(), true),
+            Times.Never());
+    }
+
+    [Theory]
+    [InlineData("e2e")]
+    [InlineData("e2e commented static singlemod")]
+    public void Discover_BareModule_DoesNotWriteError(string command)
+    {
+        // Arrange
+        var mockWriter = new Mock<IOutputWriter>();
+
+        // Act
+        Invoke(command, mockWriter.Object);
+
+        // Assert
+        mockWriter.Verify(
+            m => m.WriteLine(It.IsAny<string>(), true),
+            Times.Never());
+    }
+
+    [Fact]
     public void Discover_Help_WritesExpected()
     {
         // Arrange
@@ -187,6 +220,7 @@ public class DiscoverE2ETests
     [Theory]
     [InlineData("--help")]
     [InlineData("/?")]
+    [InlineData("")]
     public void Discover_MethodHelpWithoutDocs_WritesExpected(string helpCommand)
     {
         // Arrange
