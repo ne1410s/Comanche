@@ -19,14 +19,14 @@ using Comanche.Models;
 /// <summary>
 /// Extensions relating to Comanche discovery.
 /// </summary>
-public static class DiscoveryExtensions
+internal static class DiscoveryExtensions
 {
     private const string XPathParameterMethodFormat = "./doc/members/member[starts-with(@name, '{0}(')]";
     private const string XPathMemberFormat = "./doc/members/member[@name='{0}']";
     private const string Space = " ";
 
     private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
-    private static readonly Regex TermRemovalRegex = new("[^a-zA-Z0-9]+");
+    private static readonly Regex TermRemovalRegex = new("[^a-zA-Z0-9-]+");
     private static readonly Regex HeadRemovalRegex = new("^[^a-zA-Z]+");
     private static readonly Regex TermRespaceRegex = new("\\s{2,}");
     private static readonly Regex DashPrependRegex = new("([^A-Z0-9])([A-Z])");

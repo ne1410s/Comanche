@@ -4,6 +4,7 @@
 
 namespace Comanche.Models;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Comanche.Exceptions;
@@ -81,16 +82,16 @@ internal class ComancheSession
                     {
                         var alias = param.Alias != null ? $" (-{param.Alias})" : string.Empty;
                         var summary = param.Summary != null ? $" - {param.Summary}" : string.Empty;
-                        var type = param.ParameterType;
-                        var defVal = param.HasDefault && (type.IsPrimitive || type == typeof(string))
-                            ? $" = {param.DefaultValue}"
-                            : string.Empty;
-                        writer.WriteLine($"  --{param.Name}{alias} [{type.Name}{defVal}]{summary}");
+                        var defVal = param.GetPrintableDefault();
+                        var printDefault = defVal == null ? string.Empty : $" = {defVal}";
+                        var printName = param.ParameterType.ToPrintableName();
+
+                        writer.WriteLine($"  --{param.Name}{alias} [{printName}{printDefault}]{summary}");
                     }
                 }
 
                 var returns = method.Returns != null ? $" {method.Returns}" : string.Empty;
-                writer.WriteLine($"- Returns: [{method.ReturnType.Name}]{returns}");
+                writer.WriteLine($"- Returns: [{method.ReturnType.ToPrintableName()}]{returns}");
 
                 return null;
             }

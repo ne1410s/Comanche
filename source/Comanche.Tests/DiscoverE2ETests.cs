@@ -4,6 +4,7 @@
 
 namespace Comanche.Tests;
 
+using System;
 using System.Reflection;
 using Comanche.Services;
 
@@ -234,6 +235,43 @@ public class DiscoverE2ETests
         mockWriter.Verify(m => m.WriteLine(unexpected, It.IsAny<bool>()), Times.Never());
     }
 
+    [Fact]
+    public void Discover_MethodHelpParamDefaults_WritesExpected()
+    {
+        // Arrange
+        const string command = "e2e commented param-test change --help";
+        const string expected1 = "  --d1 [DateTime]";
+        const string expected2 = "  --m1 [Decimal]";
+        const string expected3 = "  --i1 [int64? = 1]";
+        const string expected4 = "- Returns: [DateTime]";
+        var mockWriter = new Mock<IOutputWriter>();
+
+        // Act
+        Invoke(command, mockWriter.Object);
+
+        // Assert
+        mockWriter.Verify(m => m.WriteLine(expected1, false));
+        mockWriter.Verify(m => m.WriteLine(expected2, false));
+        mockWriter.Verify(m => m.WriteLine(expected3, false));
+        mockWriter.Verify(m => m.WriteLine(expected4, false));
+    }
+
+    [Theory]
+    [InlineData(2L, 7200)]
+    [InlineData(null, 11520)]
+    public void Discover_MultipleParameters_ReturnsExpected(long? param, double expected)
+    {
+        // Arrange
+        var d1 = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        // Act
+        var result = E2ETestModule.CommentedModule.ParamTestModule.Change(d1, i1: param);
+        var resultDelta = (result - d1).TotalSeconds;
+
+        // Assert
+        resultDelta.Should().Be(expected);
+    }
+
     [Theory]
     [InlineData("--help")]
     [InlineData("/?")]
@@ -243,8 +281,8 @@ public class DiscoverE2ETests
         var command = $"e2e commented sum-array {helpCommand}";
         const string expected1 = "- Method: sum-array";
         const string expected2 = "- Parameters:";
-        const string expected3 = "  --n (-numbers) [Int32[]]";
-        const string expected4 = "- Returns: [Int32]";
+        const string expected3 = "  --n (-numbers) [int[]]";
+        const string expected4 = "- Returns: [int]";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
@@ -264,7 +302,7 @@ public class DiscoverE2ETests
         const string command = "e2e commented throw --help";
         const string expected1 = "- Method: throw";
         const string expected2 = "- Summary: Throws a thing.";
-        const string expected3 = "- Returns: [Void]";
+        const string expected3 = "- Returns: [<void>]";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
@@ -284,8 +322,8 @@ public class DiscoverE2ETests
         const string expected1 = "- Method: join-array";
         const string expected2 = "- Summary: Join array.";
         const string expected3 = "- Parameters:";
-        const string expected4 = "  --x [String = !] - The x.";
-        const string expected5 = "- Returns: [Task`1] Val.";
+        const string expected4 = "  --x [string = \"!\"] - The x.";
+        const string expected5 = "- Returns: [string] Val.";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
@@ -319,7 +357,7 @@ public class DiscoverE2ETests
     {
         // Arrange
         const string command = "e2e commented sum-dicto --help";
-        const string expected = "  --d [Dictionary`2]";
+        const string expected = "  --d [Dictionary<string, int> = null]";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
