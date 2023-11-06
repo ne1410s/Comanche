@@ -18,6 +18,7 @@ internal static class RoutingExtensions
 {
     private const char Space = ' ';
     private const string ParamDelimiter = "|%%|";
+    private const string VersionArg = "--version";
     private static readonly List<string> HelpArgs = new() { "--help", "/?" };
 
     /// <summary>
@@ -28,6 +29,12 @@ internal static class RoutingExtensions
     /// <exception cref="RouteBuilderException">Route builder error.</exception>
     public static ComancheRoute BuildRoute(this string[] args)
     {
+        var isVersion = args.Length == 1 && args[0] == VersionArg;
+        if (isVersion)
+        {
+            return new(Array.Empty<string>(), new(), isHelp: false, isVersion: true);
+        }
+
         var numberedArgs = args
             .Where(arg => !string.IsNullOrWhiteSpace(arg))
             .Select((arg, index) => new { arg, index, qRoute = char.IsLetter(arg[0]), help = HelpArgs.Contains(arg) })
@@ -79,6 +86,6 @@ internal static class RoutingExtensions
             }
         }
 
-        return new(routes, paramMap, isHelp);
+        return new(routes, paramMap, isHelp, isVersion);
     }
 }

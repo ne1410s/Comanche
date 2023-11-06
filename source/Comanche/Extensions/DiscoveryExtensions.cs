@@ -49,7 +49,10 @@ public static class DiscoveryExtensions
             .Where(m => m != null)
             .ToDictionary(m => m!.Name, m => m!);
 
-        return new(topLevelModules);
+        var cliVersion = asm.GetName().Version.ToString(3);
+        var comancheVersion = Assembly.GetCallingAssembly().GetName().Version.ToString(3);
+
+        return new(topLevelModules, cliVersion, comancheVersion);
     }
 
     private static ComancheModule? ToModule(this Type t, XDocument xDoc, bool moduleOptIn)

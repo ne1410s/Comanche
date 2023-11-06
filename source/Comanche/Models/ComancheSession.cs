@@ -19,10 +19,27 @@ internal class ComancheSession
     /// Initializes a new instance of the <see cref="ComancheSession"/> class.
     /// </summary>
     /// <param name="modules">The top-level modules.</param>
-    public ComancheSession(Dictionary<string, ComancheModule> modules)
+    /// <param name="cliVersion">The CLI version.</param>
+    /// <param name="comancheVersion">The Comanche version.</param>
+    public ComancheSession(
+        Dictionary<string, ComancheModule> modules,
+        string cliVersion,
+        string comancheVersion)
     {
         this.Modules = modules;
+        this.CliVersion = cliVersion;
+        this.ComancheVersion = comancheVersion;
     }
+
+    /// <summary>
+    /// Gets the CLI version.
+    /// </summary>
+    public string CliVersion { get; }
+
+    /// <summary>
+    /// Gets the Comanche version.
+    /// </summary>
+    public string ComancheVersion { get; }
 
     /// <summary>
     /// Gets the top-level modules.
@@ -41,6 +58,13 @@ internal class ComancheSession
         try
         {
             route = args.BuildRoute();
+            if (route.IsVersion)
+            {
+                writer.WriteLine($"- Client Version: v{this.CliVersion}");
+                writer.WriteLine($"- Comanche Version: v{this.ComancheVersion}");
+                return null;
+            }
+
             var method = this.MatchMethod(route);
             if (route.IsHelp)
             {
