@@ -491,8 +491,8 @@ public class DiscoverE2ETests
     public void Discover_HiddenParam_WritesExpectedError()
     {
         // Arrange
-        const string command = "e2e commented sum -n 1 --otherSeed 2";
-        const string expected = "--otherSeed: unrecognised";
+        const string command = "e2e commented sum -n 1 --other-seed 2";
+        const string expected = "--other-seed: unrecognised";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
