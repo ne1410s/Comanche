@@ -80,7 +80,8 @@ internal class ComancheSession
         }
         catch (RouteBuilderException routeEx)
         {
-            if (route?.IsHelp != true)
+            var invalidRoute = route?.RouteTerms.Count != routeEx.DeepestValidTerms.Count;
+            if (route?.IsHelp != true && invalidRoute)
             {
                 writer.WriteLine(routeEx.Message, true);
             }

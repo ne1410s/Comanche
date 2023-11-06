@@ -156,7 +156,7 @@ public class DiscoverE2ETests
 
     [Theory]
     [InlineData("e2e")]
-    [InlineData("e2e commented static singlemod")]
+    [InlineData("e2e commented static single-mod")]
     public void Discover_BareModule_DoesNotWriteError(string command)
     {
         // Arrange
@@ -220,7 +220,6 @@ public class DiscoverE2ETests
     [Theory]
     [InlineData("--help")]
     [InlineData("/?")]
-    [InlineData("")]
     public void Discover_MethodHelpWithoutDocs_WritesExpected(string helpCommand)
     {
         // Arrange
@@ -287,7 +286,7 @@ public class DiscoverE2ETests
     public void Discover_MethodHelpNoParams_WritesExpected()
     {
         // Arrange
-        const string command = "e2e commented static singlemod do --help";
+        const string command = "e2e commented static single-mod do --help";
         const string unexpected = "- Parameters:";
         var mockWriter = new Mock<IOutputWriter>();
 
