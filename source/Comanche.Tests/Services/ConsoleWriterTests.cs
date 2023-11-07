@@ -6,6 +6,7 @@ namespace Comanche.Tests.Services;
 
 using System;
 using System.IO;
+using Comanche.Models;
 using Comanche.Services;
 
 /// <summary>
@@ -22,12 +23,10 @@ public class ConsoleWriterTests
         Console.SetError(writer);
 
         // Act
-        sut.WriteLine("foo", true);
-        sut.WriteLine("foo", true);
+        sut.WriteLine("foo", WriteStyle.Error);
 
         // Assert
         writer.ToString().Should().Contain("foo" + Environment.NewLine);
-        sut.Counter["Red"].Should().Be(2);
     }
 
     [Fact]
@@ -39,11 +38,45 @@ public class ConsoleWriterTests
         Console.SetOut(writer);
 
         // Act
-        sut.WriteLine("bar", false);
-        sut.WriteLine("bar", false);
+        sut.WriteLine("bar", WriteStyle.Default);
 
         // Assert
         writer.ToString().Should().Contain("bar" + Environment.NewLine);
-        sut.Counter["White"].Should().Be(2);
+    }
+
+    [Theory]
+    [InlineData("foo", WriteStyle.Default)]
+    [InlineData("foo", WriteStyle.Highlight1)]
+    [InlineData("foo", WriteStyle.Highlight2)]
+    [InlineData("foo", WriteStyle.Highlight3)]
+    [InlineData("foo", WriteStyle.Error)]
+    public void WriteLine_VaryingParams_TracksAccordingly(string text, WriteStyle style)
+    {
+        // Arrange
+        ConsoleWriter sut = new();
+
+        // Act
+        sut.WriteLine(text, style);
+
+        // Assert
+        sut.LastCommand.Should().Be(Tuple.Create(text, style, true));
+    }
+
+    [Theory]
+    [InlineData("bar", WriteStyle.Default)]
+    [InlineData("bar", WriteStyle.Highlight1)]
+    [InlineData("bar", WriteStyle.Highlight2)]
+    [InlineData("bar", WriteStyle.Highlight3)]
+    [InlineData("bar", WriteStyle.Error)]
+    public void Write_VaryingParams_TracksAccordingly(string text, WriteStyle style)
+    {
+        // Arrange
+        ConsoleWriter sut = new();
+
+        // Act
+        sut.Write(text, style);
+
+        // Assert
+        sut.LastCommand.Should().Be(Tuple.Create(text, style, false));
     }
 }

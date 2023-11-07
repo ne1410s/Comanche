@@ -5,6 +5,7 @@
 namespace Comanche.Services;
 
 using System.Collections.ObjectModel;
+using Comanche.Models;
 
 /// <summary>
 /// Writes output.
@@ -12,11 +13,18 @@ using System.Collections.ObjectModel;
 public interface IOutputWriter
 {
     /// <summary>
+    /// Outputs a text fragment.
+    /// </summary>
+    /// <param name="text">The text fragment.</param>
+    /// <param name="style">The output writing style.</param>
+    public void Write(string text, WriteStyle style = WriteStyle.Default);
+
+    /// <summary>
     /// Outputs a line of text.
     /// </summary>
     /// <param name="text">The line of text.</param>
-    /// <param name="isError">True if the text represents an error.</param>
-    public void WriteLine(string text, bool isError = false);
+    /// <param name="style">The output writing style.</param>
+    public void WriteLine(string text, WriteStyle style = WriteStyle.Default);
 
     /// <summary>
     /// Captures multiple strings.

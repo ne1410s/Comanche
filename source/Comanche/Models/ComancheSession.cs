@@ -116,7 +116,7 @@ internal class ComancheSession
             var invalidRoute = route?.RouteTerms.Count != routeEx.DeepestValidTerms.Count;
             if (route?.IsHelp != true && invalidRoute)
             {
-                writer.WriteLine(routeEx.Message, true);
+                writer.WriteLine(routeEx.Message, WriteStyle.Error);
             }
 
             this.MatchModule(routeEx.DeepestValidTerms, out var modules, out var methods);
@@ -134,15 +134,15 @@ internal class ComancheSession
         }
         catch (ParamBuilderException paramEx)
         {
-            writer.WriteLine("Invalid parameters", true);
+            writer.WriteLine("Invalid parameters", WriteStyle.Error);
             foreach (var kvp in paramEx.Errors)
             {
-                writer.WriteLine($"{kvp.Key}: {kvp.Value}", true);
+                writer.WriteLine($"{kvp.Key}: {kvp.Value}", WriteStyle.Error);
             }
         }
         catch (ExecutionException ex)
         {
-            writer.WriteLine(ex.Message, true);
+            writer.WriteLine(ex.Message, WriteStyle.Error);
         }
 
         return null;

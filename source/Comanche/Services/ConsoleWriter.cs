@@ -5,21 +5,25 @@
 namespace Comanche.Services;
 
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using Comanche.Models;
 
 /// <inheritdoc cref="IOutputWriter"/>
 public class ConsoleWriter : IOutputWriter
 {
     /// <summary>
-    /// Gets the error count.
+    /// Gets the most recent command.
     /// </summary>
-    public Dictionary<string, int> Counter { get; } = new();
+    public Tuple<string, WriteStyle, bool>? LastCommand { get; private set; }
 
     /// <inheritdoc/>
-    public void WriteLine(string text, bool isError = false) =>
-        this.WriteLineInternal(text, isError);
+    public void Write(string text, WriteStyle style = WriteStyle.Default)
+        => this.WriteInternal(text, style, false);
+
+    /// <inheritdoc/>
+    public void WriteLine(string text, WriteStyle style = WriteStyle.Default)
+        => this.WriteInternal(text, style, true);
 
     /// <inheritdoc/>
     [ExcludeFromCodeCoverage]
@@ -43,20 +47,28 @@ public class ConsoleWriter : IOutputWriter
         return retVal;
     }
 
-    private void WriteLineInternal(string text, bool error)
+    private void WriteInternal(string text, WriteStyle style, bool line)
     {
+        Action<string> write = new { style, line } switch
+        {
+            { style: WriteStyle.Error, line: true } => Console.Error.WriteLine,
+            { style: WriteStyle.Error, line: false } => Console.Error.Write,
+            { line: false } => Console.Write,
+            _ => Console.WriteLine,
+        };
+
         ConsoleColor priorForeground = Console.ForegroundColor;
-        var color = error ? ConsoleColor.Red : ConsoleColor.White;
-        Console.ForegroundColor = color;
-        this.Counter[$"{color}"] = this.Counter.TryGetValue($"{color}", out var val) ? val + 1 : 1;
-        if (error)
+        Console.ForegroundColor = style switch
         {
-            Console.Error.WriteLine(text);
-        }
-        else
-        {
-            Console.WriteLine(text);
-        }
+            WriteStyle.Highlight1 => ConsoleColor.Yellow,
+            WriteStyle.Highlight2 => ConsoleColor.Blue,
+            WriteStyle.Highlight3 => ConsoleColor.DarkMagenta,
+            WriteStyle.Error => ConsoleColor.Red,
+            _ => priorForeground,
+        };
+
+        write(text);
+        this.LastCommand = new(text, style, line);
 
         Console.ForegroundColor = priorForeground;
     }

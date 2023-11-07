@@ -6,6 +6,7 @@ namespace Comanche.Tests;
 
 using System;
 using System.Reflection;
+using Comanche.Models;
 using Comanche.Services;
 
 public class DiscoverE2ETests
@@ -136,7 +137,7 @@ public class DiscoverE2ETests
         _ = Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, false));
+        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Default));
     }
 
     [Fact]
@@ -151,7 +152,7 @@ public class DiscoverE2ETests
 
         // Assert
         mockWriter.Verify(
-            m => m.WriteLine(It.IsAny<string>(), true),
+            m => m.WriteLine(It.IsAny<string>(), WriteStyle.Error),
             Times.Never());
     }
 
@@ -168,7 +169,7 @@ public class DiscoverE2ETests
 
         // Assert
         mockWriter.Verify(
-            m => m.WriteLine(It.IsAny<string>(), true),
+            m => m.WriteLine(It.IsAny<string>(), WriteStyle.Error),
             Times.Never());
     }
 
@@ -185,8 +186,8 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(It.Is<string>(s => s.StartsWith(expected1)), false));
-        mockWriter.Verify(m => m.WriteLine(It.Is<string>(s => s.StartsWith(expected2)), false));
+        mockWriter.Verify(m => m.WriteLine(It.Is<string>(s => s.StartsWith(expected1)), WriteStyle.Default));
+        mockWriter.Verify(m => m.WriteLine(It.Is<string>(s => s.StartsWith(expected2)), WriteStyle.Default));
     }
 
     [Fact]
@@ -201,7 +202,7 @@ public class DiscoverE2ETests
 
         // Assert
         mockWriter.Verify(
-            m => m.WriteLine(It.IsAny<string>(), true),
+            m => m.WriteLine(It.IsAny<string>(), WriteStyle.Error),
             Times.Never());
     }
 
@@ -217,7 +218,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, false));
+        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Default));
     }
 
     [Fact]
@@ -232,7 +233,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object, true);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(unexpected, It.IsAny<bool>()), Times.Never());
+        mockWriter.Verify(m => m.WriteLine(unexpected, It.IsAny<WriteStyle>()), Times.Never());
     }
 
     [Fact]
@@ -248,7 +249,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object, true);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(unexpected, It.IsAny<bool>()), Times.Never());
+        mockWriter.Verify(m => m.WriteLine(unexpected, It.IsAny<WriteStyle>()), Times.Never());
     }
 
     [Fact]
@@ -266,10 +267,10 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected1, false));
-        mockWriter.Verify(m => m.WriteLine(expected2, false));
-        mockWriter.Verify(m => m.WriteLine(expected3, false));
-        mockWriter.Verify(m => m.WriteLine(expected4, false));
+        mockWriter.Verify(m => m.WriteLine(expected1, WriteStyle.Default));
+        mockWriter.Verify(m => m.WriteLine(expected2, WriteStyle.Default));
+        mockWriter.Verify(m => m.WriteLine(expected3, WriteStyle.Default));
+        mockWriter.Verify(m => m.WriteLine(expected4, WriteStyle.Default));
     }
 
     [Theory]
@@ -305,10 +306,10 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected1, false));
-        mockWriter.Verify(m => m.WriteLine(expected2, false));
-        mockWriter.Verify(m => m.WriteLine(expected3, false));
-        mockWriter.Verify(m => m.WriteLine(expected4, false));
+        mockWriter.Verify(m => m.WriteLine(expected1, WriteStyle.Default));
+        mockWriter.Verify(m => m.WriteLine(expected2, WriteStyle.Default));
+        mockWriter.Verify(m => m.WriteLine(expected3, WriteStyle.Default));
+        mockWriter.Verify(m => m.WriteLine(expected4, WriteStyle.Default));
     }
 
     [Fact]
@@ -325,9 +326,9 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected1, false));
-        mockWriter.Verify(m => m.WriteLine(expected2, false));
-        mockWriter.Verify(m => m.WriteLine(expected3, false));
+        mockWriter.Verify(m => m.WriteLine(expected1, WriteStyle.Default));
+        mockWriter.Verify(m => m.WriteLine(expected2, WriteStyle.Default));
+        mockWriter.Verify(m => m.WriteLine(expected3, WriteStyle.Default));
     }
 
     [Fact]
@@ -346,11 +347,11 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected1, false));
-        mockWriter.Verify(m => m.WriteLine(expected2, false));
-        mockWriter.Verify(m => m.WriteLine(expected3, false));
-        mockWriter.Verify(m => m.WriteLine(expected4, false));
-        mockWriter.Verify(m => m.WriteLine(expected5, false));
+        mockWriter.Verify(m => m.WriteLine(expected1, WriteStyle.Default));
+        mockWriter.Verify(m => m.WriteLine(expected2, WriteStyle.Default));
+        mockWriter.Verify(m => m.WriteLine(expected3, WriteStyle.Default));
+        mockWriter.Verify(m => m.WriteLine(expected4, WriteStyle.Default));
+        mockWriter.Verify(m => m.WriteLine(expected5, WriteStyle.Default));
     }
 
     [Fact]
@@ -365,7 +366,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(unexpected, It.IsAny<bool>()), Times.Never());
+        mockWriter.Verify(m => m.WriteLine(unexpected, It.IsAny<WriteStyle>()), Times.Never());
     }
 
     [Fact]
@@ -380,7 +381,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, false));
+        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Default));
     }
 
     [Fact]
@@ -397,9 +398,9 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected1, true));
-        mockWriter.Verify(m => m.WriteLine(expected2, false));
-        mockWriter.Verify(m => m.WriteLine(expected3, false));
+        mockWriter.Verify(m => m.WriteLine(expected1, WriteStyle.Error));
+        mockWriter.Verify(m => m.WriteLine(expected2, WriteStyle.Default));
+        mockWriter.Verify(m => m.WriteLine(expected3, WriteStyle.Default));
     }
 
     [Fact]
@@ -415,8 +416,8 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected1, true));
-        mockWriter.Verify(m => m.WriteLine(expected2, true));
+        mockWriter.Verify(m => m.WriteLine(expected1, WriteStyle.Error));
+        mockWriter.Verify(m => m.WriteLine(expected2, WriteStyle.Error));
     }
 
     [Fact]
@@ -431,7 +432,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, true));
+        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
     }
 
     [Fact]
@@ -445,7 +446,7 @@ public class DiscoverE2ETests
         Invoke(writer: mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, true));
+        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
     }
 
     [Fact]
@@ -460,7 +461,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, true));
+        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
     }
 
     [Fact]
@@ -475,7 +476,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, true));
+        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
     }
 
     [Fact]
@@ -490,7 +491,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, true));
+        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
     }
 
     [Fact]
@@ -505,7 +506,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, true));
+        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
     }
 
     [Fact]
@@ -521,8 +522,8 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected1, true));
-        mockWriter.Verify(m => m.WriteLine(expected2, true));
+        mockWriter.Verify(m => m.WriteLine(expected1, WriteStyle.Error));
+        mockWriter.Verify(m => m.WriteLine(expected2, WriteStyle.Error));
     }
 
     [Fact]
@@ -539,8 +540,8 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected1, true));
-        mockWriter.Verify(m => m.WriteLine(expected2, false));
+        mockWriter.Verify(m => m.WriteLine(expected1, WriteStyle.Error));
+        mockWriter.Verify(m => m.WriteLine(expected2, WriteStyle.Default));
     }
 
     [Fact]
@@ -555,7 +556,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, true));
+        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
     }
 
     [Fact]
@@ -570,7 +571,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, true));
+        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
     }
 
     [Fact]
@@ -585,7 +586,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, true));
+        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
     }
 
     [Fact]
@@ -600,7 +601,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, true));
+        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
     }
 
     [Fact]
@@ -615,7 +616,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, true));
+        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
     }
 
     [Fact]
@@ -631,7 +632,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, true));
+        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
     }
 
     [Fact]
@@ -646,7 +647,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, true));
+        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
     }
 
     [Fact]
