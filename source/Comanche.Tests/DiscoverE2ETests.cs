@@ -177,8 +177,8 @@ public class DiscoverE2ETests
     {
         // Arrange
         const string command = "--version";
-        const string expected1 = "- Client Version: v";
-        const string expected2 = "- Comanche Version: v";
+        const string expected1 = "Comanche.Tests v1.0.0";
+        const string expected2 = "- CLI-ified by Comanche v";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
@@ -187,6 +187,22 @@ public class DiscoverE2ETests
         // Assert
         mockWriter.Verify(m => m.WriteLine(It.Is<string>(s => s.StartsWith(expected1)), false));
         mockWriter.Verify(m => m.WriteLine(It.Is<string>(s => s.StartsWith(expected2)), false));
+    }
+
+    [Fact]
+    public void Discover_ImmediateHelp_DoesNotWriteError()
+    {
+        // Arrange
+        const string command = "--help";
+        var mockWriter = new Mock<IOutputWriter>();
+
+        // Act
+        Invoke(command, mockWriter.Object);
+
+        // Assert
+        mockWriter.Verify(
+            m => m.WriteLine(It.IsAny<string>(), true),
+            Times.Never());
     }
 
     [Fact]

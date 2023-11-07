@@ -4,6 +4,7 @@
 
 namespace Comanche.Models;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Comanche.Exceptions;
@@ -19,17 +20,25 @@ internal class ComancheSession
     /// Initializes a new instance of the <see cref="ComancheSession"/> class.
     /// </summary>
     /// <param name="modules">The top-level modules.</param>
+    /// <param name="cliName">The CLI name.</param>
     /// <param name="cliVersion">The CLI version.</param>
     /// <param name="comancheVersion">The Comanche version.</param>
     public ComancheSession(
         Dictionary<string, ComancheModule> modules,
+        string cliName,
         string cliVersion,
         string comancheVersion)
     {
         this.Modules = modules;
+        this.CliName = cliName;
         this.CliVersion = cliVersion;
         this.ComancheVersion = comancheVersion;
     }
+
+    /// <summary>
+    /// Gets the CLI name.
+    /// </summary>
+    public string CliName { get; }
 
     /// <summary>
     /// Gets the CLI version.
@@ -60,8 +69,8 @@ internal class ComancheSession
             route = args.BuildRoute();
             if (route.IsVersion)
             {
-                writer.WriteLine($"- Client Version: v{this.CliVersion}");
-                writer.WriteLine($"- Comanche Version: v{this.ComancheVersion}");
+                writer.WriteLine($"{this.CliName} v{this.CliVersion}");
+                writer.WriteLine($"- CLI-ified by Comanche v{this.ComancheVersion} © ne1410s {DateTime.Today.Year}");
                 return null;
             }
 
