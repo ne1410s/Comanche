@@ -26,7 +26,7 @@ internal static class WriterExtensions
     {
         return type switch
         {
-            //_ when type == typeof(bool) => "bool",
+            ////_ when type == typeof(bool) => "bool",
             _ when type == typeof(int) => "int",
             _ when type.IsPrimitive => type.Name.ToLowerInvariant(),
             _ when type == typeof(string) => "string",
