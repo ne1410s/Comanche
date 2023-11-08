@@ -64,4 +64,12 @@ internal static class WriterExtensions
             _ => null
         };
     }
+
+    /// <summary>
+    /// Formats a string as an optional comment, in parentheses.
+    /// </summary>
+    /// <param name="s">The string.</param>
+    /// <returns>The formatted result.</returns>
+    internal static string AsComment(this string? s)
+        => string.IsNullOrWhiteSpace(s) ? string.Empty : $" ({s})";
 }

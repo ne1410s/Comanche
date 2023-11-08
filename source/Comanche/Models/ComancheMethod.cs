@@ -6,6 +6,7 @@ namespace Comanche.Models;
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Comanche.Exceptions;
 
 /// <summary>
@@ -82,9 +83,14 @@ internal class ComancheMethod
             var caller = this.resolver();
             return this.call(caller, parameters);
         }
+        catch (TargetInvocationException wrapperEx)
+        {
+            var ex = wrapperEx.InnerException;
+            throw new ExecutionException(ex.Message, ex, ex.StackTrace);
+        }
         catch (Exception ex)
         {
-            throw new ExecutionException($"Error calling '{this.Name}': {ex.InnerException.Message}", ex);
+            throw new ExecutionException("Unexpected error", ex);
         }
     }
 }

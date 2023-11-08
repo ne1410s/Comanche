@@ -50,10 +50,11 @@ internal static class DiscoveryExtensions
             .ToDictionary(m => m!.Name, m => m!);
 
         var asmName = asm.GetName();
-        var cliVersion = asmName.Version.ToString(3);
+        var version = asmName.Version.ToString(3);
+        var description = asm.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description;
         var comancheVersion = Assembly.GetCallingAssembly().GetName().Version.ToString(3);
 
-        return new(topLevelModules, asmName.Name, cliVersion, comancheVersion);
+        return new(topLevelModules, asmName.Name, version, description, comancheVersion);
     }
 
     private static ComancheModule? ToModule(this Type t, XDocument xDoc, bool moduleOptIn)

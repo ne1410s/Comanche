@@ -16,10 +16,19 @@ using Comanche.Models;
 /// </summary>
 internal static class RoutingExtensions
 {
+    /// <summary>
+    /// Argument for providing extra exception details.
+    /// </summary>
+    internal const string DebugArg = "--debug";
+
+    /// <summary>
+    /// Arguments for requesting discovery help.
+    /// </summary>
+    internal static readonly List<string> HelpArgs = new() { "--help", "/?" };
+    
     private const char Space = ' ';
     private const string ParamDelimiter = "|%%|";
     private const string VersionArg = "--version";
-    private static readonly List<string> HelpArgs = new() { "--help", "/?" };
 
     /// <summary>
     /// Builds a route from arguments supplied.
@@ -32,13 +41,14 @@ internal static class RoutingExtensions
         var isVersion = args.Length == 1 && args[0] == VersionArg;
         if (isVersion)
         {
-            return new(Array.Empty<string>(), new(), isHelp: false, isVersion: true);
+            return new(Array.Empty<string>(), new(), false, false, true);
         }
 
         var numberedArgs = args
             .Where(arg => !string.IsNullOrWhiteSpace(arg))
-            .Select((arg, index) => new { arg, index, qRoute = char.IsLetter(arg[0]), help = HelpArgs.Contains(arg) })
-            .ToList();
+            .Select((arg, index) => new { 
+                arg, index, qRoute = char.IsLetter(arg[0]), help = HelpArgs.Contains(arg), dbg = arg == DebugArg,
+            }).ToList();
 
         // Kick out no routes or have anything pre-route
         var firstRoute = numberedArgs.Find(kvp => kvp.qRoute);
@@ -51,7 +61,7 @@ internal static class RoutingExtensions
 
         var routeCount = numberedArgs.Find(kvp => !kvp.qRoute)?.index ?? numberedArgs.Count;
         var routes = numberedArgs.Take(routeCount).Select(kvp => kvp.arg).ToList();
-        var parameters = numberedArgs.Skip(routeCount).Where(kvp => !kvp.help).ToList();
+        var parameters = numberedArgs.Skip(routeCount).Where(kvp => !kvp.help && !kvp.dbg).ToList();
         var paramMap = new Dictionary<string, List<string>>();
 
         if (parameters.Count > 0)
@@ -86,6 +96,7 @@ internal static class RoutingExtensions
             }
         }
 
-        return new(routes, paramMap, isHelp, isVersion);
+        var isDebug = numberedArgs.Exists(kvp => kvp.dbg);
+        return new(routes, paramMap, isHelp, isDebug, isVersion);
     }
 }

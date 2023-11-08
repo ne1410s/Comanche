@@ -16,7 +16,15 @@ internal class ExecutionException : Exception
     /// </summary>
     /// <param name="message">The message.</param>
     /// <param name="innerException">The inner exception.</param>
-    public ExecutionException(string message, Exception innerException)
+    /// <param name="invocationStack">The invocation stack trace.</param>
+    public ExecutionException(string message, Exception innerException, string? invocationStack = null)
         : base(message, innerException)
-    { }
+    {
+        this.InvocationStack = invocationStack;
+    }
+
+    /// <summary>
+    /// Gets the stack trace of invocation.
+    /// </summary>
+    public string? InvocationStack { get; }
 }
