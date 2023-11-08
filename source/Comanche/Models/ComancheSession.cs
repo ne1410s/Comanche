@@ -201,17 +201,16 @@ internal class ComancheSession
         catch (ExecutionException ex)
         {
             writer.WriteLine(Environment.NewLine + "Exception:");
+            writer.Write($"[{ex.InnerException.GetType().Name}] ", WriteStyle.Highlight2);
+            writer.WriteLine(ex.Message, WriteStyle.Error);
 
             if (!route!.IsDebug)
             {
-                writer.WriteLine(ex.Message, WriteStyle.Error);
                 writer.WriteLine(Environment.NewLine + "Note:", WriteStyle.Highlight1);
                 writer.WriteLine($"Run again with {RoutingExtensions.DebugArg} for more detail.");
             }
             else
             {
-                writer.Write($"[{ex.InnerException.GetType().Name}] ", WriteStyle.Highlight2);
-                writer.WriteLine(ex.Message, WriteStyle.Error);
                 writer.WriteLine(Environment.NewLine + "Stack Trace:");
                 writer.WriteLine(ex.InvocationStack ?? ex.StackTrace, WriteStyle.Highlight1);
             }

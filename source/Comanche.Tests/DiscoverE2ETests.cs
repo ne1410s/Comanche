@@ -469,7 +469,7 @@ public class DiscoverE2ETests
     {
         // Arrange
         const string command = "e2e commented throw --test";
-        const string expected = "Error calling 'throw': 1 (Parameter 'test')";
+        const string expected = "1 (Parameter 'test')";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
