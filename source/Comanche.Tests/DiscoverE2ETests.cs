@@ -642,6 +642,24 @@ Run again with --debug for more detail.
     }
 
     [Fact]
+    public void Discover_BadCallWithDebug_CallsExpectedMethods()
+    {
+        // Arrange
+        var mockWriter = new Mock<IOutputWriter>();
+        const string command = "e2e commented throw --debug";
+        const string expected1 = "Stack Trace:";
+        const string expected2 = "   at Comanche.Tests";
+        const WriteStyle expected3 = WriteStyle.Highlight1;
+
+        // Act
+        Invoke(command, mockWriter.Object);
+
+        // Assert
+        mockWriter.Verify(m => m.Write(It.Is<string?>(s => (s ?? " ").Contains(expected1)), WriteStyle.Default, true));
+        mockWriter.Verify(m => m.Write(It.Is<string?>(s => (s ?? " ").StartsWith(expected2)), expected3, true));
+    }
+
+    [Fact]
     public void Discover_HiddenParam_WritesExpectedError()
     {
         // Arrange
