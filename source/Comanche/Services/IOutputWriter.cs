@@ -17,14 +17,21 @@ public interface IOutputWriter
     /// </summary>
     /// <param name="text">The text fragment.</param>
     /// <param name="style">The output writing style.</param>
-    public void Write(string text, WriteStyle style = WriteStyle.Default);
+    /// <param name="line">Whether to append a new line.</param>
+    public void Write(string? text = null, WriteStyle style = WriteStyle.Default, bool line = false);
 
     /// <summary>
-    /// Outputs a line of text.
+    /// Writes a structured line.
     /// </summary>
-    /// <param name="text">The line of text.</param>
-    /// <param name="style">The output writing style.</param>
-    public void WriteLine(string text, WriteStyle style = WriteStyle.Default);
+    /// <param name="prefix">The prefix.</param>
+    /// <param name="main">The main text.</param>
+    /// <param name="extra">The extra text.</param>
+    /// <param name="suffix">The suffix.</param>
+    public void WriteStructured(
+        string? prefix = null,
+        string? main = null,
+        string? extra = null,
+        string? suffix = null);
 
     /// <summary>
     /// Captures multiple strings.

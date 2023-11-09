@@ -77,15 +77,13 @@ internal class ComancheSession
             route = args.BuildRoute();
             if (route.IsVersion)
             {
-                writer.WriteLine(Environment.NewLine + "Module:");
-                writer.Write(this.CliName, WriteStyle.Highlight1);
-                writer.Write($" v{this.CliVersion}", WriteStyle.Highlight2);
-                writer.WriteLine(this.CliDescription.AsComment(), WriteStyle.Highlight3);
+                writer.Write(Environment.NewLine + "Module:", line: true);
+                writer.WriteStructured(this.CliName, null, $" v{this.CliVersion}", this.CliDescription.AsComment());
 
-                writer.WriteLine(Environment.NewLine + "CLI-ifier:");
-                writer.Write("Comanche", WriteStyle.Highlight1);
-                writer.Write($" v{this.ComancheVersion} ", WriteStyle.Highlight2);
-                writer.WriteLine($"(ne1410s © {DateTime.Today.Year}){Environment.NewLine}", WriteStyle.Highlight3);
+                writer.Write(Environment.NewLine + "CLI-ifier:", line: true);
+                var comancheSuffix = $"(ne1410s © {DateTime.Today.Year})";
+                writer.WriteStructured("Comanche", null, $" v{this.ComancheVersion} ", comancheSuffix);
+                writer.Write(line: true);
 
                 return null;
             }
@@ -93,35 +91,33 @@ internal class ComancheSession
             var method = this.MatchMethod(route, out var module);
             if (route.IsHelp)
             {
-                writer.WriteLine(Environment.NewLine + "Module:");
-                writer.Write(this.CliName + " ", WriteStyle.Highlight1);
-                writer.Write(string.Join(" ", route.RouteTerms.Take(route.RouteTerms.Count - 1)));
-                writer.WriteLine(module.Summary.AsComment(), WriteStyle.Highlight3);
+                writer.Write(Environment.NewLine + "Module:", line: true);
+                var moduleText = " " + string.Join(" ", route.RouteTerms.Take(route.RouteTerms.Count - 1));
+                writer.WriteStructured(this.CliName, moduleText, null, module.Summary.AsComment());
 
-                writer.WriteLine(Environment.NewLine + "Method:");
-                writer.Write(this.CliName + " ", WriteStyle.Highlight1);
-                writer.Write(string.Join(" ", route.RouteTerms));
-                writer.WriteLine(method.Summary.AsComment(), WriteStyle.Highlight3);
+                writer.Write(Environment.NewLine + "Method:", line: true);
+                var methodText = " " + string.Join(" ", route.RouteTerms);
+                writer.WriteStructured(this.CliName, methodText, null, method.Summary.AsComment());
 
                 if (method.Parameters.Count > 0)
                 {
-                    writer.WriteLine(Environment.NewLine + "Parameters:");
+                    writer.Write(Environment.NewLine + "Parameters:", line: true);
                     foreach (var param in method.Parameters.Where(p => !p.Hidden))
                     {
                         var alias = param.Alias != null ? $" (-{param.Alias})" : string.Empty;
-                        writer.Write($"--{param.Name}{alias} ");
-
+                        var paramText = $"--{param.Name}{alias} ";
                         var printName = param.ParameterType.ToPrintableName();
                         var defVal = param.GetPrintableDefault();
                         var printDefault = defVal == null ? string.Empty : $" = {defVal}";
-                        writer.Write($"[{printName}{printDefault}]", WriteStyle.Highlight2);
-                        writer.WriteLine(param.Summary.AsComment(), WriteStyle.Highlight3);
+                        var paramType = $"[{printName}{printDefault}]";
+                        writer.WriteStructured(null, paramText, paramType, param.Summary.AsComment());
                     }
                 }
 
-                writer.WriteLine(Environment.NewLine + "Returns:");
-                writer.Write($"[{method.ReturnType.ToPrintableName()}]", WriteStyle.Highlight2);
-                writer.WriteLine(method.Returns.AsComment() + Environment.NewLine, WriteStyle.Highlight3);
+                writer.Write(Environment.NewLine + "Returns:", line: true);
+                var returnType = $"[{method.ReturnType.ToPrintableName()}]";
+                writer.WriteStructured(null, null, returnType, method.Returns.AsComment());
+                writer.Write(line: true);
 
                 return null;
             }
@@ -129,7 +125,7 @@ internal class ComancheSession
             {
                 var parameters = method.Parameters.ParseMap(route.ParamMap, writer);
                 var result = method.Call(parameters);
-                writer.WriteLine($"{result}");
+                writer.Write($"{result}", line: true);
                 return result;
             }
         }
@@ -138,84 +134,76 @@ internal class ComancheSession
             var invalidRoute = route?.RouteTerms.Count != routeEx.DeepestValidTerms.Count;
             if (route?.IsHelp != true && invalidRoute)
             {
-                writer.WriteLine(routeEx.Message, WriteStyle.Error);
+                writer.Write(routeEx.Message, WriteStyle.Error, true);
             }
 
             this.MatchModule(routeEx.DeepestValidTerms, out var module, out var modules, out var methods);
 
+            var routeText = " " + string.Join(" ", routeEx.DeepestValidTerms);
             if (module == null)
             {
-                writer.WriteLine(Environment.NewLine + "Module:");
-                writer.Write(this.CliName, WriteStyle.Highlight1);
-                writer.Write($" v{this.CliVersion}", WriteStyle.Highlight2);
-                writer.WriteLine(this.CliDescription.AsComment(), WriteStyle.Highlight3);
+                writer.Write(Environment.NewLine + "Module:", line: true);
+                writer.WriteStructured(this.CliName, null, $" v{this.CliVersion}", this.CliDescription.AsComment());
             }
             else
             {
-                writer.WriteLine(Environment.NewLine + "Module:");
-                writer.Write(this.CliName + " ", WriteStyle.Highlight1);
-                writer.Write(string.Join(" ", routeEx.DeepestValidTerms));
-                writer.WriteLine(module.Summary.AsComment(), WriteStyle.Highlight3);
+                writer.Write(Environment.NewLine + "Module:", line: true);
+                writer.WriteStructured(this.CliName, routeText, null, module.Summary.AsComment());
             }
 
             var keyPrefix = routeEx.DeepestValidTerms.Count == 0 ? string.Empty : " ";
             if (modules.Count > 0)
             {
-                writer.WriteLine(Environment.NewLine + "Sub Modules:");
+                writer.Write(Environment.NewLine + "Sub Modules:", line: true);
                 foreach (var kvp in modules)
                 {
-                    writer.Write(this.CliName + " ", WriteStyle.Highlight1);
-                    writer.Write(string.Join(" ", routeEx.DeepestValidTerms));
-                    writer.Write(keyPrefix + kvp.Key);
-                    writer.WriteLine(kvp.Value.Summary.AsComment(), WriteStyle.Highlight3);
+                    var moduleSummary = kvp.Value.Summary.AsComment();
+                    writer.WriteStructured(this.CliName, routeText + keyPrefix + kvp.Key, null, moduleSummary);
                 }
             }
 
             if (methods.Count > 0)
             {
-                writer.WriteLine(Environment.NewLine + "Methods:");
+                writer.Write(Environment.NewLine + "Methods:", line: true);
                 foreach (var kvp in methods)
                 {
-                    writer.Write(this.CliName + " ", WriteStyle.Highlight1);
-                    writer.Write(string.Join(" ", routeEx.DeepestValidTerms));
-                    writer.Write(keyPrefix + kvp.Key);
-                    writer.WriteLine(kvp.Value.Summary.AsComment(), WriteStyle.Highlight3);
+                    var moduleSummary = kvp.Value.Summary.AsComment();
+                    writer.WriteStructured(this.CliName, routeText + keyPrefix + kvp.Key, null, moduleSummary);
                 }
             }
 
-            writer.Write(Environment.NewLine);
+            writer.Write(line: true);
         }
         catch (ParamBuilderException paramEx)
         {
-            writer.WriteLine(Environment.NewLine + "Invalid Parameters:");
+            writer.Write(Environment.NewLine + "Invalid Parameters:", line: true);
             foreach (var kvp in paramEx.Errors)
             {
-                writer.Write($"{kvp.Key}: ", WriteStyle.Error);
-                writer.WriteLine(kvp.Value, WriteStyle.Error);
-                writer.WriteLine(Environment.NewLine + "Note:", WriteStyle.Highlight1);
-                writer.WriteLine($"Run again with {RoutingExtensions.HelpArgs[0]} for a full parameter list.");
+                writer.Write($"{kvp.Key}: {kvp.Value}", WriteStyle.Error, true);
             }
 
-            writer.Write(Environment.NewLine);
+            writer.Write(Environment.NewLine + "Note:", WriteStyle.Highlight1, true);
+            writer.Write($"Run again with {RoutingExtensions.HelpArgs[0]} for a full parameter list.", line: true);
+            writer.Write(line: true);
         }
         catch (ExecutionException ex)
         {
-            writer.WriteLine(Environment.NewLine + "Exception:");
+            writer.Write(Environment.NewLine + "Exception:", line: true);
             writer.Write($"[{ex.InnerException.GetType().Name}] ", WriteStyle.Highlight2);
-            writer.WriteLine(ex.Message, WriteStyle.Error);
+            writer.Write(ex.Message, WriteStyle.Error, true);
 
             if (!route!.IsDebug)
             {
-                writer.WriteLine(Environment.NewLine + "Note:", WriteStyle.Highlight1);
-                writer.WriteLine($"Run again with {RoutingExtensions.DebugArg} for more detail.");
+                writer.Write(Environment.NewLine + "Note:", WriteStyle.Highlight1, true);
+                writer.Write($"Run again with {RoutingExtensions.DebugArg} for more detail.", line: true);
             }
             else
             {
-                writer.WriteLine(Environment.NewLine + "Stack Trace:");
-                writer.WriteLine(ex.InvocationStack ?? ex.StackTrace, WriteStyle.Highlight1);
+                writer.Write(Environment.NewLine + "Stack Trace:", line: true);
+                writer.Write(ex.InvocationStack, WriteStyle.Highlight1, true);
             }
 
-            writer.Write(Environment.NewLine);
+            writer.Write(line: true);
         }
 
         return null;

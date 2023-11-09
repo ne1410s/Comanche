@@ -25,7 +25,7 @@ internal static class RoutingExtensions
     /// Arguments for requesting discovery help.
     /// </summary>
     internal static readonly List<string> HelpArgs = new() { "--help", "/?" };
-    
+
     private const char Space = ' ';
     private const string ParamDelimiter = "|%%|";
     private const string VersionArg = "--version";
@@ -46,20 +46,20 @@ internal static class RoutingExtensions
 
         var numberedArgs = args
             .Where(arg => !string.IsNullOrWhiteSpace(arg))
-            .Select((arg, index) => new { 
-                arg, index, qRoute = char.IsLetter(arg[0]), help = HelpArgs.Contains(arg), dbg = arg == DebugArg,
-            }).ToList();
+            .Select((arg, i) =>
+                new { arg, i, qRoute = char.IsLetter(arg[0]), help = HelpArgs.Contains(arg), dbg = arg == DebugArg, })
+            .ToList();
 
         // Kick out no routes or have anything pre-route
         var firstRoute = numberedArgs.Find(kvp => kvp.qRoute);
         var isHelp = numberedArgs.Count == 0 || numberedArgs.Exists(kvp => kvp.help);
-        if (!isHelp && numberedArgs.Count != 0 && firstRoute?.index != 0)
+        if (!isHelp && numberedArgs.Count != 0 && firstRoute?.i != 0)
         {
             var message = firstRoute == null ? "No routes found." : $"Invalid route: {numberedArgs[0].arg}";
             throw new RouteBuilderException(Array.Empty<string>(), message);
         }
 
-        var routeCount = numberedArgs.Find(kvp => !kvp.qRoute)?.index ?? numberedArgs.Count;
+        var routeCount = numberedArgs.Find(kvp => !kvp.qRoute)?.i ?? numberedArgs.Count;
         var routes = numberedArgs.Take(routeCount).Select(kvp => kvp.arg).ToList();
         var parameters = numberedArgs.Skip(routeCount).Where(kvp => !kvp.help && !kvp.dbg).ToList();
         var paramMap = new Dictionary<string, List<string>>();

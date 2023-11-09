@@ -8,6 +8,7 @@ using System;
 using System.Reflection;
 using Comanche.Models;
 using Comanche.Services;
+using Comanche.Tests.Services;
 
 public class DiscoverE2ETests
 {
@@ -137,7 +138,7 @@ public class DiscoverE2ETests
         _ = Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Default));
+        mockWriter.Verify(m => m.Write(expected, WriteStyle.Default, true));
     }
 
     [Fact]
@@ -152,7 +153,7 @@ public class DiscoverE2ETests
 
         // Assert
         mockWriter.Verify(
-            m => m.WriteLine(It.IsAny<string>(), WriteStyle.Error),
+            m => m.Write(It.IsAny<string>(), WriteStyle.Error, It.IsAny<bool>()),
             Times.Never());
     }
 
@@ -169,25 +170,50 @@ public class DiscoverE2ETests
 
         // Assert
         mockWriter.Verify(
-            m => m.WriteLine(It.IsAny<string>(), WriteStyle.Error),
+            m => m.Write(It.IsAny<string>(), WriteStyle.Error, It.IsAny<bool>()),
             Times.Never());
+    }
+
+    [Fact]
+    public void Discover_BareModule_WritesExpectedText()
+    {
+        // Arrange
+        var plainWriter = new PlainWriter();
+        const string command = "e2e commented static single-mod";
+        const string expected = @"
+            Module: Comanche.Tests e2e commented static single-mod
+            Methods: Comanche.Tests e2e commented static single-mod do
+        ";
+
+        // Act
+        Invoke(command, plainWriter);
+
+        // Assert
+        plainWriter.ShouldBe(expected);
     }
 
     [Fact]
     public void Discover_Version_WritesExpected()
     {
         // Arrange
+        var plainWriter = new PlainWriter();
+        var version = Assembly.GetAssembly(typeof(Discover))!.GetName().Version!.ToString(3);
+        var year = DateTime.Today.Year;
         const string command = "--version";
-        const string expected1 = "Comanche.Tests v1.0.0";
-        const string expected2 = "- CLI-ified by Comanche v";
-        var mockWriter = new Mock<IOutputWriter>();
+        var expected = $@"
+Module:
+Comanche.Tests v1.0.0 (Test project)
+
+CLI-ifier:
+Comanche v{version} (ne1410s © {year})
+
+";
 
         // Act
-        Invoke(command, mockWriter.Object);
+        Invoke(command, plainWriter);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(It.Is<string>(s => s.StartsWith(expected1)), WriteStyle.Default));
-        mockWriter.Verify(m => m.WriteLine(It.Is<string>(s => s.StartsWith(expected2)), WriteStyle.Default));
+        plainWriter.ShouldMatchVerbatim(expected);
     }
 
     [Fact]
@@ -202,7 +228,7 @@ public class DiscoverE2ETests
 
         // Assert
         mockWriter.Verify(
-            m => m.WriteLine(It.IsAny<string>(), WriteStyle.Error),
+            m => m.Write(It.IsAny<string>(), WriteStyle.Error, true),
             Times.Never());
     }
 
@@ -211,66 +237,63 @@ public class DiscoverE2ETests
     {
         // Arrange
         const string command = "e2e --help";
-        const string expected = "MODULE: commented (Commented module.)";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Default));
+        mockWriter.Verify(
+            m => m.WriteStructured("Comanche.Tests", " e2e commented", null, " (Commented module.)"));
     }
 
     [Fact]
     public void Discover_ModuleOptIn_WritesExpected()
     {
         // Arrange
+        var plainWriter = new PlainWriter();
         const string command = "e2e commented --help";
-        const string unexpected = "MODULE: static";
-        var mockWriter = new Mock<IOutputWriter>();
+        const string expected = @"
+            Module: Comanche.Tests e2e commented (Commented module.)
+            Sub Modules: Comanche.Tests e2e commented param-test
+            Methods:
+              Comanche.Tests e2e commented join-array (Join array.)
+              Comanche.Tests e2e commented throw (Throws a thing.)
+              Comanche.Tests e2e commented sum-array
+              Comanche.Tests e2e commented pass-thru
+              Comanche.Tests e2e commented next
+              Comanche.Tests e2e commented sum-dicto
+              Comanche.Tests e2e commented sum (Sums ints.)
+        ";
 
         // Act
-        Invoke(command, mockWriter.Object, true);
+        Invoke(command, plainWriter, true);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(unexpected, It.IsAny<WriteStyle>()), Times.Never());
-    }
-
-    [Fact]
-    public void Discover_OptedInEmptyMod_WritesExpected()
-    {
-        // Arrange
-        const string command = "e2e commented --help";
-        const string unexpected = "MODULE: empty";
-        var mockWriter = new Mock<IOutputWriter>();
-        _ = E2ETestModule.CommentedModule.EmptyModule.Do();
-
-        // Act
-        Invoke(command, mockWriter.Object, true);
-
-        // Assert
-        mockWriter.Verify(m => m.WriteLine(unexpected, It.IsAny<WriteStyle>()), Times.Never());
+        plainWriter.ShouldBe(expected);
     }
 
     [Fact]
     public void Discover_MethodHelpParamDefaults_WritesExpected()
     {
         // Arrange
+        var plainWriter = new PlainWriter();
         const string command = "e2e commented param-test change --help";
-        const string expected1 = "  --d1 [DateTime]";
-        const string expected2 = "  --m1 [Decimal]";
-        const string expected3 = "  --i1 [int64? = 1]";
-        const string expected4 = "- Returns: [DateTime]";
-        var mockWriter = new Mock<IOutputWriter>();
+        const string expected = @"
+            Module: Comanche.Tests e2e commented param-test
+            Method: Comanche.Tests e2e commented param-test change
+            Parameters:
+            --d1 [DateTime]
+            --m1 [Decimal]
+            --i1 [int64? = 1]
+            Returns: [DateTime]
+        ";
 
         // Act
-        Invoke(command, mockWriter.Object);
+        Invoke(command, plainWriter);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected1, WriteStyle.Default));
-        mockWriter.Verify(m => m.WriteLine(expected2, WriteStyle.Default));
-        mockWriter.Verify(m => m.WriteLine(expected3, WriteStyle.Default));
-        mockWriter.Verify(m => m.WriteLine(expected4, WriteStyle.Default));
+        plainWriter.ShouldBe(expected);
     }
 
     [Theory]
@@ -295,78 +318,87 @@ public class DiscoverE2ETests
     public void Discover_MethodHelpWithoutDocs_WritesExpected(string helpCommand)
     {
         // Arrange
+        var plainWriter = new PlainWriter();
         var command = $"e2e commented sum-array {helpCommand}";
-        const string expected1 = "- Method: sum-array";
-        const string expected2 = "- Parameters:";
-        const string expected3 = "  --n (-numbers) [int[]]";
-        const string expected4 = "- Returns: [int]";
-        var mockWriter = new Mock<IOutputWriter>();
+        const string expected = @"
+            Module: Comanche.Tests e2e commented (Commented module.)
+            Method: Comanche.Tests e2e commented sum-array
+            Parameters: --n (-numbers) [int[]]
+            Returns: [int]
+        ";
 
         // Act
-        Invoke(command, mockWriter.Object);
+        Invoke(command, plainWriter);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected1, WriteStyle.Default));
-        mockWriter.Verify(m => m.WriteLine(expected2, WriteStyle.Default));
-        mockWriter.Verify(m => m.WriteLine(expected3, WriteStyle.Default));
-        mockWriter.Verify(m => m.WriteLine(expected4, WriteStyle.Default));
+        plainWriter.ShouldBe(expected);
     }
 
     [Fact]
     public void Discover_MethodHelpPartialDocs_WritesExpected()
     {
         // Arrange
+        var plainWriter = new PlainWriter();
         const string command = "e2e commented throw --help";
-        const string expected1 = "- Method: throw";
-        const string expected2 = "- Summary: Throws a thing.";
-        const string expected3 = "- Returns: [<void>]";
-        var mockWriter = new Mock<IOutputWriter>();
+        const string expected = @"
+            Module: Comanche.Tests e2e commented (Commented module.)
+            Method: Comanche.Tests e2e commented throw (Throws a thing.)
+            Parameters: --test [boolean = False] (Test.)
+            Returns: [<void>]
+        ";
 
         // Act
-        Invoke(command, mockWriter.Object);
+        Invoke(command, plainWriter);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected1, WriteStyle.Default));
-        mockWriter.Verify(m => m.WriteLine(expected2, WriteStyle.Default));
-        mockWriter.Verify(m => m.WriteLine(expected3, WriteStyle.Default));
+        plainWriter.ShouldBe(expected);
     }
 
     [Fact]
     public void Discover_MethodHelpWithDocs_WritesExpected()
     {
         // Arrange
+        var plainWriter = new PlainWriter();
         const string command = "e2e commented join-array --help";
-        const string expected1 = "- Method: join-array";
-        const string expected2 = "- Summary: Join array.";
-        const string expected3 = "- Parameters:";
-        const string expected4 = "  --x [string = \"!\"] - The x.";
-        const string expected5 = "- Returns: [string] Val.";
-        var mockWriter = new Mock<IOutputWriter>();
+        const string expected = @"
+            Module: Comanche.Tests e2e commented (Commented module.)
+            Method: Comanche.Tests e2e commented join-array (Join array.)
+            Parameters:
+            --s [string[]] (The s.)
+            --x [string = ""!""] (The x.)
+            Returns: [string] (Val.)
+        ";
 
         // Act
-        Invoke(command, mockWriter.Object);
+        Invoke(command, plainWriter);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected1, WriteStyle.Default));
-        mockWriter.Verify(m => m.WriteLine(expected2, WriteStyle.Default));
-        mockWriter.Verify(m => m.WriteLine(expected3, WriteStyle.Default));
-        mockWriter.Verify(m => m.WriteLine(expected4, WriteStyle.Default));
-        mockWriter.Verify(m => m.WriteLine(expected5, WriteStyle.Default));
+        plainWriter.ShouldBe(expected);
     }
 
     [Fact]
     public void Discover_MethodHelpNoParams_WritesExpected()
     {
         // Arrange
+        var plainWriter = new PlainWriter();
         const string command = "e2e commented static single-mod do --help";
-        const string unexpected = "- Parameters:";
-        var mockWriter = new Mock<IOutputWriter>();
+        const string expected = @"
+Module:
+Comanche.Tests e2e commented static single-mod
+
+Method:
+Comanche.Tests e2e commented static single-mod do
+
+Returns:
+[<void>]
+
+";
 
         // Act
-        Invoke(command, mockWriter.Object);
+        Invoke(command, plainWriter);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(unexpected, It.IsAny<WriteStyle>()), Times.Never());
+        plainWriter.ShouldMatchVerbatim(expected);
     }
 
     [Fact]
@@ -374,14 +406,15 @@ public class DiscoverE2ETests
     {
         // Arrange
         const string command = "e2e commented sum-dicto --help";
-        const string expected = "  --d [Dictionary<string, int> = null]";
+        const string expectedType = "[Dictionary<string, int> = null]";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Default));
+        mockWriter.Verify(
+            m => m.WriteStructured(null, "--d ", expectedType, string.Empty));
     }
 
     [Fact]
@@ -389,35 +422,37 @@ public class DiscoverE2ETests
     {
         // Arrange
         const string command = "e2e commented sum doesnotexist";
-        const string expected1 = "No such method.";
-        const string expected2 = "METHOD: sum (Sums ints.)";
-        const string expected3 = "METHOD: next";
+        const string expected = "No such method.";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected1, WriteStyle.Error));
-        mockWriter.Verify(m => m.WriteLine(expected2, WriteStyle.Default));
-        mockWriter.Verify(m => m.WriteLine(expected3, WriteStyle.Default));
+        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
     }
 
     [Fact]
     public void Discover_BadAliasedParam_WritesExpectedError()
     {
         // Arrange
+        var plainWriter = new PlainWriter();
         const string command = "e2e commented sum -numbers NaN";
-        const string expected1 = "Invalid parameters";
-        const string expected2 = "--n (-numbers): cannot convert";
-        var mockWriter = new Mock<IOutputWriter>();
+        const string expected = @"
+Invalid Parameters:
+--numbers (-n): missing
+--n (-numbers): cannot convert
+
+Note:
+Run again with --help for a full parameter list.
+
+";
 
         // Act
-        Invoke(command, mockWriter.Object);
+        Invoke(command, plainWriter);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected1, WriteStyle.Error));
-        mockWriter.Verify(m => m.WriteLine(expected2, WriteStyle.Error));
+        plainWriter.ShouldMatchVerbatim(expected);
     }
 
     [Fact]
@@ -432,7 +467,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
+        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
     }
 
     [Fact]
@@ -446,22 +481,33 @@ public class DiscoverE2ETests
         Invoke(writer: mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
+        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
     }
 
     [Fact]
     public void Discover_PreRouteParam_WritesExpectedError()
     {
         // Arrange
+        var plainWriter = new PlainWriter();
         const string command = "--lol";
-        const string expected = "No routes found.";
-        var mockWriter = new Mock<IOutputWriter>();
+        const string expected = @"No routes found.
+
+Module:
+Comanche.Tests v1.0.0 (Test project)
+
+Sub Modules:
+Comanche.Tests discover-e2etests
+Comanche.Tests e2e (Module for end to end tests.)
+Comanche.Tests console-writer-tests (Tests for the class.)
+Comanche.Tests plain-writer-tests (Tests for the class.)
+
+";
 
         // Act
-        Invoke(command, mockWriter.Object);
+        Invoke(command, plainWriter);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
+        plainWriter.ShouldMatchVerbatim(expected);
     }
 
     [Fact]
@@ -476,7 +522,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
+        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
     }
 
     [Fact]
@@ -491,7 +537,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
+        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
     }
 
     [Fact]
@@ -506,7 +552,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
+        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
     }
 
     [Fact]
@@ -522,8 +568,8 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected1, WriteStyle.Error));
-        mockWriter.Verify(m => m.WriteLine(expected2, WriteStyle.Error));
+        mockWriter.Verify(m => m.Write(expected1, WriteStyle.Error, true));
+        mockWriter.Verify(m => m.Write(expected2, WriteStyle.Error, true));
     }
 
     [Fact]
@@ -531,8 +577,7 @@ public class DiscoverE2ETests
     {
         // Arrange
         const string command = "e2e commented sum ---notaparam";
-        const string expected1 = "Bad parameter: '---notaparam'.";
-        const string expected2 = "MODULE: static";
+        const string expected = "Bad parameter: '---notaparam'.";
         var mockWriter = new Mock<IOutputWriter>();
         E2ETestModule.CommentedModule.StaticModule.SingleMod.Do();
 
@@ -540,23 +585,60 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected1, WriteStyle.Error));
-        mockWriter.Verify(m => m.WriteLine(expected2, WriteStyle.Default));
+        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
+    }
+
+    [Fact]
+    public void Discover_EmptyModuleDo_ReturnsExpected()
+    {
+        // Arrange
+        const int expected = 42;
+
+        // Act
+        var actual = E2ETestModule.CommentedModule.EmptyModule.Do();
+
+        // Assert
+        actual.Should().Be(expected);
     }
 
     [Fact]
     public void Discover_BadCall_WritesExpectedError()
     {
         // Arrange
+        var plainWriter = new PlainWriter();
         const string command = "e2e commented throw";
-        const string expected = "Error calling 'throw': 2 (Parameter 'test')";
-        var mockWriter = new Mock<IOutputWriter>();
+        const string expected = @"
+Exception:
+[ArgumentException] 2 (Parameter 'test')
+
+Note:
+Run again with --debug for more detail.
+
+";
 
         // Act
-        Invoke(command, mockWriter.Object);
+        Invoke(command, plainWriter);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
+        plainWriter.ShouldMatchVerbatim(expected);
+    }
+
+    [Fact]
+    public void Discover_BadCallWithDebug_WritesExpectedError()
+    {
+        // Arrange
+        var plainWriter = new PlainWriter();
+        const string command = "e2e commented throw --debug";
+        const string expected = @"
+            Exception: [ArgumentException] 2 (Parameter 'test')
+            Stack Trace: at
+        ";
+
+        // Act
+        Invoke(command, plainWriter);
+
+        // Assert
+        plainWriter.ShouldContain(expected);
     }
 
     [Fact]
@@ -571,7 +653,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
+        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
     }
 
     [Fact]
@@ -586,7 +668,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
+        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
     }
 
     [Fact]
@@ -601,7 +683,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
+        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
     }
 
     [Fact]
@@ -616,7 +698,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
+        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
     }
 
     [Fact]
@@ -632,7 +714,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
+        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
     }
 
     [Fact]
@@ -647,7 +729,7 @@ public class DiscoverE2ETests
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.WriteLine(expected, WriteStyle.Error));
+        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
     }
 
     [Fact]

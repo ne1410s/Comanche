@@ -18,12 +18,18 @@ public class ConsoleWriter : IOutputWriter
     public Tuple<string, WriteStyle, bool>? LastCommand { get; private set; }
 
     /// <inheritdoc/>
-    public void Write(string text, WriteStyle style = WriteStyle.Default)
-        => this.WriteInternal(text, style, false);
+    public void Write(string? text = null, WriteStyle style = WriteStyle.Default, bool line = false)
+        => this.WriteInternal(text, style, line);
 
     /// <inheritdoc/>
-    public void WriteLine(string text, WriteStyle style = WriteStyle.Default)
-        => this.WriteInternal(text, style, true);
+    public void WriteStructured(string? prefix = null, string? main = null, string? extra = null, string? suffix = null)
+    {
+        this.Write(prefix, WriteStyle.Highlight1);
+        this.Write(main);
+        this.Write(extra, WriteStyle.Highlight2);
+        this.Write(suffix, WriteStyle.Highlight3);
+        this.Write(line: true);
+    }
 
     /// <inheritdoc/>
     [ExcludeFromCodeCoverage]
@@ -47,17 +53,11 @@ public class ConsoleWriter : IOutputWriter
         return retVal;
     }
 
-    private void WriteInternal(string text, WriteStyle style, bool line)
+    private void WriteInternal(string? text, WriteStyle style, bool line)
     {
-        Action<string> write = new { style, line } switch
-        {
-            { style: WriteStyle.Error, line: true } => Console.Error.WriteLine,
-            { style: WriteStyle.Error, line: false } => Console.Error.Write,
-            { line: false } => Console.Write,
-            _ => Console.WriteLine,
-        };
-
         ConsoleColor priorForeground = Console.ForegroundColor;
+
+        Action<string> write = style == WriteStyle.Error ? Console.Error.Write : Console.Write;
         Console.ForegroundColor = style switch
         {
             WriteStyle.Highlight1 => ConsoleColor.Yellow,
@@ -67,8 +67,9 @@ public class ConsoleWriter : IOutputWriter
             _ => priorForeground,
         };
 
-        write(text);
-        this.LastCommand = new(text, style, line);
+        var actual = text + (line ? Environment.NewLine : string.Empty);
+        write(actual);
+        this.LastCommand = new(actual, style, line);
 
         Console.ForegroundColor = priorForeground;
     }

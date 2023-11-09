@@ -15,7 +15,7 @@ using Comanche.Services;
 public class ConsoleWriterTests
 {
     [Fact]
-    public void WriteLine_IsError_WritesToErrorStream()
+    public void Write_IsError_WritesToErrorStream()
     {
         // Arrange
         StringWriter writer = new();
@@ -23,14 +23,14 @@ public class ConsoleWriterTests
         Console.SetError(writer);
 
         // Act
-        sut.WriteLine("foo", WriteStyle.Error);
+        sut.Write("foo", WriteStyle.Error);
 
         // Assert
-        writer.ToString().Should().Contain("foo" + Environment.NewLine);
+        writer.ToString().Should().Contain("foo");
     }
 
     [Fact]
-    public void WriteLine_NotError_WritesToStandardStream()
+    public void Write_NotError_WritesToStandardStream()
     {
         // Arrange
         StringWriter writer = new();
@@ -38,45 +38,44 @@ public class ConsoleWriterTests
         Console.SetOut(writer);
 
         // Act
-        sut.WriteLine("bar", WriteStyle.Default);
+        sut.Write("bar", WriteStyle.Default);
 
         // Assert
-        writer.ToString().Should().Contain("bar" + Environment.NewLine);
+        writer.ToString().Should().Contain("bar");
     }
 
     [Theory]
-    [InlineData("foo", WriteStyle.Default)]
-    [InlineData("foo", WriteStyle.Highlight1)]
-    [InlineData("foo", WriteStyle.Highlight2)]
-    [InlineData("foo", WriteStyle.Highlight3)]
-    [InlineData("foo", WriteStyle.Error)]
-    public void WriteLine_VaryingParams_TracksAccordingly(string text, WriteStyle style)
+    [InlineData("bar", WriteStyle.Default, true)]
+    [InlineData("bar", WriteStyle.Highlight1, true)]
+    [InlineData("bar", WriteStyle.Highlight2, true)]
+    [InlineData("bar", WriteStyle.Highlight3, false)]
+    [InlineData("bar", WriteStyle.Error, true)]
+    public void Write_VaryingParams_TracksAccordingly(string text, WriteStyle style, bool line)
     {
         // Arrange
         ConsoleWriter sut = new();
+        var expected = Tuple.Create(line ? text + Environment.NewLine : text, style, line);
 
         // Act
-        sut.WriteLine(text, style);
+        sut.Write(text, style, line);
 
         // Assert
-        sut.LastCommand.Should().Be(Tuple.Create(text, style, true));
+        sut.LastCommand.Should().Be(expected);
     }
 
-    [Theory]
-    [InlineData("bar", WriteStyle.Default)]
-    [InlineData("bar", WriteStyle.Highlight1)]
-    [InlineData("bar", WriteStyle.Highlight2)]
-    [InlineData("bar", WriteStyle.Highlight3)]
-    [InlineData("bar", WriteStyle.Error)]
-    public void Write_VaryingParams_TracksAccordingly(string text, WriteStyle style)
+    [Fact]
+    public void WriteStructured_VaryingParams_OutputsExpected()
     {
         // Arrange
+        StringWriter writer = new();
         ConsoleWriter sut = new();
+        Console.SetOut(writer);
+        var expected = "mynameisstan" + Environment.NewLine;
 
         // Act
-        sut.Write(text, style);
+        sut.WriteStructured("my", "name", "is", "stan");
 
         // Assert
-        sut.LastCommand.Should().Be(Tuple.Create(text, style, false));
+        writer.ToString().Should().Be(expected);
     }
 }
