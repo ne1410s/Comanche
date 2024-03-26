@@ -18,7 +18,7 @@ public class ConsoleWriterTests
     public void Write_IsError_WritesToErrorStream()
     {
         // Arrange
-        using StringWriter writer = new();
+        StringWriter writer = new();
         ConsoleWriter sut = new();
         Console.SetError(writer);
 
@@ -33,7 +33,7 @@ public class ConsoleWriterTests
     public void Write_NotError_WritesToStandardStream()
     {
         // Arrange
-        using StringWriter writer = new();
+        StringWriter writer = new();
         ConsoleWriter sut = new();
         Console.SetOut(writer);
 
@@ -67,7 +67,7 @@ public class ConsoleWriterTests
     public void WriteStructured_VaryingParams_OutputsExpected()
     {
         // Arrange
-        using StringWriter writer = new();
+        StringWriter writer = new();
         ConsoleWriter sut = new();
         Console.SetOut(writer);
         var expected = "mynameisstan" + Environment.NewLine;
