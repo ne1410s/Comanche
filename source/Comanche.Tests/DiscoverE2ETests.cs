@@ -296,6 +296,21 @@ Comanche v{version} (ne1410s © {year})
         plainWriter.ShouldBe(expected);
     }
 
+    [Fact]
+    public void Discover_SerialisableReturnType_WritesExpected()
+    {
+        // Arrange
+        var plainWriter = new PlainWriter();
+        const string command = "e2e commented param-test get-nums";
+        const string expected = "[ 1, 2, 3 ] ";
+
+        // Act
+        Invoke(command, plainWriter);
+
+        // Assert
+        plainWriter.ShouldBe(expected);
+    }
+
     [Theory]
     [InlineData(2L, 7200)]
     [InlineData(null, 11520)]

@@ -7,6 +7,8 @@ namespace Comanche.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Comanche.Exceptions;
 using Comanche.Extensions;
 using Comanche.Services;
@@ -16,6 +18,13 @@ using Comanche.Services;
 /// </summary>
 internal class ComancheSession
 {
+    private static readonly JsonSerializerOptions JsonOpts = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        WriteIndented = true,
+    };
+
     /// <summary>
     /// Initializes a new instance of the <see cref="ComancheSession"/> class.
     /// </summary>
@@ -125,7 +134,21 @@ internal class ComancheSession
             {
                 var parameters = method.Parameters.ParseMap(route.ParamMap, writer);
                 var result = method.Call(parameters);
-                writer.Write($"{result}", line: true);
+                var output = result?.ToString();
+                var directWrite = result == null || result is string || result.GetType().IsValueType;
+                if (!directWrite)
+                {
+                    try
+                    {
+                        output = JsonSerializer.Serialize(result, JsonOpts);
+                    }
+                    catch
+                    {
+                        // Sorry no dice
+                    }
+                }
+
+                writer.Write(output, line: true);
                 return result;
             }
         }

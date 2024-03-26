@@ -92,6 +92,8 @@ public static class E2ETestModule
                 DateTime d1,
                 decimal m1 = 3.2m,
                 long? i1 = 1) => d1.AddHours(i1 ?? (double)m1);
+
+            public static int[] GetNums() => [1, 2, 3];
         }
     }
 }
