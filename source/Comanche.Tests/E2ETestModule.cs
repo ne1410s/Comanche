@@ -6,6 +6,7 @@ namespace Comanche.Tests;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Comanche.Attributes;
@@ -61,7 +62,7 @@ public static class E2ETestModule
         /// <returns>Sum plus a seed.</returns>
         [Alias("sum")]
         public int SumList(
-            [Alias("n")] List<int> numbers,
+            [Alias("n")] Collection<int> numbers,
             [Alias("numbers")] int n = 34,
             [Hidden] int otherSeed = 0) => this.Seed + n + otherSeed + numbers.Sum();
 
