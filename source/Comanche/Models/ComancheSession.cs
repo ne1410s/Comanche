@@ -86,6 +86,14 @@ internal class ComancheSession
             route = args.BuildRoute();
             if (route.IsVersion)
             {
+                if (route.IsHelp || route.IsDebug)
+                {
+                    throw new ParamBuilderException(new Dictionary<string, string>()
+                    {
+                        ["--version"] = "Command does not support --debug or --help",
+                    });
+                }
+
                 writer.Write(Environment.NewLine + "Module:", line: true);
                 writer.WriteStructured(this.CliName, null, $" v{this.CliVersion}", this.CliDescription.AsComment());
 

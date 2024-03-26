@@ -216,6 +216,22 @@ Comanche v{version} (ne1410s © {year})
         plainWriter.ShouldMatchVerbatim(expected);
     }
 
+    [Theory]
+    [InlineData("--help")]
+    [InlineData("--debug")]
+    public void Discover_VersionPlusIncompatibleFlag_ThrowsException(string incompatibleFlag)
+    {
+        // Arrange
+        var plainWriter = new PlainWriter();
+        var command = "--version " + incompatibleFlag;
+
+        // Act
+        Invoke(command, plainWriter);
+
+        // Assert
+        plainWriter.ShouldContain("--version: Command does not support --debug or --help");
+    }
+
     [Fact]
     public void Discover_ImmediateHelp_DoesNotWriteError()
     {
