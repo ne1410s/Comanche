@@ -38,22 +38,30 @@ internal static class RoutingExtensions
     /// <exception cref="RouteBuilderException">Route builder error.</exception>
     public static ComancheRoute BuildRoute(this string[] args)
     {
-        var isVersion = args.Length == 1 && args[0] == VersionArg;
-        if (isVersion)
-        {
-            return new(Array.Empty<string>(), new(), false, false, true);
-        }
-
         var numberedArgs = args
             .Where(arg => !string.IsNullOrWhiteSpace(arg))
-            .Select((arg, i) =>
-                new { arg, i, qRoute = char.IsLetter(arg[0]), help = HelpArgs.Contains(arg), dbg = arg == DebugArg, })
+            .Select((arg, i) => new
+            {
+                arg, i, qRoute = char.IsLetter(arg[0]),
+                help = HelpArgs.Contains(arg),
+                dbg = arg == DebugArg,
+                ver = arg == VersionArg,
+            })
             .ToList();
 
-        // Kick out no routes or have anything pre-route
         var firstRoute = numberedArgs.Find(kvp => kvp.qRoute);
+        var isVersion = numberedArgs.Exists(kvp => kvp.ver);
         var isHelp = numberedArgs.Count == 0 || numberedArgs.Exists(kvp => kvp.help);
-        if (!isHelp && numberedArgs.Count != 0 && firstRoute?.i != 0)
+        var isDebug = numberedArgs.Exists(kvp => kvp.dbg);
+
+        // Divert version requests
+        if (isVersion)
+        {
+            return new([], [], isHelp, isDebug, true);
+        }
+
+        // Kick out no routes or have anything pre-route
+        if (!isHelp && firstRoute?.i != 0)
         {
             var message = firstRoute == null ? "No routes found." : $"Invalid route: {numberedArgs[0].arg}";
             throw new RouteBuilderException(Array.Empty<string>(), message);
@@ -91,12 +99,12 @@ internal static class RoutingExtensions
                 .ToList();
             if (badParams.Count != 0)
             {
+                // Stryker disable once Linq: There must always be at least one item
                 var badArg = numberedArgs.First(n => badParams.Contains(n.arg)).arg;
                 throw new RouteBuilderException(routes, $"Bad parameter: '{badArg}'.");
             }
         }
 
-        var isDebug = numberedArgs.Exists(kvp => kvp.dbg);
         return new(routes, paramMap, isHelp, isDebug, isVersion);
     }
 }

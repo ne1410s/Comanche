@@ -216,6 +216,22 @@ Comanche v{version} (ne1410s © {year})
         plainWriter.ShouldMatchVerbatim(expected);
     }
 
+    [Theory]
+    [InlineData("--help")]
+    [InlineData("--debug")]
+    public void Discover_VersionPlusIncompatibleFlag_WritesExpectedError(string incompatibleFlag)
+    {
+        // Arrange
+        var plainWriter = new PlainWriter();
+        var command = "--version " + incompatibleFlag;
+
+        // Act
+        Invoke(command, plainWriter);
+
+        // Assert
+        plainWriter.ShouldContain("--version: Command does not support --debug or --help");
+    }
+
     [Fact]
     public void Discover_ImmediateHelp_DoesNotWriteError()
     {
@@ -288,6 +304,21 @@ Comanche v{version} (ne1410s © {year})
             --i1 [int64? = 1]
             Returns: [DateTime]
         ";
+
+        // Act
+        Invoke(command, plainWriter);
+
+        // Assert
+        plainWriter.ShouldBe(expected);
+    }
+
+    [Fact]
+    public void Discover_SerialisableReturnType_WritesExpected()
+    {
+        // Arrange
+        var plainWriter = new PlainWriter();
+        const string command = "e2e commented param-test get-nums";
+        const string expected = "[ 1, 2, 3 ] ";
 
         // Act
         Invoke(command, plainWriter);

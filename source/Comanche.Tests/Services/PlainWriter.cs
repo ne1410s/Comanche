@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 using Comanche.Models;
 using Comanche.Services;
 
-internal class PlainWriter : IOutputWriter
+internal sealed class PlainWriter : IOutputWriter
 {
     private static readonly Regex WhiteSpace = new(@"\s+");
     private readonly StringBuilder sb = new();
