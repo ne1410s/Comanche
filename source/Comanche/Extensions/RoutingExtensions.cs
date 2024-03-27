@@ -61,7 +61,7 @@ internal static class RoutingExtensions
         }
 
         // Kick out no routes or have anything pre-route
-        if (!isHelp && numberedArgs.Count != 0 && firstRoute?.i != 0)
+        if (!isHelp && firstRoute?.i != 0)
         {
             var message = firstRoute == null ? "No routes found." : $"Invalid route: {numberedArgs[0].arg}";
             throw new RouteBuilderException(Array.Empty<string>(), message);
@@ -99,6 +99,7 @@ internal static class RoutingExtensions
                 .ToList();
             if (badParams.Count != 0)
             {
+                // Stryker disable once Linq: There must always be at least one item
                 var badArg = numberedArgs.First(n => badParams.Contains(n.arg)).arg;
                 throw new RouteBuilderException(routes, $"Bad parameter: '{badArg}'.");
             }
