@@ -219,7 +219,7 @@ Comanche v{version} (ne1410s © {year})
     [Theory]
     [InlineData("--help")]
     [InlineData("--debug")]
-    public void Discover_VersionPlusIncompatibleFlag_ThrowsException(string incompatibleFlag)
+    public void Discover_VersionPlusIncompatibleFlag_WritesExpectedError(string incompatibleFlag)
     {
         // Arrange
         var plainWriter = new PlainWriter();
