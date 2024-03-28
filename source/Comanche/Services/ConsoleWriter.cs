@@ -50,7 +50,7 @@ public class ConsoleWriter : IOutputWriter
                 if (key == ConsoleKey.Backspace && lineBuilder.Length > 0)
                 {
                     Console.Write("\b \b");
-                    lineBuilder.Remove(lineBuilder.Length - 2, 1);
+                    lineBuilder.Remove(lineBuilder.Length - 1, 1);
                 }
                 else if (!char.IsControl(keyInfo.KeyChar))
                 {
@@ -59,7 +59,13 @@ public class ConsoleWriter : IOutputWriter
                 }
             }
             while (key != ConsoleKey.Enter);
+            if (lineBuilder.Length == 0)
+            {
+                break;
+            }
+
             retVal.Add(lineBuilder.ToString());
+            Console.WriteLine();
         }
 
         return retVal;
