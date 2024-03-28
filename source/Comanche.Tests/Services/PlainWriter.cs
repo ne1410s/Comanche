@@ -16,7 +16,7 @@ internal sealed class PlainWriter : IOutputWriter
     private static readonly Regex WhiteSpace = new(@"\s+");
     private readonly StringBuilder sb = new();
 
-    public Collection<string> CaptureStrings(string prompt = "Input: ") => null!;
+    public Collection<string> CaptureStrings(string prompt = "Input: ", char? mask = null, byte max = 255) => null!;
 
     public void Write(string? text = null, WriteStyle style = WriteStyle.Default, bool line = false)
         => this.sb.Append(text).Append(line ? Environment.NewLine : string.Empty);

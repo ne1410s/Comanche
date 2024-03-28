@@ -37,6 +37,8 @@ public interface IOutputWriter
     /// Captures multiple strings.
     /// </summary>
     /// <param name="prompt">The prompt text.</param>
+    /// <param name="mask">Optional mask character.</param>
+    /// <param name="max">The maximum number of strings to capture.</param>
     /// <returns>The result.</returns>
-    public Collection<string> CaptureStrings(string prompt = "Input: ");
+    public Collection<string> CaptureStrings(string prompt = "Input: ", char? mask = null, byte max = 255);
 }

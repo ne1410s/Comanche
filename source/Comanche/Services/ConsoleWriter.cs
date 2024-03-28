@@ -7,6 +7,7 @@ namespace Comanche.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using Comanche.Models;
 
 /// <inheritdoc cref="IOutputWriter"/>
@@ -33,21 +34,32 @@ public class ConsoleWriter : IOutputWriter
 
     /// <inheritdoc/>
     [ExcludeFromCodeCoverage]
-    public Collection<string> CaptureStrings(string prompt = "Input: ")
+    public Collection<string> CaptureStrings(string prompt = "Input: ", char? mask = null, byte max = 255)
     {
         Console.Write(prompt);
         var retVal = new Collection<string>();
-        while (true)
+        var lineBuilder = new StringBuilder();
+        for (var capture = 0; capture < max; capture++)
         {
-            var read = Console.ReadLine();
-            if (!string.IsNullOrEmpty(read))
+            lineBuilder.Clear();
+            ConsoleKey key;
+            do
             {
-                retVal.Add(read);
+                var keyInfo = Console.ReadKey(intercept: true);
+                key = keyInfo.Key;
+                if (key == ConsoleKey.Backspace && lineBuilder.Length > 0)
+                {
+                    Console.Write("\b \b");
+                    lineBuilder.Remove(lineBuilder.Length - 2, 1);
+                }
+                else if (!char.IsControl(keyInfo.KeyChar))
+                {
+                    Console.Write(mask ?? keyInfo.KeyChar);
+                    lineBuilder.Append(keyInfo.KeyChar);
+                }
             }
-            else
-            {
-                break;
-            }
+            while (key != ConsoleKey.Enter);
+            retVal.Add(lineBuilder.ToString());
         }
 
         return retVal;
