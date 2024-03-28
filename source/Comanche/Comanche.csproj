@@ -15,7 +15,7 @@
 	<TargetFramework>netstandard2.1</TargetFramework>
     <Title>$(AssemblyName)</Title>
     <PackageTags>Command; Autodoc; Documenting; CLI;</PackageTags>
-    <VersionPrefix>1.3.2</VersionPrefix>
+    <VersionPrefix>1.3.3</VersionPrefix>
   </PropertyGroup>
 
   <ItemGroup>
