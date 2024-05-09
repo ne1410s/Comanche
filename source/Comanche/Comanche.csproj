@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <PackageReference Include="Analyse" Version="1.0.22" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="System.Text.Json" Version="8.0.3" />
   </ItemGroup>
 

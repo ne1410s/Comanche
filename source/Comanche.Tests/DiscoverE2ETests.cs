@@ -9,6 +9,7 @@ using System.Reflection;
 using Comanche.Models;
 using Comanche.Services;
 using Comanche.Tests.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 public class DiscoverE2ETests
 {
@@ -20,6 +21,21 @@ public class DiscoverE2ETests
 
         // Assert
         result.Should().BeNull();
+    }
+
+    [Fact]
+    public void Discover_WithServiceCollection_AddsWriter()
+    {
+        // Arrange
+        var mockServices = new Mock<IServiceCollection>();
+
+        // Act
+        Discover.Go(true, services: mockServices.Object);
+
+        // Assert
+        mockServices.Verify(
+            m => m.Add(It.Is<ServiceDescriptor>(
+                d => d.ServiceType == typeof(IOutputWriter))));
     }
 
     [Fact]
@@ -277,6 +293,7 @@ Comanche v{version} (ne1410s © {year})
               Comanche.Tests e2e commented throw (Throws a thing.)
               Comanche.Tests e2e commented sum-array
               Comanche.Tests e2e commented pass-thru
+              Comanche.Tests e2e commented pass-thru-hidden
               Comanche.Tests e2e commented next
               Comanche.Tests e2e commented sum-dicto
               Comanche.Tests e2e commented sum (Sums ints.)
@@ -756,7 +773,7 @@ Run again with --debug for more detail.
         // Arrange
         const string command = "e2e commented sum-dicto --d xyz";
         const string expected = "--d: cannot deserialize";
-        _ = E2ETestModule.CommentedModule.SumDicto(new());
+        _ = E2ETestModule.CommentedModule.SumDicto([]);
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act
@@ -782,10 +799,25 @@ Run again with --debug for more detail.
     }
 
     [Fact]
-    public void Discover_IOutputWriter_AutoInjected()
+    public void Discover_IOutputWriterNotHidden_WritesExpectedError()
     {
         // Arrange
         const string command = "e2e commented pass-thru";
+        _ = E2ETestModule.CommentedModule.PassThru(null!);
+        var mockWriter = new Mock<IOutputWriter>();
+
+        // Act
+        Invoke(command, mockWriter.Object);
+
+        // Assert
+        mockWriter.Verify(m => m.Write("--writer: injected parameter must be hidden", WriteStyle.Error, true));
+    }
+
+    [Fact]
+    public void Discover_IOutputWriterHidden_ReturnsWriter()
+    {
+        // Arrange
+        const string command = "e2e commented pass-thru-hidden";
         var mockWriter = new Mock<IOutputWriter>();
 
         // Act

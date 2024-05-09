@@ -48,9 +48,11 @@ public static class E2ETestModule
 
         public static IOutputWriter PassThru(IOutputWriter writer) => writer;
 
+        public static IOutputWriter PassThruHidden([Hidden]IOutputWriter writer) => writer;
+
         public static short Next([Alias(null!)] byte? b) => (short)((b ?? byte.MaxValue) + 1);
 
-        public static int SumDicto(Dictionary<string, int>? d = null) => (d ?? new()).Values.Sum();
+        public static int SumDicto(Dictionary<string, int>? d = null) => (d ?? []).Values.Sum();
 
         /// <summary>
         /// Sums ints.

@@ -13,7 +13,6 @@ using System.Linq;
 using System.Text.Json;
 using Comanche.Exceptions;
 using Comanche.Models;
-using Comanche.Services;
 
 /// <summary>
 /// Extenions relating to parameter parsing.
@@ -25,13 +24,13 @@ internal static class ParsingExtensions
     /// </summary>
     /// <param name="methodParams">Method parameter list definition.</param>
     /// <param name="paramMap">A parameter map.</param>
-    /// <param name="writer">An output writer.</param>
+    /// <param name="provider">The service provider.</param>
     /// <returns>An array of parameters.</returns>
     /// <exception cref="ParamBuilderException">Param builder error.</exception>
     public static object?[] ParseMap(
         this IReadOnlyList<ComancheParam> methodParams,
         IReadOnlyDictionary<string, List<string>> paramMap,
-        IOutputWriter writer)
+        IServiceProvider provider)
     {
         var retVal = new List<object?>();
         var errors = new Dictionary<ComancheParam, string>();
@@ -44,9 +43,14 @@ internal static class ParsingExtensions
 
             if (!byName && !byAlias)
             {
-                if (param.ParameterType == typeof(IOutputWriter))
+                var injectedService = provider.GetService(param.ParameterType);
+                if (param.Hidden && injectedService != null)
                 {
-                    retVal.Add(writer);
+                    retVal.Add(injectedService);
+                }
+                else if (injectedService != null)
+                {
+                    errors[param] = "injected parameter must be hidden";
                 }
                 else if (!param.HasDefault)
                 {
@@ -155,7 +159,7 @@ internal static class ParsingExtensions
             throw new ParamBuilderException(errorMap);
         }
 
-        return retVal.ToArray();
+        return [.. retVal];
     }
 
     private static bool TryParse(this string input, Type targetType, out object? value, out string? error)

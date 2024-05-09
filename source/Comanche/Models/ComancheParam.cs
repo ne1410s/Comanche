@@ -60,7 +60,8 @@ internal class ComancheParam
     public Type ParameterType { get; }
 
     /// <summary>
-    /// Gets a value indicating whether the value is hidden.
+    /// Gets a value indicating whether the parameter is hidden. In the case of parameters, this is
+    /// necessary and sufficient for dependency injection.
     /// </summary>
     public bool Hidden { get; }
 

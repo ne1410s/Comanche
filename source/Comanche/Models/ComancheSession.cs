@@ -77,8 +77,9 @@ internal class ComancheSession
     /// </summary>
     /// <param name="args">The arguments.</param>
     /// <param name="writer">The output writer.</param>
+    /// <param name="provider">The service provider.</param>
     /// <returns>The result.</returns>
-    public object? Fulfil(string[] args, IOutputWriter writer)
+    public object? Fulfil(string[] args, IOutputWriter writer, IServiceProvider provider)
     {
         ComancheRoute? route = null;
         try
@@ -140,7 +141,7 @@ internal class ComancheSession
             }
             else
             {
-                var parameters = method.Parameters.ParseMap(route.ParamMap, writer);
+                var parameters = method.Parameters.ParseMap(route.ParamMap, provider);
                 var result = method.Call(parameters);
                 var output = result?.ToString();
                 var directWrite = result == null || result is string || result.GetType().IsValueType;
