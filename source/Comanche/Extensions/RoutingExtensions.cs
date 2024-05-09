@@ -24,7 +24,7 @@ internal static class RoutingExtensions
     /// <summary>
     /// Arguments for requesting discovery help.
     /// </summary>
-    internal static readonly List<string> HelpArgs = new() { "--help", "/?" };
+    internal static readonly List<string> HelpArgs = ["--help", "/?"];
 
     private const char Space = ' ';
     private const string ParamDelimiter = "|%%|";
@@ -64,7 +64,7 @@ internal static class RoutingExtensions
         if (!isHelp && firstRoute?.i != 0)
         {
             var message = firstRoute == null ? "No routes found." : $"Invalid route: {numberedArgs[0].arg}";
-            throw new RouteBuilderException(Array.Empty<string>(), message);
+            throw new RouteBuilderException([], message);
         }
 
         var routeCount = numberedArgs.Find(kvp => !kvp.qRoute)?.i ?? numberedArgs.Count;
