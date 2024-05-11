@@ -6,6 +6,7 @@ namespace Comanche.Services;
 
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Comanche.Models;
@@ -17,6 +18,12 @@ public class ConsoleWriter : IOutputWriter
     /// Gets the most recent command.
     /// </summary>
     public Tuple<string, WriteStyle, bool>? LastCommand { get; private set; }
+
+    /// <summary>
+    /// Effects a console backspace.
+    /// </summary>
+    [Localizable(false)]
+    public string ConsoleBackspace => "\b \b";
 
     /// <inheritdoc/>
     public void Write(string? text = null, WriteStyle style = WriteStyle.Default, bool line = false)
@@ -39,6 +46,7 @@ public class ConsoleWriter : IOutputWriter
         Console.Write(prompt);
         var retVal = new Collection<string>();
         var lineBuilder = new StringBuilder();
+
         for (var capture = 0; capture < max; capture++)
         {
             lineBuilder.Clear();
@@ -49,7 +57,7 @@ public class ConsoleWriter : IOutputWriter
                 key = keyInfo.Key;
                 if (key == ConsoleKey.Backspace && lineBuilder.Length > 0)
                 {
-                    Console.Write("\b \b");
+                    Console.Write(this.ConsoleBackspace);
                     lineBuilder.Remove(lineBuilder.Length - 1, 1);
                 }
                 else if (!char.IsControl(keyInfo.KeyChar))

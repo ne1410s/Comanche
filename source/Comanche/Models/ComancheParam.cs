@@ -9,7 +9,7 @@ using System;
 /// <summary>
 /// A modelled parameter.
 /// </summary>
-internal class ComancheParam
+internal sealed class ComancheParam
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="ComancheParam"/> class.

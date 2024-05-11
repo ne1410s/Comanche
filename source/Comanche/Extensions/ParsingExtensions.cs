@@ -7,7 +7,6 @@ namespace Comanche.Extensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Text.Json;
@@ -88,14 +87,14 @@ internal static class ParsingExtensions
                 if (param.ParameterType.IsArray)
                 {
                     var type = param.ParameterType.GetElementType();
-                    var res = inputs.Select(i => new { ok = i.TryParse(type, out var val, out var err), val, err });
-                    var firstError = res.FirstOrDefault(r => !r.ok)?.err;
+                    var res = inputs.ConvertAll(i => new { ok = i.TryParse(type, out var val, out var err), val, err });
+                    var firstError = res.Find(r => !r.ok)?.err;
                     if (firstError == null)
                     {
                         var typedArray = Array.CreateInstance(type, inputs.Count);
                         for (var i = 0; i < inputs.Count; i++)
                         {
-                            typedArray.SetValue(res.ElementAt(i).val, i);
+                            typedArray.SetValue(res[i].val, i);
                         }
 
                         retVal.Add(typedArray);
@@ -108,15 +107,15 @@ internal static class ParsingExtensions
                 else
                 {
                     var type = param.ParameterType.GenericTypeArguments[0];
-                    var res = inputs.Select(i => new { ok = i.TryParse(type, out var val, out var err), val, err });
-                    var firstError = res.FirstOrDefault(r => !r.ok)?.err;
+                    var res = inputs.ConvertAll(i => new { ok = i.TryParse(type, out var val, out var err), val, err });
+                    var firstError = res.Find(r => !r.ok)?.err;
                     if (firstError == null)
                     {
                         var listType = typeof(List<>).MakeGenericType(type);
                         var typedList = (IList)Activator.CreateInstance(listType);
                         for (var i = 0; i < inputs.Count; i++)
                         {
-                            typedList.Add(res.ElementAt(i).val);
+                            typedList.Add(res[i].val);
                         }
 
                         retVal.Add(typedList);

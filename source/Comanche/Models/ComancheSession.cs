@@ -16,7 +16,7 @@ using Comanche.Services;
 /// <summary>
 /// A modelled session.
 /// </summary>
-internal class ComancheSession
+internal sealed class ComancheSession
 {
     private static readonly JsonSerializerOptions JsonOpts = new()
     {

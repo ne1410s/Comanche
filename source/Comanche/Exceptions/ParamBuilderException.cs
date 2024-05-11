@@ -10,7 +10,7 @@ using System.Collections.Generic;
 /// <summary>
 /// Represents errors that occur during the building of parameters.
 /// </summary>
-internal class ParamBuilderException : Exception
+internal sealed class ParamBuilderException : Exception
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="ParamBuilderException"/> class.

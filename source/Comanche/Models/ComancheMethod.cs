@@ -11,7 +11,7 @@ using Comanche.Exceptions;
 /// <summary>
 /// A modelled method.
 /// </summary>
-internal class ComancheMethod
+internal sealed class ComancheMethod
 {
     private readonly Func<object?, object?[], object?> call;
     private readonly Func<object?> resolver;
