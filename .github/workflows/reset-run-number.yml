@@ -18,7 +18,7 @@ jobs:
     
     # print the number in a different step
     - name: Print build number
-      run: echo "Number: ${{ steps.get-build.outputs.build-number }}"
+      run: echo 'Number ${{ steps.get-build.outputs.build-number }}'
       # output: "Number: 0"
 
   use-run-number:
