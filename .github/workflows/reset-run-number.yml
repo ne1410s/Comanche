@@ -1,3 +1,6 @@
+name: reset github build no.
+on:
+  workflow_dispatch:
 jobs:
   reset-run-number:
     runs-on: ubuntu-latest
