@@ -28,5 +28,5 @@ jobs:
     steps:
     # print the number in a different job
     - name: Print build number
-      run: echo "Number: ${{ needs.reset-run-number.outputs.run-number }}"
+      run: echo 'Number ${{ needs.reset-run-number.outputs.run-number }}'
       # output: "Number: 0"
