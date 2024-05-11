@@ -20,7 +20,7 @@ public class ConsoleWriter : IOutputWriter
     public Tuple<string, WriteStyle, bool>? LastCommand { get; private set; }
 
     /// <summary>
-    /// Effects a console backspace.
+    /// Gets a console backspace.
     /// </summary>
     [Localizable(false)]
     public string ConsoleBackspace => "\b \b";

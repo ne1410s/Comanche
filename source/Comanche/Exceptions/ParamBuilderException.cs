@@ -10,19 +10,10 @@ using System.Collections.Generic;
 /// <summary>
 /// Represents errors that occur during the building of parameters.
 /// </summary>
-internal sealed class ParamBuilderException : Exception
+internal sealed class ParamBuilderException(IReadOnlyDictionary<string, string> errors) : Exception
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ParamBuilderException"/> class.
-    /// </summary>
-    /// <param name="errors">The errors.</param>
-    public ParamBuilderException(IReadOnlyDictionary<string, string> errors)
-    {
-        this.Errors = errors;
-    }
-
     /// <summary>
     /// Gets the errors.
     /// </summary>
-    public IReadOnlyDictionary<string, string> Errors { get; }
+    public IReadOnlyDictionary<string, string> Errors { get; } = errors;
 }

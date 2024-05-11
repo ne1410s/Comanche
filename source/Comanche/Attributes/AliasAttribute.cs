@@ -9,20 +9,12 @@ using System;
 /// <summary>
 /// Provides a member or parameter with an alternative name.
 /// </summary>
+/// <param name="name">The alias name.</param>
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Parameter)]
-public sealed class AliasAttribute : Attribute
+public sealed class AliasAttribute(string name) : Attribute
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="AliasAttribute"/> class.
-    /// </summary>
-    /// <param name="name">The alias name.</param>
-    public AliasAttribute(string name)
-    {
-        this.Name = name;
-    }
-
     /// <summary>
     /// Gets the alias name.
     /// </summary>
-    public string Name { get; }
+    public string Name { get; } = name;
 }

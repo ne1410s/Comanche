@@ -10,19 +10,10 @@ using System;
 /// Configures a class as an execution module.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class)]
-public sealed class ModuleAttribute : Attribute
+public sealed class ModuleAttribute(string name) : Attribute
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ModuleAttribute"/> class.
-    /// </summary>
-    /// <param name="name">The module name.</param>
-    public ModuleAttribute(string name)
-    {
-        this.Name = name;
-    }
-
     /// <summary>
     /// Gets the module name.
     /// </summary>
-    public string Name { get; }
+    public string Name { get; } = name;
 }

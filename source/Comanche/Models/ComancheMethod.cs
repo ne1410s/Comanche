@@ -11,63 +11,49 @@ using Comanche.Exceptions;
 /// <summary>
 /// A modelled method.
 /// </summary>
-internal sealed class ComancheMethod
+/// <param name="name">The method name.</param>
+/// <param name="summary">The method summary.</param>
+/// <param name="returns">The method returns.</param>
+/// <param name="returnType">The return type.</param>
+/// <param name="resolver">The caller resolver.</param>
+/// <param name="call">The call function.</param>
+/// <param name="parameters">The parameter definitions.</param>
+internal sealed class ComancheMethod(
+    string name,
+    string? summary,
+    string? returns,
+    Type returnType,
+    Func<object?> resolver,
+    Func<object?, object?[], object?> call,
+    List<ComancheParam> parameters)
 {
-    private readonly Func<object?, object?[], object?> call;
-    private readonly Func<object?> resolver;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ComancheMethod"/> class.
-    /// </summary>
-    /// <param name="name">The method name.</param>
-    /// <param name="summary">The method summary.</param>
-    /// <param name="returns">The method returns.</param>
-    /// <param name="returnType">The return type.</param>
-    /// <param name="resolver">The caller resolver.</param>
-    /// <param name="call">The call function.</param>
-    /// <param name="parameters">The parameter definitions.</param>
-    public ComancheMethod(
-        string name,
-        string? summary,
-        string? returns,
-        Type returnType,
-        Func<object?> resolver,
-        Func<object?, object?[], object?> call,
-        List<ComancheParam> parameters)
-    {
-        this.resolver = resolver;
-        this.call = call;
-        this.Name = name;
-        this.Summary = summary;
-        this.Parameters = parameters;
-        this.Returns = returns;
-        this.ReturnType = returnType;
-    }
+    private readonly Func<object?, object?[], object?> call = call;
+    private readonly Func<object?> resolver = resolver;
 
     /// <summary>
     /// Gets the method name.
     /// </summary>
-    public string Name { get; }
+    public string Name { get; } = name;
 
     /// <summary>
     /// Gets the method summary.
     /// </summary>
-    public string? Summary { get; }
+    public string? Summary { get; } = summary;
 
     /// <summary>
     /// Gets a list of parameters.
     /// </summary>
-    public IReadOnlyList<ComancheParam> Parameters { get; }
+    public IReadOnlyList<ComancheParam> Parameters { get; } = parameters;
 
     /// <summary>
     /// Gets the method return type.
     /// </summary>
-    public Type ReturnType { get; }
+    public Type ReturnType { get; } = returnType;
 
     /// <summary>
     /// Gets the method returns.
     /// </summary>
-    public string? Returns { get; }
+    public string? Returns { get; } = returns;
 
     /// <summary>
     /// Calls the function.

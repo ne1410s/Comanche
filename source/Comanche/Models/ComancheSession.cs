@@ -16,7 +16,17 @@ using Comanche.Services;
 /// <summary>
 /// A modelled session.
 /// </summary>
-internal sealed class ComancheSession
+/// <param name="modules">The top-level modules.</param>
+/// <param name="cliName">The CLI name.</param>
+/// <param name="cliVersion">The CLI version.</param>
+/// <param name="cliDescription">The CLI description.</param>
+/// <param name="comancheVersion">The Comanche version.</param>
+internal sealed class ComancheSession(
+    Dictionary<string, ComancheModule> modules,
+    string cliName,
+    string cliVersion,
+    string? cliDescription,
+    string comancheVersion)
 {
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
@@ -26,51 +36,29 @@ internal sealed class ComancheSession
     };
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ComancheSession"/> class.
-    /// </summary>
-    /// <param name="modules">The top-level modules.</param>
-    /// <param name="cliName">The CLI name.</param>
-    /// <param name="cliVersion">The CLI version.</param>
-    /// <param name="cliDescription">The CLI description.</param>
-    /// <param name="comancheVersion">The Comanche version.</param>
-    public ComancheSession(
-        Dictionary<string, ComancheModule> modules,
-        string cliName,
-        string cliVersion,
-        string? cliDescription,
-        string comancheVersion)
-    {
-        this.Modules = modules;
-        this.CliName = cliName;
-        this.CliVersion = cliVersion;
-        this.CliDescription = cliDescription;
-        this.ComancheVersion = comancheVersion;
-    }
-
-    /// <summary>
     /// Gets the CLI name.
     /// </summary>
-    public string CliName { get; }
+    public string CliName { get; } = cliName;
 
     /// <summary>
     /// Gets the CLI version.
     /// </summary>
-    public string CliVersion { get; }
+    public string CliVersion { get; } = cliVersion;
 
     /// <summary>
     /// Gets the CLI description.
     /// </summary>
-    public string? CliDescription { get; }
+    public string? CliDescription { get; } = cliDescription;
 
     /// <summary>
     /// Gets the Comanche version.
     /// </summary>
-    public string ComancheVersion { get; }
+    public string ComancheVersion { get; } = comancheVersion;
 
     /// <summary>
     /// Gets the top-level modules.
     /// </summary>
-    public IReadOnlyDictionary<string, ComancheModule> Modules { get; }
+    public IReadOnlyDictionary<string, ComancheModule> Modules { get; } = modules;
 
     /// <summary>
     /// Find, match and execute a command request.
@@ -169,7 +157,7 @@ internal sealed class ComancheSession
                 writer.Write(routeEx.Message, WriteStyle.Error, true);
             }
 
-            this.MatchModule(routeEx.DeepestValidTerms, out var module, out var modules, out var methods);
+            this.MatchModule(routeEx.DeepestValidTerms, out var module, out var mods, out var methods);
 
             var routeText = " " + string.Join(" ", routeEx.DeepestValidTerms);
             if (module == null)
@@ -184,10 +172,10 @@ internal sealed class ComancheSession
             }
 
             var keyPrefix = routeEx.DeepestValidTerms.Count == 0 ? string.Empty : " ";
-            if (modules.Count > 0)
+            if (mods.Count > 0)
             {
                 writer.Write(Environment.NewLine + "Sub Modules:", line: true);
-                foreach (var kvp in modules)
+                foreach (var kvp in mods)
                 {
                     var moduleSummary = kvp.Value.Summary.AsComment();
                     writer.WriteStructured(this.CliName, routeText + keyPrefix + kvp.Key, null, moduleSummary);
