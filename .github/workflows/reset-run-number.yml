@@ -1,0 +1,29 @@
+jobs:
+  reset-run-number:
+    runs-on: ubuntu-latest
+    name: reset github.run_number
+    outputs:
+      run-number: ${{ steps.get-build.outputs.build-number }}
+    steps:
+    - name: Get build number
+      id: get-build
+      uses: mlilback/build-number@v1
+      with:
+        # The current run_number is 143, and I want it to be 0
+        base: -143
+        run-id: ${{ github.run_number }}
+    
+    # print the number in a different step
+    - name: Print build number
+      run: echo "Number: ${{ steps.get-build.outputs.build-number }}"
+      # output: "Number: 0"
+
+  use-run-number:
+    needs: reset-run-number
+    runs-on: ubuntu-latest
+    name: print new number from another job
+    steps:
+    # print the number in a different job
+    - name: Print build number
+      run: echo "Number: ${{ needs.reset-run-number.outputs.run-number }}"
+      # output: "Number: 0"
