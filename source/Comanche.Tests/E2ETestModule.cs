@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Comanche.Attributes;
 using Comanche.Services;
+using Microsoft.Extensions.Configuration;
 
 /// <summary>
 /// Module for end to end tests.
@@ -97,5 +98,20 @@ public static class E2ETestModule
 
             public static int[] GetNums() => [1, 2, 3];
         }
+
+        [Module("enumz")]
+        public static class EnumzModule
+        {
+            public static EnumzModel GetNested() => new(DayOfWeek.Friday);
+
+            public static DayOfWeek GetDirect() => DayOfWeek.Friday;
+
+            public static int Set(DayOfWeek day) => (int)day;
+
+            public static string? GetConfig([Hidden] IConfiguration config, string key) => config[key];
+        }
     }
 }
+
+[Hidden]
+public record EnumzModel(DayOfWeek Day);

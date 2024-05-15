@@ -287,7 +287,9 @@ Comanche v{version} (ne1410s © {year})
         const string command = "e2e commented --help";
         const string expected = @"
             Module: Comanche.Tests e2e commented (Commented module.)
-            Sub Modules: Comanche.Tests e2e commented param-test
+            Sub Modules:
+              Comanche.Tests e2e commented param-test
+              Comanche.Tests e2e commented enumz
             Methods:
               Comanche.Tests e2e commented join-array (Join array.)
               Comanche.Tests e2e commented throw (Throws a thing.)
@@ -796,6 +798,104 @@ Run again with --debug for more detail.
 
         // Assert
         mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
+    }
+
+    [Theory]
+    [InlineData(nameof(DayOfWeek.Wednesday))]
+    [InlineData("weDnesDAY")]
+    [InlineData((int)DayOfWeek.Wednesday)]
+    public void Discover_EnumSet_AcceptsNumberOrCIText(object paramLiteral)
+    {
+        // Arrange
+        const int expected = (int)DayOfWeek.Wednesday;
+        var command = $"e2e commented enumz set --day {paramLiteral}";
+
+        // Act
+        var result = Invoke(command);
+
+        // Assert
+        result.Should().Be(expected);
+    }
+
+    [Fact]
+    public void Discover_EnumSetInvalid_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "e2e commented enumz set --day Wodinsday";
+        const string expected = "--day: not in enum";
+        var mockWriter = new Mock<IOutputWriter>();
+
+        // Act
+        Invoke(command, mockWriter.Object);
+
+        // Assert
+        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
+    }
+
+    [Fact]
+    public void Discover_EnumGetDirect_ReturnsEnumAndWritesText()
+    {
+        // Arrange
+        const string command = "e2e commented enumz get-direct";
+        const DayOfWeek expectedResult = DayOfWeek.Friday;
+        const string expectedText = nameof(DayOfWeek.Friday);
+        var mockWriter = new Mock<IOutputWriter>();
+
+        // Act
+        var result = Invoke(command, mockWriter.Object);
+
+        // Assert
+        result.Should().Be(expectedResult);
+        mockWriter.Verify(m => m.Write(expectedText, WriteStyle.Default, true));
+    }
+
+    [Fact]
+    public void Discover_EnumGetNested_WritesEnumText()
+    {
+        // Arrange
+        const string command = "e2e commented enumz get-nested";
+        const string expectedText = "{ \"day\": \"Friday\" }";
+        var plainWriter = new PlainWriter();
+
+        // Act
+        Invoke(command, plainWriter);
+
+        // Assert
+        plainWriter.ShouldContain(expectedText);
+    }
+
+    [Fact]
+    public void Discover_EnvConfig_ReturnsExpected()
+    {
+        // Arrange
+        const string key = "TEST";
+        var expected = Guid.NewGuid().ToString();
+        Environment.SetEnvironmentVariable(key, expected);
+        const string command = "e2e commented enumz get-config --key " + key;
+
+        // Act
+        var actual = Invoke(command);
+
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(null, "dev")]
+    [InlineData("Development", "dev")]
+    [InlineData("NonExisting", null)]
+    [InlineData("Custom", "custom")]
+    public void Discover_JsonConfigDifferentEnvironments_ReturnsExpected(string? environmentName, string? expected)
+    {
+        // Arrange
+        Environment.SetEnvironmentVariable(Discover.EnvironmentKey, environmentName);
+        const string command = "e2e commented enumz get-config --key ConfigName";
+
+        // Act
+        var actual = Invoke(command);
+
+        // Assert
+        actual.Should().Be(expected);
     }
 
     [Fact]

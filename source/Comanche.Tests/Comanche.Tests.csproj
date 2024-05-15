@@ -47,4 +47,13 @@
     <ProjectReference Include="..\Comanche\Comanche.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="appsettings.Custom.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

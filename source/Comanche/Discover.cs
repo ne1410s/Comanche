@@ -10,6 +10,7 @@ using System.Reflection;
 using Comanche.Attributes;
 using Comanche.Extensions;
 using Comanche.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
@@ -17,6 +18,13 @@ using Microsoft.Extensions.DependencyInjection;
 /// </summary>
 public static class Discover
 {
+    /// <summary>
+    /// The Comanche environment key.
+    /// </summary>
+    public const string EnvironmentKey = "COMANCHE_ENVIRONMENT";
+
+    private const string DefaultEnv = "Development";
+
     /// <summary>
     /// Invokes Comanche.
     /// </summary>
@@ -39,9 +47,20 @@ public static class Discover
         writer ??= new ConsoleWriter();
         services ??= new ServiceCollection();
         services.AddTransient(_ => writer);
+        services.AddTransient(_ => BuildConfig());
 
         var provider = services.BuildServiceProvider();
         var session = asm.GetSession(moduleOptIn);
         return session.Fulfil(args, writer, provider);
+    }
+
+    private static IConfiguration BuildConfig()
+    {
+        var environmentName = Environment.GetEnvironmentVariable(EnvironmentKey) ?? DefaultEnv;
+        return new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", true)
+            .AddJsonFile($"appsettings.{environmentName}.json", true)
+            .AddEnvironmentVariables()
+            .Build();
     }
 }

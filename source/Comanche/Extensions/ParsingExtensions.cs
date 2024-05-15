@@ -130,6 +130,14 @@ internal static class ParsingExtensions
             {
                 errors[param] = "not array";
             }
+            else if (param.ParameterType.IsEnum && Enum.TryParse(param.ParameterType, inputs[0], true, out var eVal))
+            {
+                retVal.Add(eVal);
+            }
+            else if (param.ParameterType.IsEnum)
+            {
+                errors[param] = "not in enum";
+            }
             else if (inputs[0].TryParse(param.ParameterType, out var val, out var err))
             {
                 retVal.Add(val);

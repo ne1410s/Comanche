@@ -35,6 +35,11 @@ internal sealed class ComancheSession(
         WriteIndented = true,
     };
 
+    static ComancheSession()
+    {
+        JsonOpts.Converters.Add(new JsonStringEnumConverter());
+    }
+
     /// <summary>
     /// Gets the CLI name.
     /// </summary>
