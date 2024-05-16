@@ -50,7 +50,7 @@ public static class Discover
         services.AddTransient(_ => BuildConfig());
 
         var provider = services.BuildServiceProvider();
-        var session = asm.GetSession(moduleOptIn);
+        var session = asm.GetSession(moduleOptIn, provider);
         return session.Fulfil(args, writer, provider);
     }
 

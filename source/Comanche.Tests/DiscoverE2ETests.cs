@@ -290,6 +290,8 @@ Comanche v{version} (ne1410s © {year})
             Sub Modules:
               Comanche.Tests e2e commented param-test
               Comanche.Tests e2e commented enumz
+              Comanche.Tests e2e commented di
+              Comanche.Tests e2e commented missing-di
             Methods:
               Comanche.Tests e2e commented join-array (Join array.)
               Comanche.Tests e2e commented throw (Throws a thing.)
@@ -925,6 +927,49 @@ Run again with --debug for more detail.
 
         // Assert
         result.Should().Be(mockWriter.Object);
+    }
+
+    [Fact]
+    public void Discover_MissingDi_ReturnsExpected()
+    {
+        // Arrange
+        const string command = "e2e commented missing-di get";
+        var mockWriter = new Mock<IOutputWriter>();
+
+        // Act
+        var act = () => Invoke(command, mockWriter.Object);
+
+        // Assert
+        act.Should().Throw<NullReferenceException>();
+        new E2ETestModule.CommentedModule.MissingDIModule(null!).Get();
+    }
+
+    [Fact]
+    public void Discover_ModuleDi_ReturnsExpected()
+    {
+        // Arrange
+        const string command = "e2e commented di get-name";
+        const string expected = "dev";
+        Environment.SetEnvironmentVariable(Discover.EnvironmentKey, null);
+
+        // Act
+        var result = Invoke(command);
+
+        // Assert
+        result.Should().Be(expected);
+    }
+
+    [Fact]
+    public void Discover_ModuleDiParamless_ReturnsNull()
+    {
+        // Arrange
+        var module = new E2ETestModule.CommentedModule.DIModule();
+
+        // Act
+        var result = module.GetName();
+
+        // Assert
+        result.Should().BeNull();
     }
 
     private static object? Invoke(

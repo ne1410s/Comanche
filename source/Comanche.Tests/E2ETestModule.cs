@@ -110,6 +110,21 @@ public static class E2ETestModule
 
             public static string? GetConfig([Hidden] IConfiguration config, string key) => config[key];
         }
+
+        [Module("di")]
+        public class DIModule(IConfiguration config)
+        {
+            public DIModule()
+                : this(null!) { }
+
+            public string GetName() => config?["ConfigName"]!;
+        }
+
+        [Module("missing-di")]
+        public class MissingDIModule(IList<string> notInjected)
+        {
+            public IList<string> Get() => notInjected;
+        }
     }
 }
 

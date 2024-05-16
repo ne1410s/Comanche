@@ -38,14 +38,15 @@ internal static class DiscoveryExtensions
     /// <param name="asm">The assembly.</param>
     /// <param name="moduleOptIn">If true, modules are only included if they
     /// possess a <see cref="ModuleAttribute"/>.</param>
+    /// <param name="provider">The service provider.</param>
     /// <returns>Comanche metadata.</returns>
-    internal static ComancheSession GetSession(this Assembly asm, bool moduleOptIn)
+    internal static ComancheSession GetSession(this Assembly asm, bool moduleOptIn, IServiceProvider provider)
     {
         var xDoc = asm.LoadXDoc();
 
         var topLevelModules = asm.ExportedTypes
             .Where(t => t.DeclaringType == null)
-            .Select(t => t.ToModule(xDoc, moduleOptIn))
+            .Select(t => t.ToModule(xDoc, moduleOptIn, provider))
             .Where(m => m != null)
             .ToDictionary(m => m!.Name, m => m!);
 
@@ -57,7 +58,7 @@ internal static class DiscoveryExtensions
         return new(topLevelModules, asmName.Name, version, description, comancheVersion);
     }
 
-    private static ComancheModule? ToModule(this Type t, XDocument xDoc, bool moduleOptIn)
+    private static ComancheModule? ToModule(this Type t, XDocument xDoc, bool moduleOptIn, IServiceProvider provider)
     {
         var moduleName = t.GetCustomAttribute<ModuleAttribute>()?.Name;
         if (!moduleOptIn && t.GetCustomAttribute<HiddenAttribute>() == null && moduleName == null)
@@ -77,7 +78,25 @@ internal static class DiscoveryExtensions
         var xmlType = xDoc.XPathSelectElement(xPath);
         var xmlSummary = GetNodeText(xmlType, "summary");
         var isStatic = t.IsAbstract && t.IsSealed;
-        var resolver = () => isStatic ? null : Activator.CreateInstance(t);
+
+        Func<object?> resolver = () => null;
+        if (!isStatic)
+        {
+            // Use the first public ctor (by params length) where all dependencies are met
+            var ctorProvisions = Array.Empty<object>();
+            foreach (var ctor in t.GetConstructors().OrderByDescending(c => c.GetParameters().Length))
+            {
+                var allParams = ctor.GetParameters();
+                var oks = allParams.Select(p => provider.GetService(p.ParameterType)).Where(r => r != null).ToArray();
+                if (oks.Length == allParams.Length)
+                {
+                    ctorProvisions = oks;
+                    break;
+                }
+            }
+
+            resolver = () => Activator.CreateInstance(t, ctorProvisions);
+        }
 
         var methods = t.GetMethods()
             .Where(m => m.DeclaringType != typeof(object) && m.GetCustomAttribute<HiddenAttribute>() == null)
@@ -85,7 +104,7 @@ internal static class DiscoveryExtensions
             .ToDictionary(m => m.Name, m => m);
 
         var subModules = t.GetNestedTypes()
-            .Select(n => n.ToModule(xDoc, moduleOptIn))
+            .Select(n => n.ToModule(xDoc, moduleOptIn, provider))
             .Where(m => m != null)
             .ToDictionary(m => m!.Name, m => m!);
 
