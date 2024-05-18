@@ -2,7 +2,7 @@
 ## Overview
 Comanche is a module-discovery library for the command line. 
 
-It is designed to work for *you, the developer* by allowing you to write your code. It will sit back until CLI invocation, where is dynamically discovers and relays it (just the bits you want).
+It is designed to work for *you, the developer* by allowing you to write your code. It will sit back until CLI invocation, where it dynamically discovers and relays it (just the bits you want).
 
 ## Quick Start
 Getting started is as easy as 1, 2, 3!
@@ -11,7 +11,7 @@ Getting started is as easy as 1, 2, 3!
 2. Write some code
 3. Call Comanche's [Discover.Go()](#discovergo) from your Program.cs
 
-Now you can build and ship your exe as normal..
+Now you can build and ship your executable as normal..
 
 .. But **please keep reading!** There are many more time-saving features to explore below.
 
@@ -21,13 +21,13 @@ Now you can build and ship your exe as normal..
 This section provides guidance on how to make use of all of the features and functionality of Comanche!
 
 ### Structure
-All commands are made available in the following format:
+Broadly speaking, there are two types of command: discovery and invocation. All invocation commands are made available in the following format:
 
 > `assembly`&nbsp;&nbsp;`module`&nbsp;&nbsp;`[..sub-modules]`&nbsp;&nbsp;`method`&nbsp;&nbsp;`[..params]`
 
 You can organise your coding entities to yield your desired CLI experience and to make for the most intuitive user experience.
 
-In order to change the `assembly`, this can be done by setting the `<AssemblyName>` property in your csproj file. Note that this will be case-sensitive in Unix systems.
+In order to set the `assembly` part above, this can be done by setting the `<AssemblyName>` property in your csproj file. Note that this will be case-sensitive in Unix systems.
 
 ![sub module](docs/sub-module.png)
 
@@ -45,7 +45,9 @@ Also by default is the module naming convention. Any "Module" suffix is removed 
 Note that `static` classes and methods are supported by Comanche, but it should be noted that module-scoped dependency injection is not possible with a static class.
 
 #### Methods
-A Comanche Method is the direct equivalent to a C# `method`.  As with Modules, the `[Hidden]` attribute is supported for methods too. This means the method will not appear in the CLI discovery help, nor be reachable in any other way. Similar naming conventions as modules also apply for methods. To override these, the `[Alias]` parameter can be used.
+A Comanche Method is the direct equivalent to a C# `method`.  As with Modules, the `[Hidden]` attribute is supported for methods too. This means the method will not appear in the CLI discovery help, nor be reachable in any other way. Only `public` classes are exposed to Comanche.
+
+ The kebab-case naming convention used in modules is also applied for methods. To override this, the `[Alias]` parameter can be used.
 
 Comanche fully-supports `async Task<>` methods. Comanche operates these in a way that makes the resulting user experience pretty much the same regardless of this implementation choice, with responses being handled using appropriate task resolution.
 
@@ -57,17 +59,19 @@ Parameters should be provided with default values where appropriate, to optimise
 Please note there are some [reserved parameter names](#reserved-flags) which should be avoided.
 
 #### Return Values
-Invocation results are returned to the CLR from the `Discover.Go()` call. Return values are always written to stdout. In the case of strings and value types, these are written using whatever `.ToString()` implementation applies. In all other cases a JSON representation is written instead (indented camel case, omitting nulls).
+Invocation results are returned to the CLR from the `Discover.Go()` call. Return values are always written to stdout as well. In the case of strings and value types, these are written using whatever `.ToString()` implementation applies. In all other cases a JSON representation is written instead (indented camel case, omitting nulls).
 
 ### Discover.Go(...)
-There are several parameters available on this top-level method. Some of which are there purely to support debugging and/or unit testing. The most useful functional parameters are described here:
+There are several optional parameters available on this top-level method. Some of which are there purely to support debugging and/or unit testing. The most useful functional parameters are described here:
 |Parameter|Description|
 |--|--|
-|`moduleOptIn` [boolean = False]|Whether to mandate the presence of `[Module]` attribute for a class to be exposed.|
+|`moduleOptIn` [boolean = False]|Whether the `[Module]` attribute is needed in order for a class to be exposed.|
 |`services` [IServiceCollection = null]|Set of injected dependencies that will be delivered to class ctors and methods.|
 
 ### Debugging
-One of the parameters in `Discover.Go()` is `args`. This is useful for debugging as you can pass in the same string as per the CLI command and the run will essentially be the same, with the key difference being you have the execution thread! Your IDE should automatically provide a console window, so you can simulate the full user experience.
+One of the parameters in `Discover.Go()` is the familiar `args` object array. This is useful for debugging, as you can pass in the same string as per the CLI command and the run will essentially be the same, with the key difference being you have the execution thread! Your IDE should automatically provide a console window, so you can simulate the full user experience.
+
+If you use appropriate abstractions (like the [IOutputWriter](#output-writer)) then even the end-to-end is unit-testable, as you can invoke Discover.Go() with whatever command text you require.
 
 ```csharp
 string? debugCommand = null;
@@ -85,17 +89,28 @@ Discover.Go(args: debugCommand?.Split(' '));
 ### Dependency Injection
 As alluded to above, Comanche supports dependency injection! Simply new up a `ServicesCollection`, add your dependencies and pass it to `Discover.Go()`. You are then able to specify the registered types as class constructor parameters and method parameters alike.
 
-Use of dependency injection helps simplify code, especially where lots of different methods share the same dependencies. If these methods are all specified in the same module (C# class) then that class can cache them as fields. This makes the code easier to read, and to unit test.
+Comanche does not provide any ServiceCollection extensions out-of-the-box (e.g. Logging, Sql, HttpClient, etc) but exposing the service collection allows you to easily import the relevant extensions packages for your needs.
 
-**Please note:** Dependencies injected at the *method* level must be decorated with the `[Hidden]` attribute in order for them to be resolved. This also prevents CLI consumers from having to worry (or indeed even know) about them.
+Use of dependency injection helps simplify code, especially where lots of different methods share the same dependencies. If these methods are all specified in the same module (C# class) then that class can cache them as fields. This not only makes the code easier to read, but also to unit test, since you can more easily re-use a mock-injected *module* getter, so the default mocking behaviour doesn't have to be constantly re-written.
+
+**Please note:** Dependencies injected at the *method* level must be decorated with the `[Hidden]` attribute in order for them to be resolved. This is by-design as it prevents CLI consumers from having to worry (or indeed even know) about them.
 
 ### Configuration
-As we're doing DI it would be rude *not* to support `IConfiguration` :D You can add an `appsettings.json` file to the top-level of your console application and (assuming you mark it as CopyAlways or CopyIfNewer) then it will be available to Comanche and parsed into IConfig. Similarly to ASP.NET web applications, Comanche also supports environment-based files (e.g. `appsettings.Development.json`) where the environment name is taken from the environment variable, `COMANCHE_ENVIRONMENT`. If no such variable is found then `Development` is used as default. Comanche also looks in your environment variables themselves to populate IConfig, which overrides anything set by json in the event of collisions.
+As we're doing DI, it would be rude *not* to support `IConfiguration` :D You can add an `appsettings.json` file to the top-level of your console application and (assuming you mark it as CopyAlways or CopyIfNewer) then it will be available to Comanche and parsed into IConfig. Similarly to ASP.NET web applications, Comanche also supports environment-based files (e.g. `appsettings.Development.json`) where the environment name is taken from the environment variable, `COMANCHE_ENVIRONMENT`. If no such variable is found then `Development` is used as the default. Comanche also looks in your environment variables themselves to populate IConfig, which override anything set by json in the event of collisions.
 
 To make use of the config mechanism, add your json file / env vars and simply define `IConfiguration config` as a parameter - at either the class ctor or method level.
 
 ### Output Writer
 `[IOutputWriter]` is used internally by Comanche for writing to stdout (and stderr on occasion!) in a unit-testable way. It also has basic prompt/capture capabilities. It is injected via DI to every Comanche method call as a courtesy (but I won't be offended if you don't use it!).
+
+### Publishing
+In order to release your Comanche app to the wild, it is recommended that you publish it using Release configuration, embedding debug symbols. For even greater portability, you can choose to publish as a single file.
+
+The following example preps an executate for win-x64 OS, *omitting* the dotnet runtime (this is the `--sc` flag - self-contained: false)
+
+```powershell
+dotnet publish MY_COMANCHE_PROJECT -p:PublishSingleFile=true -p:DebugType=Embedded -r win-x64 -c Release --sc false
+```
 
 ## CLI Usage Guide
 This section provides guidance on how to discover and use  all of the functionality within any given Comanche CLI tool!
