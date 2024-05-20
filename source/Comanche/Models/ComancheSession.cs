@@ -72,7 +72,7 @@ internal sealed class ComancheSession(
     /// <param name="writer">The output writer.</param>
     /// <param name="provider">The service provider.</param>
     /// <returns>The result.</returns>
-    public object? Fulfil(string[] args, IOutputWriter writer, IServiceProvider provider)
+    public object? Fulfil(string[] args, IConsole writer, IServiceProvider provider)
     {
         ComancheRoute? route = null;
         try

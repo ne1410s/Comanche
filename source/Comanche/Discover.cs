@@ -39,7 +39,7 @@ public static class Discover
         bool moduleOptIn = false,
         Assembly? asm = null,
         string[]? args = null,
-        IOutputWriter? writer = null,
+        IConsole? writer = null,
         IServiceCollection? services = null)
     {
         asm ??= Assembly.GetEntryAssembly();

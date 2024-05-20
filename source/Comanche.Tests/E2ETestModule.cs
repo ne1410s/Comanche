@@ -47,9 +47,9 @@ public static class E2ETestModule
 
         public static int SumArray([Alias("numbers")] int[] n) => n.Sum();
 
-        public static IOutputWriter PassThru(IOutputWriter writer) => writer;
+        public static IConsole PassThru(IConsole writer) => writer;
 
-        public static IOutputWriter PassThruHidden([Hidden]IOutputWriter writer) => writer;
+        public static IConsole PassThruHidden([Hidden]IConsole writer) => writer;
 
         public static short Next([Alias(null!)] byte? b) => (short)((b ?? byte.MaxValue) + 1);
 

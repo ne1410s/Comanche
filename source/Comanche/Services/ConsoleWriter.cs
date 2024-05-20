@@ -8,16 +8,20 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Text;
 using Comanche.Models;
+using Microsoft.Extensions.Options;
 
-/// <inheritdoc cref="IOutputWriter"/>
-public class ConsoleWriter : IOutputWriter
+/// <inheritdoc cref="IConsole"/>
+public class ConsoleWriter(IOptions<ComanchePalette> paletteOptions) : IConsole
 {
+    private readonly ComanchePalette palette
+
     /// <summary>
     /// Gets the most recent command.
     /// </summary>
-    public Tuple<string, WriteStyle, bool>? LastCommand { get; private set; }
+    public Tuple<string, bool, ConsoleColor>? LastCommand { get; private set; }
 
     /// <summary>
     /// Gets a console backspace.
@@ -26,18 +30,8 @@ public class ConsoleWriter : IOutputWriter
     public string ConsoleBackspace => "\b \b";
 
     /// <inheritdoc/>
-    public void Write(string? text = null, WriteStyle style = WriteStyle.Default, bool line = false)
-        => this.WriteInternal(text, style, line);
-
-    /// <inheritdoc/>
-    public void WriteStructured(string? prefix = null, string? main = null, string? extra = null, string? suffix = null)
-    {
-        this.Write(prefix, WriteStyle.Highlight1);
-        this.Write(main);
-        this.Write(extra, WriteStyle.Highlight2);
-        this.Write(suffix, WriteStyle.Highlight3);
-        this.Write(line: true);
-    }
+    public string CaptureString(string prompt = "Input: ", char? mask = null) =>
+        this.CaptureStrings(prompt, mask, 1).SingleOrDefault();
 
     /// <inheritdoc/>
     [ExcludeFromCodeCoverage]
@@ -79,7 +73,31 @@ public class ConsoleWriter : IOutputWriter
         return retVal;
     }
 
-    private void WriteInternal(string? text, WriteStyle style, bool line)
+    /// <inheritdoc/>
+    public void Write(string text, bool line = false, ConsoleColor? colour = null)
+    {
+        var actualText = text + (line ? Environment.NewLine : string.Empty);
+        var actualColour = colour ?? Console.ForegroundColor;
+        ConsoleColor priorForeground = Console.ForegroundColor;
+        Console.ForegroundColor = actualColour;
+        Console.Write(actualText);
+        this.LastCommand = new(actualText, line, actualColour);
+        Console.ForegroundColor = priorForeground;
+    }
+
+    /// <inheritdoc/>
+    public void WritePrimary(string text, bool line = false) => this.Write(text, line, palette.Value.Primary)
+
+    /// <inheritdoc/>
+    public void WriteSecondary(string text, bool line = false) => throw new NotImplementedException();
+
+    /// <inheritdoc/>
+    public void WriteTertiary(string text, bool line = false) => throw new NotImplementedException();
+
+    /// <inheritdoc/>
+    public void WriteError(string text, bool line = false) => throw new NotImplementedException();
+
+    private void WriteInternal(string? text, ConsoleColor colour, bool line)
     {
         ConsoleColor priorForeground = Console.ForegroundColor;
 
@@ -99,4 +117,5 @@ public class ConsoleWriter : IOutputWriter
 
         Console.ForegroundColor = priorForeground;
     }
+
 }
