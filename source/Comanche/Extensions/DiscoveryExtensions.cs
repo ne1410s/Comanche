@@ -36,17 +36,15 @@ internal static class DiscoveryExtensions
     /// Obtains Comanche capability metadata.
     /// </summary>
     /// <param name="asm">The assembly.</param>
-    /// <param name="moduleOptIn">If true, modules are only included if they
-    /// possess a <see cref="ModuleAttribute"/>.</param>
     /// <param name="provider">The service provider.</param>
     /// <returns>Comanche metadata.</returns>
-    internal static ComancheSession GetSession(this Assembly asm, bool moduleOptIn, IServiceProvider provider)
+    internal static ComancheSession GetSession(this Assembly asm, IServiceProvider provider)
     {
         var xDoc = asm.LoadXDoc();
 
         var topLevelModules = asm.ExportedTypes
             .Where(t => t.DeclaringType == null)
-            .Select(t => t.ToModule(xDoc, moduleOptIn, provider))
+            .Select(t => t.ToModule(xDoc, provider))
             .Where(m => m != null)
             .ToDictionary(m => m!.Name, m => m!);
 
@@ -58,10 +56,10 @@ internal static class DiscoveryExtensions
         return new(topLevelModules, asmName.Name, version, description, comancheVersion);
     }
 
-    private static ComancheModule? ToModule(this Type t, XDocument xDoc, bool moduleOptIn, IServiceProvider provider)
+    private static ComancheModule? ToModule(this Type t, XDocument xDoc, IServiceProvider provider)
     {
         var moduleName = t.GetCustomAttribute<ModuleAttribute>()?.Name;
-        if (!moduleOptIn && t.GetCustomAttribute<HiddenAttribute>() == null && moduleName == null)
+        if (t.GetCustomAttribute<HiddenAttribute>() == null && moduleName == null)
         {
             moduleName = ModuleElideRegex.Replace(t.Name, string.Empty);
         }
@@ -104,7 +102,7 @@ internal static class DiscoveryExtensions
             .ToDictionary(m => m.Name, m => m);
 
         var subModules = t.GetNestedTypes()
-            .Select(n => n.ToModule(xDoc, moduleOptIn, provider))
+            .Select(n => n.ToModule(xDoc, provider))
             .Where(m => m != null)
             .ToDictionary(m => m!.Name, m => m!);
 

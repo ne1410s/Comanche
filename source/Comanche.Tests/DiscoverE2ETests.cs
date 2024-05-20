@@ -13,11 +13,13 @@ using Microsoft.Extensions.DependencyInjection;
 
 public class DiscoverE2ETests
 {
+    private static readonly ComanchePalette StandardPalette = new();
+
     [Fact]
     public void Discover_AltParams_ReturnsExpected()
     {
         // Act
-        var result = Discover.Go(true);
+        var result = Discover.Go();
 
         // Assert
         result.Should().BeNull();
@@ -30,7 +32,7 @@ public class DiscoverE2ETests
         var mockServices = new Mock<IServiceCollection>();
 
         // Act
-        Discover.Go(true, services: mockServices.Object);
+        Discover.Go(mockServices.Object);
 
         // Assert
         mockServices.Verify(
@@ -154,7 +156,7 @@ public class DiscoverE2ETests
         _ = Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.Write(expected, WriteStyle.Default, true));
+        mockWriter.Verify(m => m.Write(expected, true, null, false));
     }
 
     [Fact]
@@ -169,7 +171,7 @@ public class DiscoverE2ETests
 
         // Assert
         mockWriter.Verify(
-            m => m.Write(It.IsAny<string>(), WriteStyle.Error, It.IsAny<bool>()),
+            m => m.Write(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<ConsoleColor>(), true),
             Times.Never());
     }
 
@@ -186,7 +188,7 @@ public class DiscoverE2ETests
 
         // Assert
         mockWriter.Verify(
-            m => m.Write(It.IsAny<string>(), WriteStyle.Error, It.IsAny<bool>()),
+            m => m.Write(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<ConsoleColor>(), true),
             Times.Never());
     }
 
@@ -260,7 +262,7 @@ Comanche v{version} (ne1410s © {year})
 
         // Assert
         mockWriter.Verify(
-            m => m.Write(It.IsAny<string>(), WriteStyle.Error, true),
+            m => m.Write(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<ConsoleColor>(), true),
             Times.Never());
     }
 
@@ -304,7 +306,7 @@ Comanche v{version} (ne1410s © {year})
         ";
 
         // Act
-        Invoke(command, plainWriter, true);
+        Invoke(command, plainWriter);
 
         // Assert
         plainWriter.ShouldBe(expected);
@@ -481,7 +483,7 @@ Returns:
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
+        mockWriter.Verify(m => m.Write(expected, true, StandardPalette.Error, true));
     }
 
     [Fact]
@@ -519,7 +521,7 @@ Run again with --help for a full parameter list.
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
+        mockWriter.Verify(m => m.Write(expected, true, StandardPalette.Error, true));
     }
 
     [Fact]
@@ -533,7 +535,7 @@ Run again with --help for a full parameter list.
         Invoke(writer: mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
+        mockWriter.Verify(m => m.Write(expected, true, StandardPalette.Error, true));
     }
 
     [Fact]
@@ -574,7 +576,7 @@ Comanche.Tests plain-writer-tests (Tests for the class.)
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
+        mockWriter.Verify(m => m.Write(expected, true, StandardPalette.Error, true));
     }
 
     [Fact]
@@ -589,7 +591,7 @@ Comanche.Tests plain-writer-tests (Tests for the class.)
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
+        mockWriter.Verify(m => m.Write(expected, true, StandardPalette.Error, true));
     }
 
     [Fact]
@@ -768,7 +770,7 @@ Run again with --debug for more detail.
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
+        mockWriter.Verify(m => m.Write(expected, true));
     }
 
     [Fact]
@@ -831,7 +833,7 @@ Run again with --debug for more detail.
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
+        mockWriter.Verify(m => m.Write(expected, true, StandardPalette.Error, true));
     }
 
     [Fact]
@@ -848,7 +850,7 @@ Run again with --debug for more detail.
 
         // Assert
         result.Should().Be(expectedResult);
-        mockWriter.Verify(m => m.Write(expectedText, WriteStyle.Default, true));
+        mockWriter.Verify(m => m.Write(expectedText, true, null, false));
     }
 
     [Fact]
@@ -912,7 +914,8 @@ Run again with --debug for more detail.
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.Write("--writer: injected parameter must be hidden", WriteStyle.Error, true));
+        mockWriter.Verify(
+            m => m.Write("--writer: injected parameter must be hidden", true, StandardPalette.Error, true));
     }
 
     [Fact]
@@ -974,11 +977,13 @@ Run again with --debug for more detail.
 
     private static object? Invoke(
         string? command = null,
-        IConsole? writer = null,
-        bool moduleOptIn = false)
+        IConsole? writer = null)
     {
         writer ??= new Mock<IConsole>().Object;
+        var services = new ServiceCollection();
+        services.AddSingleton(writer);
+
         var asm = Assembly.GetAssembly(typeof(DiscoverE2ETests));
-        return Discover.Go(moduleOptIn, asm, command?.Split(' '), writer);
+        return Discover.Go(services, null, command?.Split(' '), asm);
     }
 }

@@ -94,7 +94,7 @@ internal sealed class ComancheSession(
                 writer.Write(Environment.NewLine + "CLI-ifier:", line: true);
                 var comancheSuffix = $"(ne1410s © {DateTime.Today.Year})";
                 writer.WriteStructured("Comanche", null, $" v{this.ComancheVersion} ", comancheSuffix);
-                writer.Write(line: true);
+                writer.WriteLine();
 
                 return null;
             }
@@ -128,7 +128,7 @@ internal sealed class ComancheSession(
                 writer.Write(Environment.NewLine + "Returns:", line: true);
                 var returnType = $"[{method.ReturnType.ToPrintableName()}]";
                 writer.WriteStructured(null, null, returnType, method.Returns.AsComment());
-                writer.Write(line: true);
+                writer.WriteLine();
 
                 return null;
             }
@@ -136,7 +136,7 @@ internal sealed class ComancheSession(
             {
                 var parameters = method.Parameters.ParseMap(route.ParamMap, provider);
                 var result = method.Call(parameters);
-                var output = result?.ToString();
+                var output = result?.ToString() ?? string.Empty;
                 var directWrite = result == null || result is string || result.GetType().IsValueType;
                 if (!directWrite)
                 {
@@ -159,7 +159,7 @@ internal sealed class ComancheSession(
             var invalidRoute = route?.RouteTerms.Count != routeEx.DeepestValidTerms.Count;
             if (route?.IsHelp != true && invalidRoute)
             {
-                writer.Write(routeEx.Message, WriteStyle.Error, true);
+                writer.WriteError(routeEx.Message, true);
             }
 
             this.MatchModule(routeEx.DeepestValidTerms, out var module, out var mods, out var methods);
@@ -197,38 +197,38 @@ internal sealed class ComancheSession(
                 }
             }
 
-            writer.Write(line: true);
+            writer.WriteLine();
         }
         catch (ParamBuilderException paramEx)
         {
             writer.Write(Environment.NewLine + "Invalid Parameters:", line: true);
             foreach (var kvp in paramEx.Errors)
             {
-                writer.Write($"{kvp.Key}: {kvp.Value}", WriteStyle.Error, true);
+                writer.WriteError($"{kvp.Key}: {kvp.Value}", true);
             }
 
-            writer.Write(Environment.NewLine + "Note:", WriteStyle.Highlight1, true);
+            writer.WritePrimary(Environment.NewLine + "Note:", true);
             writer.Write($"Run again with {RoutingExtensions.HelpArgs[0]} for a full parameter list.", line: true);
-            writer.Write(line: true);
+            writer.WriteLine();
         }
         catch (ExecutionException ex)
         {
             writer.Write(Environment.NewLine + "Exception:", line: true);
-            writer.Write($"[{ex.InnerException.GetType().Name}] ", WriteStyle.Highlight2);
-            writer.Write(ex.Message, WriteStyle.Error, true);
+            writer.WriteSecondary($"[{ex.InnerException.GetType().Name}] ");
+            writer.WriteError(ex.Message, true);
 
             if (!route!.IsDebug)
             {
-                writer.Write(Environment.NewLine + "Note:", WriteStyle.Highlight1, true);
+                writer.WritePrimary(Environment.NewLine + "Note:", true);
                 writer.Write($"Run again with {RoutingExtensions.DebugArg} for more detail.", line: true);
             }
             else
             {
                 writer.Write(Environment.NewLine + "Stack Trace:", line: true);
-                writer.Write(ex.InvocationStack, WriteStyle.Highlight1, true);
+                writer.WritePrimary(ex.InvocationStack ?? string.Empty, true);
             }
 
-            writer.Write(line: true);
+            writer.WriteLine();
         }
 
         return null;

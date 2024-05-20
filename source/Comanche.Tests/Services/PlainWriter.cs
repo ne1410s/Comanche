@@ -16,13 +16,9 @@ internal sealed class PlainWriter : IConsole
     private static readonly Regex WhiteSpace = new(@"\s+");
     private readonly StringBuilder sb = new();
 
+    public ComanchePalette Palette { get; } = new();
+
     public Collection<string> CaptureStrings(string prompt = "Input: ", char? mask = null, byte max = 255) => null!;
-
-    public void Write(string? text = null, WriteStyle style = WriteStyle.Default, bool line = false)
-        => this.sb.Append(text).Append(line ? Environment.NewLine : string.Empty);
-
-    public void WriteStructured(string? prefix = null, string? main = null, string? extra = null, string? suffix = null)
-        => this.Write(prefix + main + extra + suffix, line: true);
 
     public void ShouldBe(string expected)
     {
@@ -44,4 +40,7 @@ internal sealed class PlainWriter : IConsole
         expected = expected.Replace("\r\n", "\n", StringComparison.Ordinal);
         actual.Should().Be(expected);
     }
+
+    public void Write(string? text = null, bool line = false, ConsoleColor? colour = null, bool err = false)
+        => this.sb.Append(text).Append(line ? Environment.NewLine : string.Empty);
 }

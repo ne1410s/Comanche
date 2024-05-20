@@ -14,48 +14,18 @@ using Comanche.Models;
 public interface IConsole
 {
     /// <summary>
+    /// Gets the palette.
+    /// </summary>
+    public ComanchePalette Palette { get; }
+
+    /// <summary>
     /// Writes text to the console.
     /// </summary>
     /// <param name="text">The text fragment to write.</param>
     /// <param name="line">Whether to terminate with a new line.</param>
     /// <param name="colour">The colour.</param>
-    public void Write(string text, bool line = false, ConsoleColor? colour = null);
-
-    /// <summary>
-    /// Writes text in the <see cref="ComanchePalette.Primary"/> colour.
-    /// </summary>
-    /// <param name="text">The text to write.</param>
-    /// <param name="line">Whether to terminate with a new line.</param>
-    public void WritePrimary(string text, bool line = false);
-
-    /// <summary>
-    /// Writes text in the <see cref="ComanchePalette.Secondary"/> colour.
-    /// </summary>
-    /// <param name="text">The text to write.</param>
-    /// <param name="line">Whether to terminate with a new line.</param>
-    public void WriteSecondary(string text, bool line = false);
-
-    /// <summary>
-    /// Writes text in the <see cref="ComanchePalette.Tertiary"/> colour.
-    /// </summary>
-    /// <param name="text">The text to write.</param>
-    /// <param name="line">Whether to terminate with a new line.</param>
-    public void WriteTertiary(string text, bool line = false);
-
-    /// <summary>
-    /// Writes error text in the <see cref="ComanchePalette.Error"/> colour.
-    /// </summary>
-    /// <param name="text">The text to write.</param>
-    /// <param name="line">Whether to terminate with a new line.</param>
-    public void WriteError(string text, bool line = false);
-
-    /// <summary>
-    /// Captures a single string.
-    /// </summary>
-    /// <param name="prompt">The prompt text.</param>
-    /// <param name="mask">Optional mask character.</param>
-    /// <returns>The result.</returns>
-    public string CaptureString(string prompt = "Input: ", char? mask = null);
+    /// <param name="err">Whether to write as error.</param>
+    public void Write(string? text = null, bool line = false, ConsoleColor? colour = null, bool err = false);
 
     /// <summary>
     /// Captures multiple strings.

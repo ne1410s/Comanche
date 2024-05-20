@@ -7,8 +7,8 @@ namespace Comanche;
 using System;
 using System.Linq;
 using System.Reflection;
-using Comanche.Attributes;
 using Comanche.Extensions;
+using Comanche.Models;
 using Comanche.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,29 +28,31 @@ public static class Discover
     /// <summary>
     /// Invokes Comanche.
     /// </summary>
-    /// <param name="moduleOptIn">If true, modules are only included if they
-    /// possess a <see cref="ModuleAttribute"/>.</param>
-    /// <param name="asm">An assembly.</param>
-    /// <param name="args">Command arguments.</param>
-    /// <param name="writer">An output writer.</param>
     /// <param name="services">The services.</param>
+    /// <param name="palette">The colour palette.</param>
+    /// <param name="args">Command arguments.</param>
+    /// <param name="asm">An assembly.</param>
     /// <returns>The result of the invocation.</returns>
     public static object? Go(
-        bool moduleOptIn = false,
-        Assembly? asm = null,
+        IServiceCollection? services = null,
+        ComanchePalette? palette = null,
         string[]? args = null,
-        IConsole? writer = null,
-        IServiceCollection? services = null)
+        Assembly? asm = null)
     {
         asm ??= Assembly.GetEntryAssembly();
         args ??= Environment.GetCommandLineArgs().Skip(1).ToArray();
-        writer ??= new ConsoleWriter();
         services ??= new ServiceCollection();
-        services.AddTransient(_ => writer);
-        services.AddTransient(_ => BuildConfig());
+        services.AddSingleton(_ => BuildConfig());
+        services.AddSingleton(_ => palette ?? new());
+        services.AddSingleton(sp =>
+        {
+            var palette = sp.GetRequiredService<ComanchePalette>();
+            return sp.GetService<IConsole>() ?? new ConsoleWriter(palette);
+        });
 
         var provider = services.BuildServiceProvider();
-        var session = asm.GetSession(moduleOptIn, provider);
+        var writer = provider.GetRequiredService<IConsole>();
+        var session = asm.GetSession(provider);
         return session.Fulfil(args, writer, provider);
     }
 

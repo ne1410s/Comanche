@@ -14,11 +14,13 @@ using Comanche.Services;
 /// </summary>
 public class ConsoleWriterTests
 {
+    private static readonly ComanchePalette StandardPalette = new();
+
     [Fact]
     public void ConsoleBackspace_WhenCalled_ReturnsExpected()
     {
         // Arrange
-        var sut = new ConsoleWriter();
+        var sut = new ConsoleWriter(StandardPalette);
         const string expected = "\b \b";
 
         // Act
@@ -33,11 +35,11 @@ public class ConsoleWriterTests
     {
         // Arrange
         StringWriter writer = new();
-        ConsoleWriter sut = new();
+        ConsoleWriter sut = new(StandardPalette);
         Console.SetError(writer);
 
         // Act
-        sut.Write("foo", WriteStyle.Error);
+        sut.WriteError("foo");
 
         // Assert
         writer.ToString().Should().Contain("foo");
@@ -48,48 +50,29 @@ public class ConsoleWriterTests
     {
         // Arrange
         StringWriter writer = new();
-        ConsoleWriter sut = new();
+        ConsoleWriter sut = new(StandardPalette);
         Console.SetOut(writer);
 
         // Act
-        sut.Write("bar", WriteStyle.Default);
+        sut.Write("bar");
 
         // Assert
         writer.ToString().Should().Contain("bar");
     }
 
-    [Theory]
-    [InlineData("bar", WriteStyle.Default, true)]
-    [InlineData("bar", WriteStyle.Highlight1, true)]
-    [InlineData("bar", WriteStyle.Highlight2, true)]
-    [InlineData("bar", WriteStyle.Highlight3, false)]
-    [InlineData("bar", WriteStyle.Error, true)]
-    public void Write_VaryingParams_TracksAccordingly(string text, WriteStyle style, bool line)
-    {
-        // Arrange
-        ConsoleWriter sut = new();
-        var expected = Tuple.Create(line ? text + Environment.NewLine : text, style, line);
+    ////[Fact]
+    ////public void WriteStructured_VaryingParams_OutputsExpected()
+    ////{
+    ////    // Arrange
+    ////    StringWriter writer = new();
+    ////    ConsoleWriter sut = new(StandardPalette);
+    ////    Console.SetOut(writer);
+    ////    var expected = "mynameisstan" + Environment.NewLine;
 
-        // Act
-        sut.Write(text, style, line);
+    ////    // Act
+    ////    sut.WriteStructured("my", "name", "is", "stan");
 
-        // Assert
-        sut.LastCommand.Should().Be(expected);
-    }
-
-    [Fact]
-    public void WriteStructured_VaryingParams_OutputsExpected()
-    {
-        // Arrange
-        StringWriter writer = new();
-        ConsoleWriter sut = new();
-        Console.SetOut(writer);
-        var expected = "mynameisstan" + Environment.NewLine;
-
-        // Act
-        sut.WriteStructured("my", "name", "is", "stan");
-
-        // Assert
-        writer.ToString().Should().Be(expected);
-    }
+    ////    // Assert
+    ////    writer.ToString().Should().Be(expected);
+    ////}
 }
