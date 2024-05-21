@@ -873,6 +873,7 @@ Run again with --debug for more detail.
 
         // Assert
         result.Should().BeNull();
+        mockWriter.Verify(m => m.Write(string.Empty, true, null, false));
     }
 
     [Fact]
