@@ -58,19 +58,13 @@ internal static class DiscoveryExtensions
 
     private static ComancheModule? ToModule(this Type t, XDocument xDoc, IServiceProvider provider)
     {
-        var moduleName = t.GetCustomAttribute<ModuleAttribute>()?.Name;
-        if (t.GetCustomAttribute<HiddenAttribute>() == null && moduleName == null)
-        {
-            moduleName = ModuleElideRegex.Replace(t.Name, string.Empty);
-        }
-
-        if (moduleName == null)
+        var moduleAttr = t.GetCustomAttribute<ModuleAttribute>();
+        if (moduleAttr == null || t.GetCustomAttribute<HiddenAttribute>() != null)
         {
             return null;
         }
 
-        moduleName = moduleName.Sanitise();
-
+        var moduleName = ModuleElideRegex.Replace(moduleAttr.Name ?? t.Name, string.Empty).Sanitise();
         var xmlMemberName = t.FullName.Replace("+", ".", StringComparison.OrdinalIgnoreCase);
         var xPath = string.Format(Invariant, XPathMemberFormat, $"T:{xmlMemberName}");
         var xmlType = xDoc.XPathSelectElement(xPath);

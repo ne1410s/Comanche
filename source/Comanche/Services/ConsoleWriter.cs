@@ -7,6 +7,7 @@ namespace Comanche.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Comanche.Models;
 
@@ -28,6 +29,7 @@ public class ConsoleWriter(ComanchePalette palette) : IConsole
     public string ConsoleBackspace => "\b \b";
 
     /// <inheritdoc/>
+    [ExcludeFromCodeCoverage]
     public Collection<string> CaptureStrings(string prompt = "Input: ", char? mask = null, byte max = 255)
     {
         Console.Write(prompt);

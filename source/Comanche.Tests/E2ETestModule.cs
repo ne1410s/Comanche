@@ -68,10 +68,14 @@ public static class E2ETestModule
             [Alias("numbers")] int n = 34,
             [Hidden] int otherSeed = 0) => this.Seed + n + otherSeed + numbers.Sum();
 
+        [Module]
         public static class StaticModule
         {
             public static async Task Delay(int ms) => await Task.Delay(ms);
 
+            public static void CanThrow([Hidden]IConsole console) => console.Write("throw bro");
+
+            [Module]
             public static class SingleMod
             {
                 public static void Do()
@@ -97,6 +101,14 @@ public static class E2ETestModule
                 long? i1 = 1) => d1.AddHours(i1 ?? (double)m1);
 
             public static int[] GetNums() => [1, 2, 3];
+        }
+
+        [Module("guidz")]
+        public static class GuidzModule
+        {
+            public static string StringifyGuid(Guid id) => id.ToString();
+
+            public static string? StringifyOptionalGuid(Guid? id = null) => id?.ToString();
         }
 
         [Module("enumz")]

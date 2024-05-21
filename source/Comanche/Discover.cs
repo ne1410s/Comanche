@@ -29,13 +29,11 @@ public static class Discover
     /// Invokes Comanche.
     /// </summary>
     /// <param name="services">The services.</param>
-    /// <param name="palette">The colour palette.</param>
     /// <param name="args">Command arguments.</param>
     /// <param name="asm">An assembly.</param>
     /// <returns>The result of the invocation.</returns>
     public static object? Go(
         IServiceCollection? services = null,
-        ComanchePalette? palette = null,
         string[]? args = null,
         Assembly? asm = null)
     {
@@ -43,12 +41,8 @@ public static class Discover
         args ??= Environment.GetCommandLineArgs().Skip(1).ToArray();
         services ??= new ServiceCollection();
         services.AddSingleton(_ => BuildConfig());
-        services.AddSingleton(_ => palette ?? new());
-        services.AddSingleton(sp =>
-        {
-            var palette = sp.GetRequiredService<ComanchePalette>();
-            return sp.GetService<IConsole>() ?? new ConsoleWriter(palette);
-        });
+        services.PlugSingleton<ComanchePalette>();
+        services.PlugSingleton<IConsole, ConsoleWriter>();
 
         var provider = services.BuildServiceProvider();
         var writer = provider.GetRequiredService<IConsole>();
@@ -64,5 +58,18 @@ public static class Discover
             .AddJsonFile($"appsettings.{environmentName}.json", true)
             .AddEnvironmentVariables()
             .Build();
+    }
+
+    private static void PlugSingleton<T>(this IServiceCollection services)
+        where T : class => services.PlugSingleton<T, T>();
+
+    private static void PlugSingleton<T, TImpl>(this IServiceCollection services)
+        where T : class
+        where TImpl : class, T
+    {
+        if (!services.Any(s => s.ServiceType == typeof(T)))
+        {
+            services.AddSingleton<T, TImpl>();
+        }
     }
 }

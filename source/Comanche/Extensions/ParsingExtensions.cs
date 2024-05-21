@@ -172,6 +172,7 @@ internal static class ParsingExtensions
     private static bool TryParse(this string input, Type targetType, out object? value, out string? error)
     {
         error = null;
+        value = null;
         var nullableType = Nullable.GetUnderlyingType(targetType);
         if (targetType.IsPrimitive || targetType == typeof(string)
             || nullableType?.IsPrimitive == true || nullableType == typeof(string))
@@ -182,13 +183,22 @@ internal static class ParsingExtensions
             }
             catch (FormatException)
             {
-                value = null;
                 error = "cannot convert";
             }
             catch (OverflowException)
             {
-                value = null;
                 error = "cannot convert";
+            }
+        }
+        else if (targetType == typeof(Guid) || nullableType == typeof(Guid))
+        {
+            if (Guid.TryParse(input, out var result))
+            {
+                value = result;
+            }
+            else
+            {
+                error = "cannot parse guid";
             }
         }
         else
@@ -199,17 +209,10 @@ internal static class ParsingExtensions
             }
             catch (JsonException)
             {
-                value = null;
                 error = "cannot deserialize";
             }
         }
 
         return error == null;
     }
-
-    ////private static object GetDefault(Type t) => typeof(ParsingExtensions)
-    ////    .GetMethod(nameof(GetDefaultGeneric), BindingFlags.NonPublic | BindingFlags.Static)
-    ////    .MakeGenericMethod(t).Invoke(null, null);
-
-    ////private static T? GetDefaultGeneric<T>() => default;
 }

@@ -59,20 +59,4 @@ public class ConsoleWriterTests
         // Assert
         writer.ToString().Should().Contain("bar");
     }
-
-    ////[Fact]
-    ////public void WriteStructured_VaryingParams_OutputsExpected()
-    ////{
-    ////    // Arrange
-    ////    StringWriter writer = new();
-    ////    ConsoleWriter sut = new(StandardPalette);
-    ////    Console.SetOut(writer);
-    ////    var expected = "mynameisstan" + Environment.NewLine;
-
-    ////    // Act
-    ////    sut.WriteStructured("my", "name", "is", "stan");
-
-    ////    // Assert
-    ////    writer.ToString().Should().Be(expected);
-    ////}
 }

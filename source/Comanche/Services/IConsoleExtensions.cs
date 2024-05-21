@@ -20,7 +20,7 @@ public static class IConsoleExtensions
     /// <param name="text">The text to write.</param>
     /// <param name="line">Whether to terminate with a new line.</param>
     public static void WritePrimary(this IConsole console, string text, bool line = false)
-        => console.NotNull().Write(text, line, console.Palette.Primary);
+        => console.NotNull().Write(text.NotNull(), line, console.Palette.Primary);
 
     /// <summary>
     /// Writes text in the <see cref="ComanchePalette.Secondary"/> colour.
@@ -29,7 +29,7 @@ public static class IConsoleExtensions
     /// <param name="text">The text to write.</param>
     /// <param name="line">Whether to terminate with a new line.</param>
     public static void WriteSecondary(this IConsole console, string text, bool line = false)
-        => console.NotNull().Write(text, line, console.Palette.Secondary);
+        => console.NotNull().Write(text.NotNull(), line, console.Palette.Secondary);
 
     /// <summary>
     /// Writes text in the <see cref="ComanchePalette.Tertiary"/> colour.
@@ -38,7 +38,7 @@ public static class IConsoleExtensions
     /// <param name="text">The text to write.</param>
     /// <param name="line">Whether to terminate with a new line.</param>
     public static void WriteTertiary(this IConsole console, string text, bool line = false)
-        => console.NotNull().Write(text, line, console.Palette.Tertiary);
+        => console.NotNull().Write(text.NotNull(), line, console.Palette.Tertiary);
 
     /// <summary>
     /// Writes error text in the <see cref="ComanchePalette.Error"/> colour.
@@ -47,7 +47,7 @@ public static class IConsoleExtensions
     /// <param name="text">The text to write.</param>
     /// <param name="line">Whether to terminate with a new line.</param>
     public static void WriteError(this IConsole console, string text, bool line = false)
-        => console.NotNull().Write(text, line, console.Palette.Error, true);
+        => console.NotNull().Write(text.NotNull(), line, console.Palette.Error, true);
 
     /// <summary>
     /// Writes a new line sequence.
@@ -63,8 +63,8 @@ public static class IConsoleExtensions
     /// <param name="prompt">The prompt text.</param>
     /// <param name="mask">Optional mask character.</param>
     /// <returns>The result.</returns>
-    public static string CaptureString(this IConsole console, string prompt = "Input: ", char? mask = null)
-        => console.NotNull().CaptureStrings(prompt, mask, 1).FirstOrDefault();
+    public static string? CaptureString(this IConsole console, string prompt = "Input: ", char? mask = null)
+        => console.NotNull().CaptureStrings(prompt, mask, 1)?.FirstOrDefault();
 
     /// <summary>
     /// Writes text in different styles. This is used internally by Comanche.
@@ -77,8 +77,7 @@ public static class IConsoleExtensions
     public static void WriteStructured(
         this IConsole console, string? prefix = null, string? main = null, string? extra = null, string? suffix = null)
     {
-        console = console ?? throw new ArgumentNullException(nameof(console));
-        console.WritePrimary(prefix ?? string.Empty);
+        console.NotNull().WritePrimary(prefix ?? string.Empty);
         console.Write(main);
         console.WriteSecondary(extra ?? string.Empty);
         console.WriteTertiary(suffix ?? string.Empty);

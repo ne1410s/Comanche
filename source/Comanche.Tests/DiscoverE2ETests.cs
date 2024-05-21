@@ -26,18 +26,30 @@ public class DiscoverE2ETests
     }
 
     [Fact]
-    public void Discover_WithServiceCollection_AddsWriter()
+    public void Discover_WithoutIConsole_AddsDefaultConsole()
     {
         // Arrange
-        var mockServices = new Mock<IServiceCollection>();
+        var stubServices = new ServiceCollection();
 
         // Act
-        Discover.Go(mockServices.Object);
+        Discover.Go(stubServices);
 
         // Assert
-        mockServices.Verify(
-            m => m.Add(It.Is<ServiceDescriptor>(
-                d => d.ServiceType == typeof(IConsole))));
+        stubServices.Should().Contain(d => d.ImplementationType == typeof(ConsoleWriter));
+    }
+
+    [Fact]
+    public void Discover_WithIConsole_DoesNotAddDefaultConsole()
+    {
+        // Arrange
+        var stubServices = new ServiceCollection();
+        stubServices.AddTransient(_ => GetMockConsole().Object);
+
+        // Act
+        Discover.Go(stubServices);
+
+        // Assert
+        stubServices.Should().NotContain(d => d.ImplementationType == typeof(ConsoleWriter));
     }
 
     [Fact]
@@ -150,7 +162,7 @@ public class DiscoverE2ETests
         // Arrange
         const string command = "e2e commented sum -n 3 -n 4 -n 1 --n 0";
         const string expected = "20";
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         _ = Invoke(command, mockWriter.Object);
@@ -164,7 +176,7 @@ public class DiscoverE2ETests
     {
         // Arrange
         const string command = "";
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         Invoke(command, mockWriter.Object);
@@ -181,7 +193,7 @@ public class DiscoverE2ETests
     public void Discover_BareModule_DoesNotWriteError(string command)
     {
         // Arrange
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         Invoke(command, mockWriter.Object);
@@ -255,7 +267,7 @@ Comanche v{version} (ne1410s © {year})
     {
         // Arrange
         const string command = "--help";
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         Invoke(command, mockWriter.Object);
@@ -271,14 +283,15 @@ Comanche v{version} (ne1410s © {year})
     {
         // Arrange
         const string command = "e2e --help";
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(
-            m => m.WriteStructured("Comanche.Tests", " e2e commented", null, " (Commented module.)"));
+        mockWriter.Verify(m => m.Write("Comanche.Tests", false, StandardPalette.Primary, false));
+        mockWriter.Verify(m => m.Write(" e2e commented", false, null, false));
+        mockWriter.Verify(m => m.Write(" (Commented module.)", false, StandardPalette.Tertiary, false));
     }
 
     [Fact]
@@ -290,7 +303,9 @@ Comanche v{version} (ne1410s © {year})
         const string expected = @"
             Module: Comanche.Tests e2e commented (Commented module.)
             Sub Modules:
+              Comanche.Tests e2e commented static
               Comanche.Tests e2e commented param-test
+              Comanche.Tests e2e commented guidz
               Comanche.Tests e2e commented enumz
               Comanche.Tests e2e commented di
               Comanche.Tests e2e commented missing-di
@@ -461,14 +476,13 @@ Returns:
         // Arrange
         const string command = "e2e commented sum-dicto --help";
         const string expectedType = "[Dictionary<string, int> = null]";
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(
-            m => m.WriteStructured(null, "--d ", expectedType, string.Empty));
+        mockWriter.Verify(m => m.Write(expectedType, false, StandardPalette.Secondary, false));
     }
 
     [Fact]
@@ -477,7 +491,7 @@ Returns:
         // Arrange
         const string command = "e2e commented sum doesnotexist";
         const string expected = "No such method.";
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         Invoke(command, mockWriter.Object);
@@ -515,7 +529,7 @@ Run again with --help for a full parameter list.
         // Arrange
         const string command = "bloort";
         const string expected = "Invalid route.";
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         Invoke(command, mockWriter.Object);
@@ -528,7 +542,7 @@ Run again with --help for a full parameter list.
     public void Discover_DefaultArgs_WritesExpectedError()
     {
         // Arrange
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
         const string expected = "Invalid route: --port";
 
         // Act
@@ -550,10 +564,7 @@ Module:
 Comanche.Tests v1.0.0 (Test project)
 
 Sub Modules:
-Comanche.Tests discover-e2etests
 Comanche.Tests e2e (Module for end to end tests.)
-Comanche.Tests console-writer-tests (Tests for the class.)
-Comanche.Tests plain-writer-tests (Tests for the class.)
 
 ";
 
@@ -570,7 +581,7 @@ Comanche.Tests plain-writer-tests (Tests for the class.)
         // Arrange
         const string command = "e2e commented throw --test";
         const string expected = "1 (Parameter 'test')";
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         Invoke(command, mockWriter.Object);
@@ -585,7 +596,7 @@ Comanche.Tests plain-writer-tests (Tests for the class.)
         // Arrange
         const string command = "e2e commented next";
         const string expected = "--b: missing";
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         Invoke(command, mockWriter.Object);
@@ -600,13 +611,13 @@ Comanche.Tests plain-writer-tests (Tests for the class.)
         // Arrange
         const string command = "e2e commented static delay --ms";
         const string expected = "--ms: missing";
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
+        mockWriter.Verify(m => m.Write(expected, true, StandardPalette.Error, true));
     }
 
     [Fact]
@@ -616,14 +627,14 @@ Comanche.Tests plain-writer-tests (Tests for the class.)
         const string command = "e2e commented sum --notaparam";
         const string expected1 = "--numbers (-n): missing";
         const string expected2 = "--notaparam: unrecognised";
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.Write(expected1, WriteStyle.Error, true));
-        mockWriter.Verify(m => m.Write(expected2, WriteStyle.Error, true));
+        mockWriter.Verify(m => m.Write(expected1, true, StandardPalette.Error, true));
+        mockWriter.Verify(m => m.Write(expected2, true, StandardPalette.Error, true));
     }
 
     [Fact]
@@ -632,14 +643,14 @@ Comanche.Tests plain-writer-tests (Tests for the class.)
         // Arrange
         const string command = "e2e commented sum ---notaparam";
         const string expected = "Bad parameter: '---notaparam'.";
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
         E2ETestModule.CommentedModule.StaticModule.SingleMod.Do();
 
         // Act
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
+        mockWriter.Verify(m => m.Write(expected, true, StandardPalette.Error, true));
     }
 
     [Fact]
@@ -699,18 +710,34 @@ Run again with --debug for more detail.
     public void Discover_BadCallWithDebug_CallsExpectedMethods()
     {
         // Arrange
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
         const string command = "e2e commented throw --debug";
         const string expected1 = "Stack Trace:";
         const string expected2 = "   at Comanche.Tests";
-        const WriteStyle expected3 = WriteStyle.Highlight1;
+        var expected4 = StandardPalette.Primary;
 
         // Act
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.Write(It.Is<string?>(s => (s ?? " ").Contains(expected1)), WriteStyle.Default, true));
-        mockWriter.Verify(m => m.Write(It.Is<string?>(s => (s ?? " ").StartsWith(expected2)), expected3, true));
+        mockWriter.Verify(m => m.Write(It.Is<string?>(s => (s ?? " ").Contains(expected1)), true, null, false));
+        mockWriter.Verify(m => m.Write(It.Is<string?>(s => (s ?? " ").StartsWith(expected2)), true, expected4, false));
+    }
+
+    [Fact]
+    public void Discover_StacklessExceptionWithDebug_WritesExpected()
+    {
+        // Arrange
+        var mockWriter = GetMockConsole();
+        var primary = mockWriter.Object.Palette.Primary;
+        const string command = "e2e commented static can-throw --debug";
+        mockWriter.Setup(m => m.Write("throw bro", false, null, false)).Throws(new StacklessException());
+
+        // Act
+        Invoke(command, mockWriter.Object);
+
+        // Assert
+        mockWriter.Verify(m => m.Write(string.Empty, true, primary, false));
     }
 
     [Fact]
@@ -719,13 +746,13 @@ Run again with --debug for more detail.
         // Arrange
         const string command = "e2e commented sum -n 1 --other-seed 2";
         const string expected = "--other-seed: unrecognised";
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
+        mockWriter.Verify(m => m.Write(expected, true, StandardPalette.Error, true));
     }
 
     [Fact]
@@ -734,13 +761,13 @@ Run again with --debug for more detail.
         // Arrange
         const string command = "e2e commented throw --test true --test false";
         const string expected = "--test: not array";
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
+        mockWriter.Verify(m => m.Write(expected, true, StandardPalette.Error, true));
     }
 
     [Fact]
@@ -749,13 +776,13 @@ Run again with --debug for more detail.
         // Arrange
         const string command = "e2e commented sum -n yo";
         const string expected = "--numbers (-n): cannot convert";
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
+        mockWriter.Verify(m => m.Write(expected, true, StandardPalette.Error, true));
     }
 
     [Fact]
@@ -764,13 +791,13 @@ Run again with --debug for more detail.
         // Arrange
         const string command = "e2e commented sum-array --n yo";
         const string expected = "--n (-numbers): cannot convert";
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.Write(expected, true));
+        mockWriter.Verify(m => m.Write(expected, true, StandardPalette.Error, true));
     }
 
     [Fact]
@@ -780,13 +807,13 @@ Run again with --debug for more detail.
         const string command = "e2e commented sum-dicto --d xyz";
         const string expected = "--d: cannot deserialize";
         _ = E2ETestModule.CommentedModule.SumDicto([]);
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
+        mockWriter.Verify(m => m.Write(expected, true, StandardPalette.Error, true));
     }
 
     [Fact]
@@ -795,13 +822,72 @@ Run again with --debug for more detail.
         // Arrange
         const string command = "e2e commented next --b 933";
         const string expected = "--b: cannot convert";
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         Invoke(command, mockWriter.Object);
 
         // Assert
-        mockWriter.Verify(m => m.Write(expected, WriteStyle.Error, true));
+        mockWriter.Verify(m => m.Write(expected, true, StandardPalette.Error, true));
+    }
+
+    [Fact]
+    public void Discover_GuidIn_ReturnsValue()
+    {
+        // Arrange
+        var expected = Guid.NewGuid().ToString();
+        var command = $"e2e commented guidz stringify-guid --id {expected}";
+        var mockWriter = GetMockConsole();
+
+        // Act
+        Invoke(command, mockWriter.Object);
+
+        // Assert
+        mockWriter.Verify(m => m.Write(expected, true, null, false));
+    }
+
+    [Fact]
+    public void Discover_OptionalGuidIn_ReturnsValue()
+    {
+        // Arrange
+        var expected = Guid.NewGuid().ToString();
+        var command = $"e2e commented guidz stringify-optional-guid --id {expected}";
+        var mockWriter = GetMockConsole();
+
+        // Act
+        Invoke(command, mockWriter.Object);
+
+        // Assert
+        mockWriter.Verify(m => m.Write(expected, true, null, false));
+    }
+
+    [Fact]
+    public void Discover_MissingOptionalGuidIn_ReturnsNull()
+    {
+        // Arrange
+        const string command = "e2e commented guidz stringify-optional-guid";
+        var mockWriter = GetMockConsole();
+
+        // Act
+        var result = Invoke(command, mockWriter.Object);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void Discover_NonGuidIn_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "e2e commented guidz stringify-guid --id h3ll0_Gu1dz";
+        const string expected = "--id: cannot parse guid";
+        var mockWriter = GetMockConsole();
+
+        // Act
+        Invoke(command, mockWriter.Object);
+
+        // Assert
+        mockWriter.Verify(m => m.Write(expected, true, StandardPalette.Error, true));
     }
 
     [Theory]
@@ -827,7 +913,7 @@ Run again with --debug for more detail.
         // Arrange
         const string command = "e2e commented enumz set --day Wodinsday";
         const string expected = "--day: not in enum";
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         Invoke(command, mockWriter.Object);
@@ -843,7 +929,7 @@ Run again with --debug for more detail.
         const string command = "e2e commented enumz get-direct";
         const DayOfWeek expectedResult = DayOfWeek.Friday;
         const string expectedText = nameof(DayOfWeek.Friday);
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         var result = Invoke(command, mockWriter.Object);
@@ -908,7 +994,7 @@ Run again with --debug for more detail.
         // Arrange
         const string command = "e2e commented pass-thru";
         _ = E2ETestModule.CommentedModule.PassThru(null!);
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         Invoke(command, mockWriter.Object);
@@ -923,7 +1009,7 @@ Run again with --debug for more detail.
     {
         // Arrange
         const string command = "e2e commented pass-thru-hidden";
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         var result = Invoke(command, mockWriter.Object);
@@ -937,7 +1023,7 @@ Run again with --debug for more detail.
     {
         // Arrange
         const string command = "e2e commented missing-di get";
-        var mockWriter = new Mock<IConsole>();
+        var mockWriter = GetMockConsole();
 
         // Act
         var act = () => Invoke(command, mockWriter.Object);
@@ -979,11 +1065,23 @@ Run again with --debug for more detail.
         string? command = null,
         IConsole? writer = null)
     {
-        writer ??= new Mock<IConsole>().Object;
+        writer ??= GetMockConsole().Object;
         var services = new ServiceCollection();
         services.AddSingleton(writer);
 
         var asm = Assembly.GetAssembly(typeof(DiscoverE2ETests));
-        return Discover.Go(services, null, command?.Split(' '), asm);
+        return Discover.Go(services, command?.Split(' '), asm);
+    }
+
+    private static Mock<IConsole> GetMockConsole()
+    {
+        var mockConsole = new Mock<IConsole>();
+        mockConsole.Setup(m => m.Palette).Returns(new ComanchePalette());
+        return mockConsole;
+    }
+
+    private sealed class StacklessException : Exception
+    {
+        public override string? StackTrace => null;
     }
 }
