@@ -9,19 +9,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Comanche.Attributes;
+using Comanche.Models;
 using Comanche.Services;
 using Microsoft.Extensions.Configuration;
 
 /// <summary>
 /// Module for end to end tests.
 /// </summary>
-[Module("e2e")]
-public static class E2ETestModule
+[Alias("e2e")]
+public class E2ETestModule : IModule
 {
     /// <summary>
     /// Commented module.
     /// </summary>
-    [Module("9commented:")]
+    [Alias("9commented:")]
     public sealed class CommentedModule
     {
         private int Seed { get; } = 12;
@@ -68,14 +69,12 @@ public static class E2ETestModule
             [Alias("numbers")] int n = 34,
             [Hidden] int otherSeed = 0) => this.Seed + n + otherSeed + numbers.Sum();
 
-        [Module]
-        public static class StaticModule
+        public class StaticModule
         {
             public static async Task Delay(int ms) => await Task.Delay(ms);
 
             public static void CanThrow([Hidden]IConsole console) => console.Write("throw bro");
 
-            [Module]
             public static class SingleMod
             {
                 public static void Do()
@@ -85,14 +84,14 @@ public static class E2ETestModule
             }
         }
 
-        [Module("empty")]
+        [Alias("empty")]
         public static class EmptyModule
         {
             [Hidden]
             public static int Do() => 42;
         }
 
-        [Module("param-test")]
+        [Alias("param-test")]
         public static class ParamTestModule
         {
             public static DateTime Change(
@@ -103,7 +102,7 @@ public static class E2ETestModule
             public static int[] GetNums() => [1, 2, 3];
         }
 
-        [Module("guidz")]
+        [Alias("guidz")]
         public static class GuidzModule
         {
             public static string StringifyGuid(Guid id) => id.ToString();
@@ -111,7 +110,7 @@ public static class E2ETestModule
             public static string? StringifyOptionalGuid(Guid? id = null) => id?.ToString();
         }
 
-        [Module("enumz")]
+        [Alias("enumz")]
         public static class EnumzModule
         {
             public static EnumzModel GetNested() => new(DayOfWeek.Friday);
@@ -123,7 +122,7 @@ public static class E2ETestModule
             public static string? GetConfig([Hidden] IConfiguration config, string key) => config[key];
         }
 
-        [Module("di")]
+        [Alias("di")]
         public class DIModule(IConfiguration config)
         {
             public DIModule()
@@ -132,7 +131,7 @@ public static class E2ETestModule
             public string GetName() => config?["ConfigName"]!;
         }
 
-        [Module("missing-di")]
+        [Alias("missing-di")]
         public class MissingDIModule(IList<string> notInjected)
         {
             public IList<string> Get() => notInjected;

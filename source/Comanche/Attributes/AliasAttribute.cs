@@ -7,10 +7,10 @@ namespace Comanche.Attributes;
 using System;
 
 /// <summary>
-/// Provides a member or parameter with an alternative name.
+/// Provides a module, method or parameter with an alternative name.
 /// </summary>
 /// <param name="name">The alias name.</param>
-[AttributeUsage(AttributeTargets.Method | AttributeTargets.Parameter)]
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter)]
 public sealed class AliasAttribute(string name) : Attribute
 {
     /// <summary>

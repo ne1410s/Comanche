@@ -42,9 +42,9 @@ internal static class DiscoveryExtensions
     {
         var xDoc = asm.LoadXDoc();
 
-        var topLevelModules = asm.ExportedTypes
-            .Where(t => t.DeclaringType == null)
-            .Select(t => t.ToModule(xDoc, provider))
+        var rootModules = asm.ExportedTypes
+            .Where(IsRootModule)
+            .Select(t => t.ToModule(xDoc, asm, provider))
             .Where(m => m != null)
             .ToDictionary(m => m!.Name, m => m!);
 
@@ -53,50 +53,45 @@ internal static class DiscoveryExtensions
         var description = asm.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description;
         var comancheVersion = Assembly.GetCallingAssembly().GetName().Version.ToString(3);
 
-        return new(topLevelModules, asmName.Name, version, description, comancheVersion);
+        return new(rootModules, asmName.Name, version, description, comancheVersion);
     }
 
-    private static ComancheModule? ToModule(this Type t, XDocument xDoc, IServiceProvider provider)
+    private static ComancheModule? ToModule(this Type t, XDocument xDoc, Assembly asm, IServiceProvider provider)
     {
-        var moduleAttr = t.GetCustomAttribute<ModuleAttribute>();
-        if (moduleAttr == null || t.GetCustomAttribute<HiddenAttribute>() != null)
+        if (!t.IsModule())
         {
             return null;
         }
 
-        var moduleName = ModuleElideRegex.Replace(moduleAttr.Name ?? t.Name, string.Empty).Sanitise();
+        var aliasName = t.GetCustomAttribute<AliasAttribute>(false)?.Name;
+        var moduleName = ModuleElideRegex.Replace(aliasName ?? t.Name, string.Empty).Sanitise();
         var xmlMemberName = t.FullName.Replace("+", ".", StringComparison.OrdinalIgnoreCase);
         var xPath = string.Format(Invariant, XPathMemberFormat, $"T:{xmlMemberName}");
         var xmlType = xDoc.XPathSelectElement(xPath);
         var xmlSummary = GetNodeText(xmlType, "summary");
-        var isStatic = t.IsAbstract && t.IsSealed;
 
-        Func<object?> resolver = () => null;
-        if (!isStatic)
+        // Use the first public ctor (by params length) where all dependencies are met
+        var ctorProvisions = Array.Empty<object>();
+        foreach (var ctor in t.GetConstructors().OrderByDescending(c => c.GetParameters().Length))
         {
-            // Use the first public ctor (by params length) where all dependencies are met
-            var ctorProvisions = Array.Empty<object>();
-            foreach (var ctor in t.GetConstructors().OrderByDescending(c => c.GetParameters().Length))
+            var allParams = ctor.GetParameters();
+            var oks = allParams.Select(p => provider.GetService(p.ParameterType)).Where(r => r != null).ToArray();
+            if (oks.Length == allParams.Length)
             {
-                var allParams = ctor.GetParameters();
-                var oks = allParams.Select(p => provider.GetService(p.ParameterType)).Where(r => r != null).ToArray();
-                if (oks.Length == allParams.Length)
-                {
-                    ctorProvisions = oks;
-                    break;
-                }
+                ctorProvisions = oks;
+                break;
             }
-
-            resolver = () => Activator.CreateInstance(t, ctorProvisions);
         }
 
+        var resolver = () => Activator.CreateInstance(t, ctorProvisions);
         var methods = t.GetMethods()
             .Where(m => m.DeclaringType != typeof(object) && m.GetCustomAttribute<HiddenAttribute>() == null)
             .Select(m => m.ToMethod(resolver, xDoc))
             .ToDictionary(m => m.Name, m => m);
 
-        var subModules = t.GetNestedTypes()
-            .Select(n => n.ToModule(xDoc, provider))
+        var subModules = asm.ExportedTypes
+            .Where(et => et.IsModule() && et.FindParentModule() == t)
+            .Select(n => n.ToModule(xDoc, asm, provider))
             .Where(m => m != null)
             .ToDictionary(m => m!.Name, m => m!);
 
@@ -177,4 +172,27 @@ internal static class DiscoveryExtensions
 
         return term.Trim();
     }
+
+    private static bool IsModule(this Type t)
+        => typeof(IModule).IsAssignableFrom(t)
+            && t.IsPublic
+            && !t.IsAbstract
+            && t.GetCustomAttribute<HiddenAttribute>(false) == null;
+
+    private static Type? FindParentModule(this Type t)
+    {
+        if (t.BaseType == null)
+        {
+            return null;
+        }
+
+        if (t.BaseType.IsModule())
+        {
+            return t.BaseType;
+        }
+
+        return FindParentModule(t.BaseType);
+    }
+
+    private static bool IsRootModule(this Type t) => t.IsModule() && t.FindParentModule() == null;
 }
