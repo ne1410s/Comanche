@@ -1,6 +1,6 @@
 # Comanche
 ## Overview
-Comanche is a module-discovery library for the command line. 
+Comanche is a module-discovery library for the command line.
 
 It is designed to work for *you, the developer* by allowing you to write your code. It will sit back until CLI invocation, where it dynamically discovers and relays it (just the bits you want).
 
@@ -15,13 +15,13 @@ Now you can build and ship your executable as normal..
 
 .. But **please keep reading!** There are many more time-saving features to explore below.
 
-![easy as 1 2 3](docs/123.png)
+![easy as 1 2 3](https://raw.githubusercontent.com/ne1410s/Comanche/main/docs/123.png)
 
 ## Development Guide
 This section provides guidance on how to make use of all of the features and functionality of Comanche!
 
 ### Structure
-Broadly speaking, there are two types of command: discovery and invocation. All invocation commands are made available in the following format:
+Broadly speaking, there are two types of command a CLI user can run: discovery and invocation. All *invocation* commands are made available in the following format:
 
 > `assembly`&nbsp;&nbsp;`module`&nbsp;&nbsp;`[..sub-modules]`&nbsp;&nbsp;`method`&nbsp;&nbsp;`[..params]`
 
@@ -29,20 +29,24 @@ You can organise your coding entities to yield your desired CLI experience and t
 
 In order to set the `assembly` part above, this can be done by setting the `<AssemblyName>` property in your csproj file. Note that this will be case-sensitive in Unix systems.
 
-![sub module](docs/sub-module.png)
+![sub module](https://raw.githubusercontent.com/ne1410s/Comanche/main/docs/sub-module.png)
 
 #### Modules
-A Comanche Module is the direct equivalent to a C# `class`. As well as its own methods, it can also contain nested classes, which become sub-modules in Comanche.
+A Comanche Module is the direct equivalent to a C# `class`. As well as its own methods, it can also contain sub-classes that inherit from it, which become sub-modules on the Comanche CLI.
 
-By default, Comanche discovery attempts to expose *all* public classes in the console app to the CLI. To prevent a class from being exposed, there are several supported options:
+Comanche exposes classes as CLI modules if they:
+- Inherit from `Comanche.Models.IModule`
+- Are public (or nested public)
+- Are not abstract
+- Do not have the `[Hidden]` attribute
 
-- Decorate the classes you do *not* wish to expose with the `[Hidden]` attribute
-- Set the `moduleOptIn` parameter to `true` in the call to `Discover.Go()`.  In this mode, only modules decorated with the `[Module]` attribute will be exposed to the CLI. (This also allows for an alias to be provided to the module, as per the above screenshot)
-- Modify the class access to a non-public scope, such as `internal` or `private` (if appropriate)
+ To prevent a class from being exposed, there are several options, but the `[Hidden]` attribute should always function as expected.
 
-Also by default is the module naming convention. Any "Module" suffix is removed and the remaining terms are transformed to "kebab-case". This can be overriden by providing a custom name in `[Module]` attribute.
+There is a module naming convention. Any "Module" suffix is removed and the remaining terms are transformed to "kebab-case". This can be overriden by providing a custom name in an `[Alias]` attribute.
 
-Note that `static` classes and methods are supported by Comanche, but it should be noted that module-scoped dependency injection is not possible with a static class.
+It is perfectly possible to *nest* classes, if you so wish, but the module structure as it appears in the Comanche CLI is determined purely from class inheritance. (This has been the case since `v1.1.0` Before that, class nesting was the single means to determine module structure).
+
+Note that `static class`es are not supported as modules by Comanche (dropped in `v1.1.0`). This is due to the inheritance mechanism by which the CLI structure is formed, which is not applicable to static classes. Static *methods* are still supported on qualifying modules - but clearly any dependencies injected at the module/class level cannot be used by them.
 
 #### Methods
 A Comanche Method is the direct equivalent to a C# `method`.  As with Modules, the `[Hidden]` attribute is supported for methods too. This means the method will not appear in the CLI discovery help, nor be reachable in any other way. Only `public` classes are exposed to Comanche.
@@ -65,13 +69,13 @@ Invocation results are returned to the CLR from the `Discover.Go()` call. Return
 There are several optional parameters available on this top-level method. Some of which are there purely to support debugging and/or unit testing. The most useful functional parameters are described here:
 |Parameter|Description|
 |--|--|
-|`moduleOptIn` [boolean = False]|Whether the `[Module]` attribute is needed in order for a class to be exposed.|
 |`services` [IServiceCollection = null]|Set of injected dependencies that will be delivered to class ctors and methods.|
+|`args` [string[] = null]|Provided for debugging support (See [Debugging](#debugging) section).|
 
 ### Debugging
 One of the parameters in `Discover.Go()` is the familiar `args` object array. This is useful for debugging, as you can pass in the same string as per the CLI command and the run will essentially be the same, with the key difference being you have the execution thread! Your IDE should automatically provide a console window, so you can simulate the full user experience.
 
-If you use appropriate abstractions (like the [IOutputWriter](#output-writer)) then even the end-to-end is unit-testable, as you can invoke Discover.Go() with whatever command text you require.
+If you use appropriate abstractions (like the [IConsole](#iconsole)) then even the end-to-end is unit-testable, as you can invoke Discover.Go() with whatever command text you require.
 
 ```csharp
 string? debugCommand = null;
@@ -100,8 +104,26 @@ As we're doing DI, it would be rude *not* to support `IConfiguration` :D You can
 
 To make use of the config mechanism, add your json file / env vars and simply define `IConfiguration config` as a parameter - at either the class ctor or method level.
 
-### Output Writer
-`[IOutputWriter]` is used internally by Comanche for writing to stdout (and stderr on occasion!) in a unit-testable way. It also has basic prompt/capture capabilities. It is injected via DI to every Comanche method call as a courtesy (but I won't be offended if you don't use it!).
+### IConsole
+`[IConsole]` is used internally by Comanche for writing to stdout (and stderr on occasion!) in a unit-testable way. It also has basic prompt/capture capabilities. It is injected via DI to every Comanche method call as a courtesy (but I won't be offended if you don't use it!).
+
+### ComanchePalette
+Since `v1.1.0` Comanche's colour scheme for internal use is configurable! Simply pass a service collection with a ComanchePalette registered:
+```csharp
+// Program.cs
+var services = new ServiceCollection();
+services.AddSingleton(_ => new ComanchePalette { ... });
+...
+Discover.Go(services);
+```
+The following strcuture is used:
+|Palette Property|Default Value|
+|--|--|
+|`Default`|*< current foreground >*|
+|`Primary`|Yellow|
+|`Secondary`|Blue|
+|`Tertiary`|DarkMagenta|
+|`Error`|Red|
 
 ### Publishing
 In order to release your Comanche app to the wild, it is recommended that you publish it using Release configuration, embedding debug symbols. For even greater portability, you can choose to publish as a single file.
@@ -116,7 +138,7 @@ dotnet publish MY_COMANCHE_PROJECT -p:PublishSingleFile=true -p:DebugType=Embedd
 This section provides guidance on how to discover and use  all of the functionality within any given Comanche CLI tool!
 
 ### Basic Commands
-Assuming the tool (.exe in Windows) is available within your context (i.e. in your current directory, or on your PATH), just typing the name of the assembly gets you started, by returning some basic info including the tool's published assembly version and a list of top-level modules, which it refers to as Sub Modules of the main tool.
+Assuming the tool (e.g. the .exe in Windows) is available within your context (i.e. in your current directory, or on your PATH), just typing the name of the assembly gets you started, by returning some basic info including the tool's published assembly version and a list of top-level modules, which it refers to as Sub Modules of the main tool.
 
 ### Route Validation
 Routing is the bit that maps your command text down to a particular method. This needs to run successfully in order for Comanche to move on to parameter validation and finally execution. If a route is not understood by Comanche, a message is written to stderr in angry red text, which should provide full clarity on the issue.
@@ -126,7 +148,7 @@ Assuming a route is found, Comanche can start checking the supplied parameters a
 
 ### Boolean Flags
 Boolean flags offer a short-hand, where you only need to provide the flag name to indicate `true`. You can pass `true` explicitly to the same effect. The value can be explicitly negated, as follows:
-> `assembly module method --force false`  
+> `assembly module method --force false`
 
 ### Enum Values
 Enum handling is designed to be versatile between strings and numeric values. Therefore either one is acceptable for the parameter to be correctly understood. Note that in return values, the string form is used.
