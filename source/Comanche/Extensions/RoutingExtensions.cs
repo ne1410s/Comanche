@@ -42,7 +42,7 @@ internal static class RoutingExtensions
             .Where(arg => !string.IsNullOrWhiteSpace(arg))
             .Select((arg, i) => new
             {
-                arg, i, qRoute = char.IsLetter(arg[0]),
+                arg, i, qRoute = char.IsLetter(arg[0]) || char.IsNumber(arg[0]),
                 help = HelpArgs.Contains(arg),
                 dbg = arg == DebugArg,
                 ver = arg == VersionArg,

@@ -6,6 +6,8 @@ namespace Comanche.Tests.Simulation;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using Microsoft.Extensions.Configuration;
 
 [Alias("empty")]
@@ -68,6 +70,29 @@ public class DIModule(IConfiguration config) : E2ETestModule.CommentedModule
 public class MissingDIModule(IList<string> notInjected) : E2ETestModule.CommentedModule
 {
     public IList<string> Get() => notInjected;
+}
+
+public class SequenceModule : E2ETestModule.CommentedModule
+{
+    public static new int SumArray(int[] n) => n.Sum();
+
+    public static int SumCollection(Collection<int> n) => n.Sum();
+
+    public static int SumHashSet(HashSet<int> n) => n.Sum();
+
+    public static int SumICollection(ICollection<int> n) => n.Sum();
+
+    public static int SumIEnumerable(IEnumerable<int> n) => n.Sum();
+
+    public static int SumIList(IList<int> n) => n.Sum();
+
+    public static int SumLinkedList(LinkedList<int> n) => n.Sum();
+
+    public static int SumList(List<int> n) => n.Sum();
+
+    public static int SumQueue(Queue<int> n) => n.Sum();
+
+    public static int SumStack(Stack<int> n) => n.Sum();
 }
 
 public record EnumzModel(DayOfWeek Day);

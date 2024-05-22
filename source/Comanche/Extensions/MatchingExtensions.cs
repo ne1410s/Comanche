@@ -41,14 +41,20 @@ internal static class MatchingExtensions
         for (var i = 1; i < route.RouteTerms.Count; i++)
         {
             var iterRoute = route.RouteTerms[i];
-            if (i == route.RouteTerms.Count - 1 && module.Methods.ContainsKey(iterRoute))
-            {
-                retVal = module.Methods[iterRoute];
-            }
-            else if (module.SubModules.ContainsKey(iterRoute))
+            if (module.SubModules.ContainsKey(iterRoute))
             {
                 module = module.SubModules[iterRoute];
                 matchedTerms.Add(iterRoute);
+            }
+            else if (i == route.RouteTerms.Count - 1 && module.Methods.ContainsKey(iterRoute))
+            {
+                retVal = module.Methods[iterRoute];
+                matchedTerms.Add(iterRoute);
+            }
+            else
+            {
+                // Dangling terms sub-method - treat as bad method on the parent module
+                break;
             }
         }
 

@@ -324,6 +324,7 @@ Comanche v{version} (ne1410s © {year})
               Comanche.Tests e2e commented missing-di
               Comanche.Tests e2e commented nested
               Comanche.Tests e2e commented param-test
+              Comanche.Tests e2e commented sequence
             Methods:
               Comanche.Tests e2e commented join-array (Join array.)
               Comanche.Tests e2e commented throw (Throws a thing.)
@@ -394,6 +395,24 @@ Comanche v{version} (ne1410s © {year})
 
         // Assert
         resultDelta.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("baaa")]
+    [InlineData("123")]
+    [InlineData("fff ggg hhh")]
+    public void Discover_ValidMethodButDanglingSubRoute_DescribesParentModule(string junk)
+    {
+        // Arrange
+        var plainWriter = new PlainWriter();
+        var command = $"e2e commented throw {junk}";
+        const string expected = "Comanche.Tests e2e commented throw (Throws a thing.)";
+
+        // Act
+        Invoke(command, plainWriter);
+
+        // Assert
+        plainWriter.ShouldContain(expected);
     }
 
     [Theory]
@@ -1075,6 +1094,30 @@ Run again with --debug for more detail.
 
         // Assert
         result.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("sum-array")]
+    [InlineData("sum-collection")]
+    [InlineData("sum-hash-set")]
+    [InlineData("sum-icollection")]
+    [InlineData("sum-ienumerable")]
+    [InlineData("sum-ilist")]
+    [InlineData("sum-linkedlist")]
+    [InlineData("sum-list")]
+    [InlineData("sum-queue")]
+    [InlineData("sum-stack")]
+    public void Discover_Sequences_SumsExpected(string method)
+    {
+        // Arrange
+        var command = $"e2e commented sequence {method} --n 1 --n 2 --n 3";
+        const int expected = 6;
+
+        // Act
+        var actual = Invoke(command);
+
+        // Assert
+        actual.Should().Be(expected);
     }
 
     private static object? Invoke(
