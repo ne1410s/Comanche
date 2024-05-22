@@ -9,7 +9,7 @@ Getting started is as easy as 1, 2, 3!
 
 1. Add the latest `Comanche` package to your console app, enabling "generate documentation file" is also recommended!
 2. Write some code
-3. Call Comanche's [Discover.Go()](#discovergo) from your Program.cs
+3. Call Comanche's [Discover.Go()](#discover-dot-go) from your Program.cs
 
 Now you can build and ship your executable as normal..
 
@@ -65,8 +65,9 @@ Please note there are some [reserved parameter names](#reserved-flags) which sho
 #### Return Values
 Invocation results are returned to the CLR from the `Discover.Go()` call. Return values are always written to stdout as well. In the case of strings and value types, these are written using whatever `.ToString()` implementation applies. In all other cases a JSON representation is written instead (indented camel case, omitting nulls).
 
-### Discover.Go(...)
-There are several optional parameters available on this top-level method. Some of which are there purely to support debugging and/or unit testing. The most useful functional parameters are described here:
+### Discover dot Go
+There are several optional parameters available on `Discover.Go(...)`. Some of which are there purely to support debugging and/or unit testing. The most useful functional parameters are described here:
+
 |Parameter|Description|
 |--|--|
 |`services` [IServiceCollection = null]|Set of injected dependencies that will be delivered to class ctors and methods.|
@@ -116,7 +117,8 @@ services.AddSingleton(_ => new ComanchePalette { ... });
 ...
 Discover.Go(services);
 ```
-The following strcuture is used:
+The following structure is used:
+
 |Palette Property|Default Value|
 |--|--|
 |`Default`|*< current foreground >*|
@@ -146,6 +148,9 @@ Routing is the bit that maps your command text down to a particular method. This
 ### Parameter Validation
 Assuming a route is found, Comanche can start checking the supplied parameters against the requirements of the method. Parameters with no default are considered as required. If these are not supplied, the command is rejected with a clear explanation. If you supply unrecognised arguments, this is similarly rejected.
 
+### Aliases
+All parameters can be supplied using the long-hand `--param-name` type format. In the event that the CLI author has provided an alias for the parameter, then additionally the short-hand is made available, for example `-p`. The presence of aliases can be discovered via the --help command for the method route in question, e.g. `assembly module method --help`
+
 ### Boolean Flags
 Boolean flags offer a short-hand, where you only need to provide the flag name to indicate `true`. You can pass `true` explicitly to the same effect. The value can be explicitly negated, as follows:
 > `assembly module method --force false`
@@ -153,13 +158,17 @@ Boolean flags offer a short-hand, where you only need to provide the flag name t
 ### Enum Values
 Enum handling is designed to be versatile between strings and numeric values. Therefore either one is acceptable for the parameter to be correctly understood. Note that in return values, the string form is used.
 
+### IEnumerable Values
+Sequence-type parameters - for primitives and strings - (e.g. `List<int>`, `string[]`, etc) can be supplied by simply specifying multiple parameters of the same flag. For example, in the case of a `List<int>` parameter with an alias of `-n`, multiple values are supplied by:
+> `assembly module method -n 4 -n 5 -n 6`
+
 ### Reserved Flags
 There are a number of reserved flags that apply globally.
 
 |Flag|Effect|
 |--|--|
 |`--debug`|In the event of an exception, this shows a stack trace.|
-|`--help` `/?`|This shows information according to the route.|
+|`--help` or `/?`|This shows information according to the route.|
 |`--version`|This provides full version information.|
 
 ### Error Handling
