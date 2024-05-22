@@ -1,17 +1,16 @@
-﻿// <copyright file="E2ETestModule.cs" company="ne1410s">
+﻿// <copyright file="RootModules.cs" company="ne1410s">
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche.Tests;
+namespace Comanche.Tests.Simulation;
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System;
 using Comanche.Attributes;
 using Comanche.Models;
 using Comanche.Services;
-using Microsoft.Extensions.Configuration;
 
 /// <summary>
 /// Module for end to end tests.
@@ -23,7 +22,7 @@ public class E2ETestModule : IModule
     /// Commented module.
     /// </summary>
     [Alias("9commented:")]
-    public sealed class CommentedModule
+    public class CommentedModule : E2ETestModule
     {
         private int Seed { get; } = 12;
 
@@ -50,7 +49,7 @@ public class E2ETestModule : IModule
 
         public static IConsole PassThru(IConsole writer) => writer;
 
-        public static IConsole PassThruHidden([Hidden]IConsole writer) => writer;
+        public static IConsole PassThruHidden([Hidden] IConsole writer) => writer;
 
         public static short Next([Alias(null!)] byte? b) => (short)((b ?? byte.MaxValue) + 1);
 
@@ -69,13 +68,13 @@ public class E2ETestModule : IModule
             [Alias("numbers")] int n = 34,
             [Hidden] int otherSeed = 0) => this.Seed + n + otherSeed + numbers.Sum();
 
-        public class StaticModule
+        public class NestedModule : CommentedModule
         {
             public static async Task Delay(int ms) => await Task.Delay(ms);
 
-            public static void CanThrow([Hidden]IConsole console) => console.Write("throw bro");
+            public static void CanThrow([Hidden] IConsole console) => console.Write("throw bro");
 
-            public static class SingleMod
+            public class SingleMod : NestedModule
             {
                 public static void Do()
                 {
@@ -83,61 +82,5 @@ public class E2ETestModule : IModule
                 }
             }
         }
-
-        [Alias("empty")]
-        public static class EmptyModule
-        {
-            [Hidden]
-            public static int Do() => 42;
-        }
-
-        [Alias("param-test")]
-        public static class ParamTestModule
-        {
-            public static DateTime Change(
-                DateTime d1,
-                decimal m1 = 3.2m,
-                long? i1 = 1) => d1.AddHours(i1 ?? (double)m1);
-
-            public static int[] GetNums() => [1, 2, 3];
-        }
-
-        [Alias("guidz")]
-        public static class GuidzModule
-        {
-            public static string StringifyGuid(Guid id) => id.ToString();
-
-            public static string? StringifyOptionalGuid(Guid? id = null) => id?.ToString();
-        }
-
-        [Alias("enumz")]
-        public static class EnumzModule
-        {
-            public static EnumzModel GetNested() => new(DayOfWeek.Friday);
-
-            public static DayOfWeek GetDirect() => DayOfWeek.Friday;
-
-            public static int Set(DayOfWeek day) => (int)day;
-
-            public static string? GetConfig([Hidden] IConfiguration config, string key) => config[key];
-        }
-
-        [Alias("di")]
-        public class DIModule(IConfiguration config)
-        {
-            public DIModule()
-                : this(null!) { }
-
-            public string GetName() => config?["ConfigName"]!;
-        }
-
-        [Alias("missing-di")]
-        public class MissingDIModule(IList<string> notInjected)
-        {
-            public IList<string> Get() => notInjected;
-        }
     }
 }
-
-[Hidden]
-public record EnumzModel(DayOfWeek Day);

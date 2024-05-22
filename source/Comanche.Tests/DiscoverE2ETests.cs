@@ -9,6 +9,7 @@ using System.Reflection;
 using Comanche.Models;
 using Comanche.Services;
 using Comanche.Tests.Services;
+using Comanche.Tests.Simulation;
 using Microsoft.Extensions.DependencyInjection;
 
 public class DiscoverE2ETests
@@ -147,7 +148,7 @@ public class DiscoverE2ETests
     public void Discover_ReturnBareTask_ReturnsExpected()
     {
         // Arrange
-        const string command = "e2e commented static delay --ms 1";
+        const string command = "e2e commented nested delay --ms 1";
 
         // Act
         var result = Invoke(command);
@@ -189,7 +190,7 @@ public class DiscoverE2ETests
 
     [Theory]
     [InlineData("e2e")]
-    [InlineData("e2e commented static single-mod")]
+    [InlineData("e2e commented nested single-mod")]
     public void Discover_BareModule_DoesNotWriteError(string command)
     {
         // Arrange
@@ -209,10 +210,10 @@ public class DiscoverE2ETests
     {
         // Arrange
         var plainWriter = new PlainWriter();
-        const string command = "e2e commented static single-mod";
+        const string command = "e2e commented nested single-mod";
         const string expected = @"
-            Module: Comanche.Tests e2e commented static single-mod
-            Methods: Comanche.Tests e2e commented static single-mod do
+            Module: Comanche.Tests e2e commented nested single-mod
+            Methods: Comanche.Tests e2e commented nested single-mod do
         ";
 
         // Act
@@ -295,6 +296,22 @@ Comanche v{version} (ne1410s © {year})
     }
 
     [Fact]
+    public void Discover_UnhidingSubmodule_AssignedExpectedRoute()
+    {
+        // Arrange
+        const string command = "e2e commented guidz non-hidden";
+        const string expected = " e2e commented guidz non-hidden do";
+        var mockWriter = GetMockConsole();
+
+        // Act
+        Invoke(command, mockWriter.Object);
+
+        // Assert
+        _ = GuidzModule.HiddenThing.NonHidden.Do();
+        mockWriter.Verify(m => m.Write(expected, false, null, false));
+    }
+
+    [Fact]
     public void Discover_ModuleOptIn_WritesExpected()
     {
         // Arrange
@@ -303,12 +320,12 @@ Comanche v{version} (ne1410s © {year})
         const string expected = @"
             Module: Comanche.Tests e2e commented (Commented module.)
             Sub Modules:
-              Comanche.Tests e2e commented static
-              Comanche.Tests e2e commented param-test
-              Comanche.Tests e2e commented guidz
-              Comanche.Tests e2e commented enumz
               Comanche.Tests e2e commented di
+              Comanche.Tests e2e commented enumz
+              Comanche.Tests e2e commented guidz
               Comanche.Tests e2e commented missing-di
+              Comanche.Tests e2e commented nested
+              Comanche.Tests e2e commented param-test
             Methods:
               Comanche.Tests e2e commented join-array (Join array.)
               Comanche.Tests e2e commented throw (Throws a thing.)
@@ -374,7 +391,7 @@ Comanche v{version} (ne1410s © {year})
         var d1 = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
-        var result = E2ETestModule.CommentedModule.ParamTestModule.Change(d1, i1: param);
+        var result = ParamTestModule.Change(d1, i1: param);
         var resultDelta = (result - d1).TotalSeconds;
 
         // Assert
@@ -429,14 +446,14 @@ Comanche v{version} (ne1410s © {year})
         // Arrange
         var plainWriter = new PlainWriter();
         const string command = "e2e commented join-array --help";
-        const string expected = @"
+        const string expected = """
             Module: Comanche.Tests e2e commented (Commented module.)
             Method: Comanche.Tests e2e commented join-array (Join array.)
             Parameters:
             --s [string[]] (The s.)
-            --x [string = ""!""] (The x.)
-            Returns: [string] (Val.)
-        ";
+            --x [string = "!"] (The x.)
+            Returns: [string] (Val.)    
+""";
 
         // Act
         Invoke(command, plainWriter);
@@ -450,13 +467,13 @@ Comanche v{version} (ne1410s © {year})
     {
         // Arrange
         var plainWriter = new PlainWriter();
-        const string command = "e2e commented static single-mod do --help";
+        const string command = "e2e commented nested single-mod do --help";
         const string expected = @"
 Module:
-Comanche.Tests e2e commented static single-mod
+Comanche.Tests e2e commented nested single-mod
 
 Method:
-Comanche.Tests e2e commented static single-mod do
+Comanche.Tests e2e commented nested single-mod do
 
 Returns:
 [<void>]
@@ -609,7 +626,7 @@ Comanche.Tests e2e (Module for end to end tests.)
     public void Discover_NonNullableOnlyFlag_WritesExpectedError()
     {
         // Arrange
-        const string command = "e2e commented static delay --ms";
+        const string command = "e2e commented nested delay --ms";
         const string expected = "--ms: missing";
         var mockWriter = GetMockConsole();
 
@@ -644,7 +661,7 @@ Comanche.Tests e2e (Module for end to end tests.)
         const string command = "e2e commented sum ---notaparam";
         const string expected = "Bad parameter: '---notaparam'.";
         var mockWriter = GetMockConsole();
-        E2ETestModule.CommentedModule.StaticModule.SingleMod.Do();
+        E2ETestModule.CommentedModule.NestedModule.SingleMod.Do();
 
         // Act
         Invoke(command, mockWriter.Object);
@@ -660,7 +677,7 @@ Comanche.Tests e2e (Module for end to end tests.)
         const int expected = 42;
 
         // Act
-        var actual = E2ETestModule.CommentedModule.EmptyModule.Do();
+        var actual = EmptyModule.Do();
 
         // Assert
         actual.Should().Be(expected);
@@ -730,7 +747,7 @@ Run again with --debug for more detail.
         // Arrange
         var mockWriter = GetMockConsole();
         var primary = mockWriter.Object.Palette.Primary;
-        const string command = "e2e commented static can-throw --debug";
+        const string command = "e2e commented nested can-throw --debug";
         mockWriter.Setup(m => m.Write("throw bro", false, null, false)).Throws(new StacklessException());
 
         // Act
@@ -1031,7 +1048,7 @@ Run again with --debug for more detail.
 
         // Assert
         act.Should().Throw<NullReferenceException>();
-        new E2ETestModule.CommentedModule.MissingDIModule(null!).Get();
+        new MissingDIModule(null!).Get();
     }
 
     [Fact]
@@ -1053,7 +1070,7 @@ Run again with --debug for more detail.
     public void Discover_ModuleDiParamless_ReturnsNull()
     {
         // Arrange
-        var module = new E2ETestModule.CommentedModule.DIModule();
+        var module = new DIModule();
 
         // Act
         var result = module.GetName();

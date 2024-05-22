@@ -58,11 +58,6 @@ internal static class DiscoveryExtensions
 
     private static ComancheModule? ToModule(this Type t, XDocument xDoc, Assembly asm, IServiceProvider provider)
     {
-        if (!t.IsModule())
-        {
-            return null;
-        }
-
         var aliasName = t.GetCustomAttribute<AliasAttribute>(false)?.Name;
         var moduleName = ModuleElideRegex.Replace(aliasName ?? t.Name, string.Empty).Sanitise();
         var xmlMemberName = t.FullName.Replace("+", ".", StringComparison.OrdinalIgnoreCase);
@@ -83,16 +78,17 @@ internal static class DiscoveryExtensions
             }
         }
 
-        var resolver = () => Activator.CreateInstance(t, ctorProvisions);
+        object Resolver() => Activator.CreateInstance(t, ctorProvisions);
         var methods = t.GetMethods()
-            .Where(m => m.DeclaringType != typeof(object) && m.GetCustomAttribute<HiddenAttribute>() == null)
-            .Select(m => m.ToMethod(resolver, xDoc))
+            .Where(m => m.DeclaringType == t && m.GetCustomAttribute<HiddenAttribute>() == null)
+            .Select(m => m.ToMethod(Resolver, xDoc))
             .ToDictionary(m => m.Name, m => m);
 
         var subModules = asm.ExportedTypes
             .Where(et => et.IsModule() && et.FindParentModule() == t)
             .Select(n => n.ToModule(xDoc, asm, provider))
             .Where(m => m != null)
+            .OrderBy(m => m!.Name)
             .ToDictionary(m => m!.Name, m => m!);
 
         if (methods.Count + subModules.Count == 0)
@@ -175,7 +171,7 @@ internal static class DiscoveryExtensions
 
     private static bool IsModule(this Type t)
         => typeof(IModule).IsAssignableFrom(t)
-            && t.IsPublic
+            && (t.IsPublic || t.IsNestedPublic)
             && !t.IsAbstract
             && t.GetCustomAttribute<HiddenAttribute>(false) == null;
 

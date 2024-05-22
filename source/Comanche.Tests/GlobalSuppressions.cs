@@ -8,17 +8,17 @@ using System.Diagnostics.CodeAnalysis;
     "Design",
     "CA1002:Do not expose generic lists",
     Justification = "Example code",
-    Scope = "type",
-    Target = "~T:Comanche.Tests.E2ETestModule.CommentedModule")]
+    Scope = "namespaceanddescendants",
+    Target = "~N:Comanche.Tests.Simulation")]
 [assembly: SuppressMessage(
     "Design",
     "CA1034:Nested types should not be visible",
     Justification = "Example code",
-    Scope = "type",
-    Target = "~T:Comanche.Tests.E2ETestModule.CommentedModule")]
+    Scope = "namespaceanddescendants",
+    Target = "~N:Comanche.Tests.Simulation")]
 [assembly: SuppressMessage(
     "Reliability",
     "CA2000:Dispose objects before losing scope",
-    Justification = "Required",
+    Justification = "Testing requirement",
     Scope = "namespaceanddescendants",
-    Target = "Comanche.Tests.Services")]
+    Target = "~N:Comanche.Tests.Services")]
