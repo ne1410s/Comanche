@@ -2,11 +2,10 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche.Services;
+namespace Comanche;
 
 using System;
 using System.Linq;
-using Comanche.Models;
 
 /// <summary>
 /// Extensions for <see cref="IConsole"/>.

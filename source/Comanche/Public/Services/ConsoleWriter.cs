@@ -2,14 +2,13 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche.Services;
+namespace Comanche;
 
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using Comanche.Models;
 
 /// <inheritdoc cref="IConsole"/>
 public class ConsoleWriter(ComanchePalette palette) : IConsole
@@ -73,7 +72,7 @@ public class ConsoleWriter(ComanchePalette palette) : IConsole
     {
         var actualText = text + (line ? Environment.NewLine : string.Empty);
         var priorForeground = Console.ForegroundColor;
-        var actualColour = colour ?? priorForeground;
+        var actualColour = colour ?? palette.Default;
         Console.ForegroundColor = actualColour;
         Action<string> write = err ? Console.Error.Write : Console.Write;
         write(actualText);

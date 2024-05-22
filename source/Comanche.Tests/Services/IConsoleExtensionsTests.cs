@@ -7,7 +7,6 @@ namespace Comanche.Tests.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using Comanche.Services;
 
 /// <summary>
 /// Tests for the <see cref="IConsoleExtensions"/> class.

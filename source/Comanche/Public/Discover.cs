@@ -8,8 +8,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Comanche.Extensions;
-using Comanche.Models;
-using Comanche.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

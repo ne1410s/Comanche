@@ -6,8 +6,6 @@ namespace Comanche.Tests;
 
 using System;
 using System.Reflection;
-using Comanche.Models;
-using Comanche.Services;
 using Comanche.Tests.Services;
 using Comanche.Tests.Simulation;
 using Microsoft.Extensions.DependencyInjection;

@@ -6,7 +6,6 @@ namespace Comanche.Tests.Simulation;
 
 using System;
 using System.Collections.Generic;
-using Comanche.Attributes;
 using Microsoft.Extensions.Configuration;
 
 [Alias("empty")]

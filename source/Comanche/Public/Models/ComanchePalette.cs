@@ -2,7 +2,7 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche.Models;
+namespace Comanche;
 
 using System;
 
@@ -31,8 +31,8 @@ public class ComanchePalette
     /// </summary>
     public ConsoleColor Tertiary { get; init; } = ConsoleColor.DarkMagenta;
 
-   /// <summary>
-   /// Gets the error colour.
-   /// </summary>
+    /// <summary>
+    /// Gets the error colour.
+    /// </summary>
     public ConsoleColor Error { get; init; } = ConsoleColor.Red;
 }

@@ -11,7 +11,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Comanche.Exceptions;
 using Comanche.Extensions;
-using Comanche.Services;
 
 /// <summary>
 /// A modelled session.

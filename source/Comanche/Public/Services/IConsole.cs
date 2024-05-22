@@ -2,11 +2,10 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche.Services;
+namespace Comanche;
 
 using System;
 using System.Collections.ObjectModel;
-using Comanche.Models;
 
 /// <summary>
 /// Console behaviour.

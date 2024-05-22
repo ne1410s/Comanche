@@ -8,9 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System;
-using Comanche.Attributes;
-using Comanche.Models;
-using Comanche.Services;
 
 /// <summary>
 /// Module for end to end tests.

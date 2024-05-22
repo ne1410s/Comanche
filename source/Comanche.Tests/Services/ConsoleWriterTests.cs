@@ -6,8 +6,6 @@ namespace Comanche.Tests.Services;
 
 using System;
 using System.IO;
-using Comanche.Models;
-using Comanche.Services;
 
 /// <summary>
 /// Tests for the <see cref="ConsoleWriter"/> class.
