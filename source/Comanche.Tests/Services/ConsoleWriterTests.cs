@@ -29,6 +29,22 @@ public class ConsoleWriterTests
     }
 
     [Fact]
+    public void Write_NullColour_UsesPaletteDefault()
+    {
+        // Arrange
+        const ConsoleColor colour = ConsoleColor.DarkCyan;
+        const string text = "hello";
+        var sut = new ConsoleWriter(new() { Default = colour });
+        var expected = Tuple.Create(text, false, colour, false);
+
+        // Act
+        sut.Write(text);
+
+        // Assert
+        sut.LastCommand.Should().Be(expected);
+    }
+
+    [Fact]
     public void Write_IsError_WritesToErrorStream()
     {
         // Arrange
