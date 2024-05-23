@@ -118,7 +118,22 @@ internal static class ParsingExtensions
                             typedList.Add(res[i].val);
                         }
 
-                        retVal.Add(typedList);
+                        if (param.ParameterType.IsInterface)
+                        {
+                            retVal.Add(typedList);
+                        }
+                        else
+                        {
+                            try
+                            {
+                                var renewedLot = Activator.CreateInstance(param.ParameterType, typedList);
+                                retVal.Add(renewedLot);
+                            }
+                            catch
+                            {
+                                errors[param] = "cannot create sequence";
+                            }
+                        }
                     }
                     else
                     {

@@ -14,7 +14,7 @@ using System.Text;
 public class ConsoleWriter(ComanchePalette palette) : IConsole
 {
     /// <inheritdoc/>
-    public ComanchePalette Palette { get; } = palette;
+    public ComanchePalette Palette => palette;
 
     /// <summary>
     /// Gets the most recent command.

@@ -49,12 +49,6 @@ internal static class MatchingExtensions
             else if (i == route.RouteTerms.Count - 1 && module.Methods.ContainsKey(iterRoute))
             {
                 retVal = module.Methods[iterRoute];
-                matchedTerms.Add(iterRoute);
-            }
-            else
-            {
-                // Dangling terms sub-method - treat as bad method on the parent module
-                break;
             }
         }
 

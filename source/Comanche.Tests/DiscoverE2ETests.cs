@@ -1103,7 +1103,7 @@ Run again with --debug for more detail.
     [InlineData("sum-icollection")]
     [InlineData("sum-ienumerable")]
     [InlineData("sum-ilist")]
-    [InlineData("sum-linkedlist")]
+    [InlineData("sum-linked-list")]
     [InlineData("sum-list")]
     [InlineData("sum-queue")]
     [InlineData("sum-stack")]
@@ -1118,6 +1118,22 @@ Run again with --debug for more detail.
 
         // Assert
         actual.Should().Be(expected);
+    }
+
+    [Fact]
+    public void Discover_UnsupportedSequence_WritesError()
+    {
+        // Arrange
+        const string command = "e2e commented sequence sum-unsupported --n 1 --n 2 --n 3";
+        const string expectedError = "--n: cannot create sequence";
+        var mockWriter = GetMockConsole();
+
+        // Act
+        Invoke(command, writer: mockWriter.Object);
+        SequenceModule.SumUnsupported(null!);
+
+        // Assert
+        mockWriter.Verify(m => m.Write(expectedError, true, StandardPalette.Error, true));
     }
 
     private static object? Invoke(

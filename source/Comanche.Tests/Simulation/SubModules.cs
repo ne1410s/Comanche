@@ -93,6 +93,16 @@ public class SequenceModule : E2ETestModule.CommentedModule
     public static int SumQueue(Queue<int> n) => n.Sum();
 
     public static int SumStack(Stack<int> n) => n.Sum();
+
+    public static int SumUnsupported(UnsupportedSequence<int> n) => 42;
 }
 
 public record EnumzModel(DayOfWeek Day);
+
+public sealed class UnsupportedSequence<T> : List<T>
+{
+    public UnsupportedSequence(IEnumerable<T> sequence)
+    {
+        throw new NotImplementedException();
+    }
+}
