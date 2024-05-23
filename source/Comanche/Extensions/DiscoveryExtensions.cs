@@ -50,7 +50,12 @@ internal static class DiscoveryExtensions
         var asmName = asm.GetName();
         var version = asmName.Version.ToString(3);
         var description = asm.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description;
-        var comancheVersion = Assembly.GetCallingAssembly().GetName().Version.ToString(3);
+        var callerAsm = Assembly.GetCallingAssembly();
+
+        //TODO: Exten method to get info version from this asm : and strip the trailing junk
+        var infoVersion = callerAsm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+
+        var comancheVersion = callerAsm.GetName().Version.ToString(3);
 
         return new(rootModules, asmName.Name, version, description, comancheVersion);
     }

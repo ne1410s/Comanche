@@ -68,7 +68,7 @@ public static class IConsoleExtensions
     /// <summary>
     /// Writes text in different styles. This is used internally by Comanche.
     /// </summary>
-    /// <param name="console">The console writer.</param>
+    /// <param name="console">The console.</param>
     /// <param name="prefix">Prefix text.</param>
     /// <param name="main">The main text.</param>
     /// <param name="extra">Extra text.</param>

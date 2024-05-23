@@ -43,9 +43,9 @@ public static class Discover
         services.PlugSingleton<IConsole, ConsoleWriter>();
 
         var provider = services.BuildServiceProvider();
-        var writer = provider.GetRequiredService<IConsole>();
+        var console = provider.GetRequiredService<IConsole>();
         var session = asm.GetSession(provider);
-        return session.Fulfil(args, writer, provider);
+        return session.Fulfil(args, console, provider);
     }
 
     private static IConfiguration BuildConfig()

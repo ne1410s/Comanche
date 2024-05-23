@@ -68,10 +68,10 @@ internal sealed class ComancheSession(
     /// Find, match and execute a command request.
     /// </summary>
     /// <param name="args">The arguments.</param>
-    /// <param name="writer">The output writer.</param>
+    /// <param name="console">The console.</param>
     /// <param name="provider">The service provider.</param>
     /// <returns>The result.</returns>
-    public object? Fulfil(string[] args, IConsole writer, IServiceProvider provider)
+    public object? Fulfil(string[] args, IConsole console, IServiceProvider provider)
     {
         ComancheRoute? route = null;
         try
@@ -87,13 +87,15 @@ internal sealed class ComancheSession(
                     });
                 }
 
-                writer.Write(Environment.NewLine + "Module:", line: true);
-                writer.WriteStructured(this.CliName, null, $" v{this.CliVersion}", this.CliDescription.AsComment());
+                console.Write(Environment.NewLine + "Module:", line: true);
+                console.WriteStructured(this.CliName, null, $" v{this.CliVersion}", this.CliDescription.AsComment());
 
-                writer.Write(Environment.NewLine + "CLI-ifier:", line: true);
+                console.Write(Environment.NewLine + "CLI-ified with");
+                console.Write(" <3 ", colour: ConsoleColor.DarkRed);
+                console.Write("by:", line: true);
                 var comancheSuffix = $"(ne1410s © {DateTime.Today.Year})";
-                writer.WriteStructured("Comanche", null, $" v{this.ComancheVersion} ", comancheSuffix);
-                writer.WriteLine();
+                console.WriteStructured("Comanche", null, $" v{this.ComancheVersion} ", comancheSuffix);
+                console.WriteLine();
 
                 return null;
             }
@@ -101,17 +103,17 @@ internal sealed class ComancheSession(
             var method = this.MatchMethod(route, out var module);
             if (route.IsHelp)
             {
-                writer.Write(Environment.NewLine + "Module:", line: true);
+                console.Write(Environment.NewLine + "Module:", line: true);
                 var moduleText = " " + string.Join(" ", route.RouteTerms.Take(route.RouteTerms.Count - 1));
-                writer.WriteStructured(this.CliName, moduleText, null, module.Summary.AsComment());
+                console.WriteStructured(this.CliName, moduleText, null, module.Summary.AsComment());
 
-                writer.Write(Environment.NewLine + "Method:", line: true);
+                console.Write(Environment.NewLine + "Method:", line: true);
                 var methodText = " " + string.Join(" ", route.RouteTerms);
-                writer.WriteStructured(this.CliName, methodText, null, method.Summary.AsComment());
+                console.WriteStructured(this.CliName, methodText, null, method.Summary.AsComment());
 
                 if (method.Parameters.Count > 0)
                 {
-                    writer.Write(Environment.NewLine + "Parameters:", line: true);
+                    console.Write(Environment.NewLine + "Parameters:", line: true);
                     foreach (var param in method.Parameters.Where(p => !p.Hidden))
                     {
                         var alias = param.Alias != null ? $" (-{param.Alias})" : string.Empty;
@@ -120,14 +122,14 @@ internal sealed class ComancheSession(
                         var defVal = param.GetPrintableDefault();
                         var printDefault = defVal == null ? string.Empty : $" = {defVal}";
                         var paramType = $"[{printName}{printDefault}]";
-                        writer.WriteStructured(null, paramText, paramType, param.Summary.AsComment());
+                        console.WriteStructured(null, paramText, paramType, param.Summary.AsComment());
                     }
                 }
 
-                writer.Write(Environment.NewLine + "Returns:", line: true);
+                console.Write(Environment.NewLine + "Returns:", line: true);
                 var returnType = $"[{method.ReturnType.ToPrintableName()}]";
-                writer.WriteStructured(null, null, returnType, method.Returns.AsComment());
-                writer.WriteLine();
+                console.WriteStructured(null, null, returnType, method.Returns.AsComment());
+                console.WriteLine();
 
                 return null;
             }
@@ -149,7 +151,7 @@ internal sealed class ComancheSession(
                     }
                 }
 
-                writer.Write(output, line: true);
+                console.Write(output, line: true);
                 return result;
             }
         }
@@ -158,7 +160,7 @@ internal sealed class ComancheSession(
             var invalidRoute = route?.RouteTerms.Count != routeEx.DeepestValidTerms.Count;
             if (route?.IsHelp != true && invalidRoute)
             {
-                writer.WriteError(routeEx.Message, true);
+                console.WriteError(routeEx.Message, true);
             }
 
             this.MatchModule(routeEx.DeepestValidTerms, out var module, out var mods, out var methods);
@@ -166,68 +168,68 @@ internal sealed class ComancheSession(
             var routeText = " " + string.Join(" ", routeEx.DeepestValidTerms);
             if (module == null)
             {
-                writer.Write(Environment.NewLine + "Module:", line: true);
-                writer.WriteStructured(this.CliName, null, $" v{this.CliVersion}", this.CliDescription.AsComment());
+                console.Write(Environment.NewLine + "Module:", line: true);
+                console.WriteStructured(this.CliName, null, $" v{this.CliVersion}", this.CliDescription.AsComment());
             }
             else
             {
-                writer.Write(Environment.NewLine + "Module:", line: true);
-                writer.WriteStructured(this.CliName, routeText, null, module.Summary.AsComment());
+                console.Write(Environment.NewLine + "Module:", line: true);
+                console.WriteStructured(this.CliName, routeText, null, module.Summary.AsComment());
             }
 
             var keyPrefix = routeEx.DeepestValidTerms.Count == 0 ? string.Empty : " ";
             if (mods.Count > 0)
             {
-                writer.Write(Environment.NewLine + "Sub Modules:", line: true);
+                console.Write(Environment.NewLine + "Sub Modules:", line: true);
                 foreach (var kvp in mods)
                 {
                     var moduleSummary = kvp.Value.Summary.AsComment();
-                    writer.WriteStructured(this.CliName, routeText + keyPrefix + kvp.Key, null, moduleSummary);
+                    console.WriteStructured(this.CliName, routeText + keyPrefix + kvp.Key, null, moduleSummary);
                 }
             }
 
             if (methods.Count > 0)
             {
-                writer.Write(Environment.NewLine + "Methods:", line: true);
+                console.Write(Environment.NewLine + "Methods:", line: true);
                 foreach (var kvp in methods)
                 {
                     var moduleSummary = kvp.Value.Summary.AsComment();
-                    writer.WriteStructured(this.CliName, routeText + keyPrefix + kvp.Key, null, moduleSummary);
+                    console.WriteStructured(this.CliName, routeText + keyPrefix + kvp.Key, null, moduleSummary);
                 }
             }
 
-            writer.WriteLine();
+            console.WriteLine();
         }
         catch (ParamBuilderException paramEx)
         {
-            writer.Write(Environment.NewLine + "Invalid Parameters:", line: true);
+            console.Write(Environment.NewLine + "Invalid Parameters:", line: true);
             foreach (var kvp in paramEx.Errors)
             {
-                writer.WriteError($"{kvp.Key}: {kvp.Value}", true);
+                console.WriteError($"{kvp.Key}: {kvp.Value}", true);
             }
 
-            writer.WritePrimary(Environment.NewLine + "Note:", true);
-            writer.Write($"Run again with {RoutingExtensions.HelpArgs[0]} for a full parameter list.", line: true);
-            writer.WriteLine();
+            console.WritePrimary(Environment.NewLine + "Note:", true);
+            console.Write($"Run again with {RoutingExtensions.HelpArgs[0]} for a full parameter list.", line: true);
+            console.WriteLine();
         }
         catch (ExecutionException ex)
         {
-            writer.Write(Environment.NewLine + "Exception:", line: true);
-            writer.WriteSecondary($"[{ex.InnerException.GetType().Name}] ");
-            writer.WriteError(ex.Message, true);
+            console.Write(Environment.NewLine + "Exception:", line: true);
+            console.WriteSecondary($"[{ex.InnerException.GetType().Name}] ");
+            console.WriteError(ex.Message, true);
 
             if (!route!.IsDebug)
             {
-                writer.WritePrimary(Environment.NewLine + "Note:", true);
-                writer.Write($"Run again with {RoutingExtensions.DebugArg} for more detail.", line: true);
+                console.WritePrimary(Environment.NewLine + "Note:", true);
+                console.Write($"Run again with {RoutingExtensions.DebugArg} for more detail.", line: true);
             }
             else
             {
-                writer.Write(Environment.NewLine + "Stack Trace:", line: true);
-                writer.WritePrimary(ex.InvocationStack ?? string.Empty, true);
+                console.Write(Environment.NewLine + "Stack Trace:", line: true);
+                console.WritePrimary(ex.InvocationStack ?? string.Empty, true);
             }
 
-            writer.WriteLine();
+            console.WriteLine();
         }
 
         return null;

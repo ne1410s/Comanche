@@ -44,9 +44,9 @@ public class E2ETestModule : IModule
 
         public static int SumArray([Alias("numbers")] int[] n) => n.Sum();
 
-        public static IConsole PassThru(IConsole writer) => writer;
+        public static IConsole PassThru(IConsole console) => console;
 
-        public static IConsole PassThruHidden([Hidden] IConsole writer) => writer;
+        public static IConsole PassThruHidden([Hidden] IConsole console) => console;
 
         public static short Next([Alias(null!)] byte? b) => (short)((b ?? byte.MaxValue) + 1);
 
