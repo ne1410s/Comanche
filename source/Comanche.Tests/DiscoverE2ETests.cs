@@ -1120,6 +1120,45 @@ Run again with --debug for more detail.
         actual.Should().Be(expected);
     }
 
+    [Theory]
+    [InlineData("sum-array")]
+    [InlineData("sum-collection")]
+    [InlineData("sum-hash-set")]
+    [InlineData("sum-icollection")]
+    [InlineData("sum-ienumerable")]
+    [InlineData("sum-ilist")]
+    [InlineData("sum-linked-list")]
+    [InlineData("sum-list")]
+    [InlineData("sum-queue")]
+    [InlineData("sum-stack")]
+    public void Discover_SequencesWithJson_SumsExpected(string method)
+    {
+        // Arrange
+        var command = $"e2e commented sequence {method} --n [ 1, 2, 3 ]";
+        const int expected = 6;
+
+        // Act
+        var actual = Invoke(command);
+
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    [Fact]
+    public void Discover_SequencesWithBadJson_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "e2e commented sequence sum-list --n [ f_AIl ]";
+        const string expectedError = "--n: cannot deserialise";
+        var mockWriter = GetMockConsole();
+
+        // Act
+        Invoke(command, writer: mockWriter.Object);
+
+        // Assert
+        mockWriter.Verify(m => m.Write(expectedError, true, StandardPalette.Error, true));
+    }
+
     [Fact]
     public void Discover_UnsupportedSequence_WritesError()
     {

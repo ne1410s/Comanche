@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Comanche.Exceptions;
 using Comanche.Models;
 
@@ -18,6 +19,8 @@ using Comanche.Models;
 /// </summary>
 internal static class ParsingExtensions
 {
+    private static readonly Regex ArrayJsonRegex = new(@"^\s*\[.*\]\s*$");
+
     /// <summary>
     /// Prepares a boxed array of parameters, ready to be fed into the method.
     /// </summary>
@@ -84,7 +87,19 @@ internal static class ParsingExtensions
                 || (param.ParameterType.GenericTypeArguments.Length == 1
                     && param.ParameterType.GenericTypeArguments[0].GenericTypeArguments.Length == 0)))
             {
-                if (param.ParameterType.IsArray)
+                if (inputs.Count == 1 && ArrayJsonRegex.IsMatch(inputs[0]))
+                {
+                    try
+                    {
+                        var deser = JsonSerializer.Deserialize(inputs[0], param.ParameterType);
+                        retVal.Add(deser);
+                    }
+                    catch (JsonException)
+                    {
+                        errors[param] = "cannot deserialise";
+                    }
+                }
+                else if (param.ParameterType.IsArray)
                 {
                     var type = param.ParameterType.GetElementType();
                     var res = inputs.ConvertAll(i => new { ok = i.TryParse(type, out var val, out var err), val, err });
