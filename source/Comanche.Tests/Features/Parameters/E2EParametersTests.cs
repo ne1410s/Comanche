@@ -133,14 +133,12 @@ public class E2EParametersTests
         mockConsole.Verify(m => m.Write(expectedText, true, expectedColour, true));
     }
 
-    [Fact]
-    public void Parameters_SkipOptionalParam_ReturnsExpected()
+    [Theory]
+    [InlineData("paramz sum-optional-array", -1)]
+    [InlineData("paramz sum-optional-array --n 3 --n 4", 7)]
+    public void Parameters_OptionalParam_ReturnsExpected(string command, int expected)
     {
-        // Arrange
-        const string command = "paramz sum-optional-array";
-        const int expected = -1;
-
-        // Act
+        // Arrange & Act
         var result = E2E.Run(command);
 
         // Assert
