@@ -2,10 +2,11 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche.Tests.Features.Discovery;
+namespace Comanche.Tests.Discovery;
 
 using System;
 using System.Collections.Generic;
+using Comanche;
 
 /// <summary>
 /// Discovery module.

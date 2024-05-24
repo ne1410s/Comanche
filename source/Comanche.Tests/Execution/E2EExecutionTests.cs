@@ -2,10 +2,10 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche.Tests.Features.Execution;
+namespace Comanche.Tests.Execution;
 
 using System;
-using Comanche.Tests.Features.Console;
+using Comanche.Tests.Console;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using E2E = TestHelper;

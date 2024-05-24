@@ -2,7 +2,7 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche.Tests.Features.Execution;
+namespace Comanche.Tests.Execution;
 
 using System;
 using Microsoft.Extensions.Configuration;

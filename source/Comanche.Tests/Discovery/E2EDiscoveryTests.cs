@@ -2,11 +2,11 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche.Tests.Features.Discovery;
+namespace Comanche.Tests.Discovery;
 
 using System;
 using System.Collections.Generic;
-using Comanche.Tests.Features.Console;
+using Comanche.Tests.Console;
 using E2E = TestHelper;
 
 public class E2EDiscoveryTests
@@ -150,7 +150,7 @@ public class E2EDiscoveryTests
         var dicto = new Dictionary<string, int> { ["d"] = 1, ["e"] = -1 };
 
         // Act
-        var actual = E2EDocumentedModule.GetGreeting("Bob",  sendVals ? dicto : null);
+        var actual = E2EDocumentedModule.GetGreeting("Bob", sendVals ? dicto : null);
 
         // Assert
         actual.Should().Be(expected);

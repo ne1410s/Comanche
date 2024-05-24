@@ -2,7 +2,7 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche.Tests.Features.Parameters;
+namespace Comanche.Tests.Parameters;
 
 using System;
 using E2E = TestHelper;

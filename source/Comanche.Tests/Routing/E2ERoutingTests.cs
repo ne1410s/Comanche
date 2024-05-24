@@ -2,9 +2,9 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche.Tests.Features.Routing;
+namespace Comanche.Tests.Routing;
 
-using Comanche.Tests.Features.Console;
+using Comanche.Tests.Console;
 using E2E = TestHelper;
 
 public class E2ERoutingTests
