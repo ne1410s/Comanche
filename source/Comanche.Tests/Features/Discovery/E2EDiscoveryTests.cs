@@ -5,6 +5,7 @@
 namespace Comanche.Tests.Features.Discovery;
 
 using System;
+using System.Collections.Generic;
 using Comanche.Tests.Features.Console;
 using E2E = TestHelper;
 
@@ -21,6 +22,7 @@ public class E2EDiscoveryTests
             Module: testctl v1.0.0-testing123 (Test project)
             Sub Modules:
               testctl disco (Discovery module.)
+              testctl exec
               testctl paramz
               testctl routez
             """.Normalise(true);
@@ -105,7 +107,9 @@ public class E2EDiscoveryTests
         var plainWriter = new PlainWriter();
         var expected = """
             Module: testctl disco dox (Tests doc gen.)
-            Methods: testctl disco dox greet (Send a greeting.)
+            Methods:
+              testctl disco dox greet (Send a greeting.)
+              testctl disco dox uber-defaults
             """.Normalise(true);
 
         // Act
@@ -132,6 +136,45 @@ public class E2EDiscoveryTests
 
         // Act
         E2E.Run(command, plainWriter);
+
+        // Assert
+        plainWriter.Text(true).Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(true, "Hi, Bob #2!")]
+    [InlineData(false, "Hi, Bob #!")]
+    public void Discovery_InvokingMethod_ReturnsExpected(bool sendVals, string expected)
+    {
+        // Arrange
+        var dicto = new Dictionary<string, int> { ["d"] = 1, ["e"] = -1 };
+
+        // Act
+        var actual = E2EDocumentedModule.GetGreeting("Bob",  sendVals ? dicto : null);
+
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    [Fact]
+    public void Discovery_LotsOfDefaultParams_WritesExpected()
+    {
+        // Arrange
+        const string command = "disco dox greet uber-defaults --help";
+        var plainWriter = new PlainWriter();
+        var expected = """
+            Module: testctl disco dox greet (Tests doc gen.)
+            Method: testctl disco dox greet uber-defaults
+            Parameters:
+              --my-int [int = 3]
+              --my-str [string = "hiya"]
+              --my-day [DayOfWeek = Friday]
+            Returns: [<void>]
+            """.Normalise(true);
+
+        // Act
+        E2E.Run(command, plainWriter);
+        E2EDocumentedModule.UberDefaults();
 
         // Assert
         plainWriter.Text(true).Should().Be(expected);

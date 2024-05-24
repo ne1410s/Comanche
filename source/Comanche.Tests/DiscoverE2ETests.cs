@@ -829,24 +829,6 @@
 ////        actual.Should().Be(expected);
 ////    }
 
-////    [Theory]
-////    [InlineData(null, "dev")]
-////    [InlineData("Development", "dev")]
-////    [InlineData("NonExisting", null)]
-////    [InlineData("Custom", "custom")]
-////    public void Discover_JsonConfigDifferentEnvironments_ReturnsExpected(string? environmentName, string? expected)
-////    {
-////        // Arrange
-////        Environment.SetEnvironmentVariable(Discover.EnvironmentKey, environmentName);
-////        const string command = "e2e commented enumz get-config --key ConfigName";
-
-////        // Act
-////        var actual = Invoke(command);
-
-////        // Assert
-////        actual.Should().Be(expected);
-////    }
-
 ////    [Fact]
 ////    public void Discover_IOutputWriterNotHidden_WritesExpectedError()
 ////    {

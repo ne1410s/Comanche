@@ -5,8 +5,8 @@
     <Nullable>enable</Nullable>
     <Description>Test project</Description>
     <IsPackable>false</IsPackable>
-	<AssemblyName>testctl</AssemblyName>
-	<VersionSuffix>testing123</VersionSuffix>
+	  <AssemblyName>testctl</AssemblyName>
+	  <VersionSuffix>testing123</VersionSuffix>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,11 +21,7 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <NoWarn>1701;1702;1591</NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+  <PropertyGroup>
     <NoWarn>1701;1702;1591</NoWarn>
   </PropertyGroup>
 

@@ -4,6 +4,8 @@
 
 namespace Comanche.Tests.Features.Execution;
 
+using System;
+using Comanche.Tests.Features.Console;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using E2E = TestHelper;
@@ -14,13 +16,13 @@ using E2E = TestHelper;
 public class E2EExecutionTests
 {
     [Fact]
-    public void Execution_EmptyServiceCollection_InjectsDefaults()
+    public void Execution_NullServiceCollection_PlugsSingleton()
     {
         // Arrange
         var stubServices = new ServiceCollection();
 
         // Act
-        E2E.Run(services: stubServices);
+        Discover.Go(services: stubServices);
 
         // Assert
         stubServices.Should().Contain(d => d.ServiceType == typeof(IConfiguration));
@@ -40,5 +42,78 @@ public class E2EExecutionTests
 
         // Assert
         stubServices.Should().NotContain(d => d.ImplementationType == typeof(ConsoleWriter));
+    }
+
+    [Fact]
+    public void Execution_Throw_WritesExpected()
+    {
+        // Arrange
+        const string command = "exec throw";
+        var plainWriter = new PlainWriter();
+        var expected = """
+            Exception: [ArithmeticException] Overflow or underflow in the arithmetic operation.
+            Note: Run again with --debug for more detail.
+            """.Normalise(true);
+
+        // Act
+        E2E.Run(command, plainWriter);
+
+        // Assert
+        plainWriter.Text(true).Should().Be(expected);
+    }
+
+    [Fact]
+    public void Execution_ThrowDebug_WritesExpected()
+    {
+        // Arrange
+        const string command = "exec throw --debug";
+        var plainWriter = new PlainWriter();
+        var expected = """
+            Exception: [ArithmeticException] Overflow or underflow in the arithmetic operation.
+            Stack Trace: at Comanche.Tests
+            """.Normalise(true);
+
+        // Act
+        E2E.Run(command, plainWriter);
+
+        // Assert
+        plainWriter.Text(true).Should().StartWith(expected);
+    }
+
+    [Fact]
+    public void Execution_ThrowStacklessDebug_WritesExpected()
+    {
+        // Arrange
+        const string command = "exec throw-stackless --debug";
+        var plainWriter = new PlainWriter();
+        var expected = """
+            Exception: [StacklessException]
+            Exception of type 'Comanche.Tests.TestHelper+StacklessException' was thrown.
+            Stack Trace:
+            """.Normalise(true);
+
+        // Act
+        E2E.Run(command, plainWriter);
+
+        // Assert
+        plainWriter.Text(true).Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(null, "dev")]
+    [InlineData("Development", "dev")]
+    [InlineData("NonExisting", null)]
+    [InlineData("Custom", "custom")]
+    public void Execution_ModuleInjectedConfig_ReturnsExpected(string? environmentName, string? expected)
+    {
+        // Arrange
+        const string command = "exec get-var";
+        Environment.SetEnvironmentVariable(Discover.EnvironmentKey, environmentName);
+
+        // Act
+        var actual = E2E.Run(command);
+
+        // Assert
+        actual.Should().Be(expected);
     }
 }

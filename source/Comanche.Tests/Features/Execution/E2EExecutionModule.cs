@@ -4,5 +4,16 @@
 
 namespace Comanche.Tests.Features.Execution;
 
-public class E2EExecutionModule : IModule
-{ }
+using System;
+using Microsoft.Extensions.Configuration;
+using E2E = TestHelper;
+
+[Alias("exec")]
+public class E2EExecutionModule(IConfiguration config) : IModule
+{
+    public static void Throw() => throw new ArithmeticException();
+
+    public static void ThrowStackless() => throw new E2E.StacklessException();
+
+    public string? GetVar() => config["ConfigName"];
+}

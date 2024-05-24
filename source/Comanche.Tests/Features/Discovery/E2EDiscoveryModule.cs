@@ -4,6 +4,7 @@
 
 namespace Comanche.Tests.Features.Discovery;
 
+using System;
 using System.Collections.Generic;
 
 /// <summary>
@@ -29,5 +30,13 @@ public class E2EDocumentedModule : E2EDiscoveryModule
     public static string GetGreeting(
         [Alias("n")] string name,
         IDictionary<string, int>? dicto = null)
-        => $"Hi, {name} #{dicto?.Count}!";
+            => $"Hi, {name} #{dicto?.Count}!";
+
+    public static void UberDefaults(
+        int myInt = 3,
+        string myStr = "hiya",
+        DayOfWeek myDay = DayOfWeek.Friday)
+    {
+        // It's just empty, you pesky analysers ok
+    }
 }

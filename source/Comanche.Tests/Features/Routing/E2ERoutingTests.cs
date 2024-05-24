@@ -26,4 +26,32 @@ public class E2ERoutingTests
         // Assert
         plainWriter.Text(true).Should().Be(expected);
     }
+
+    [Fact]
+    public void Routing_RevealedModule_ReturnsExpected()
+    {
+        // Arrange
+        const int expected = 42;
+
+        // Act
+        var actual = E2EUnhiddenSubRouteModule.Do();
+
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    [Fact]
+    public void Routing_PreRouteJunk_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "--conk routez revealed";
+        const string expected = "Invalid route: --conk";
+        var mockConsole = E2E.DefaultPalette.GetMockConsole();
+
+        // Act
+        E2E.Run(command, mockConsole.Object);
+
+        // Assert
+        mockConsole.Verify(m => m.Write(expected, true, E2E.DefaultPalette.Error, true));
+    }
 }
