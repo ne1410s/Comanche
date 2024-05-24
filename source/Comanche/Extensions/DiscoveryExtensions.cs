@@ -30,6 +30,7 @@ internal static class DiscoveryExtensions
     private static readonly Regex TermRespaceRegex = new("\\s{2,}");
     private static readonly Regex DashPrependRegex = new("([^A-Z0-9])([A-Z])");
     private static readonly Regex ModuleElideRegex = new("[Mm]odule$");
+    private static readonly Regex InfoVersionRegex = new("^(?<ver>[0-9\\.]+(-[^+\\s]+)?)(\\+.*)?$");
 
     /// <summary>
     /// Obtains Comanche capability metadata.
@@ -194,5 +195,15 @@ internal static class DiscoveryExtensions
         return FindParentModule(t.BaseType);
     }
 
-    private static bool IsRootModule(this Type t) => t.IsModule() && t.FindParentModule() == null;
+    private static bool IsRootModule(this Type t)
+        => t.IsModule() && t.FindParentModule() == null;
+
+    private static string GetFriendlyVersion(this Assembly assembly)
+    {
+        var infoVersion = assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            .InformationalVersion;
+
+        assembly.CustomAttributes
+    }
 }
