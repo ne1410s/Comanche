@@ -2,7 +2,7 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche.Tests.Services;
+namespace Comanche.Tests.Features.Console;
 
 using System;
 using System.IO;

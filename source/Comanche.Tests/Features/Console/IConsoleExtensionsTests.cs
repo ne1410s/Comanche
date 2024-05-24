@@ -2,11 +2,10 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-namespace Comanche.Tests.Services;
+namespace Comanche.Tests.Features.Console;
 
 using System;
 using System.Collections.ObjectModel;
-using System.IO;
 
 /// <summary>
 /// Tests for the <see cref="IConsoleExtensions"/> class.
@@ -70,22 +69,20 @@ public class IConsoleExtensionsTests
         sut.WriteStructured();
 
         // Assert
-        sut.ShouldBe(" ");
+        sut.Text(true).Should().Be(string.Empty);
     }
 
     [Fact]
     public void WriteStructured_VaryingParams_OutputsExpected()
     {
         // Arrange
-        StringWriter writer = new();
-        ConsoleWriter sut = new(new());
-        Console.SetOut(writer);
-        var expected = "mynameisstan" + Environment.NewLine;
+        var sut = new PlainWriter();
+        const string expected = "mynameisstan";
 
         // Act
         sut.WriteStructured("my", "name", "is", "stan");
 
         // Assert
-        writer.ToString().Should().Be(expected);
+        sut.Text(true).Should().Be(expected);
     }
 }

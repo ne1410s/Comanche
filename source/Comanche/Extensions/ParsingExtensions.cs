@@ -239,7 +239,7 @@ internal static class ParsingExtensions
             }
             catch (JsonException)
             {
-                error = "cannot deserialize";
+                error = "cannot deserialise";
             }
         }
 

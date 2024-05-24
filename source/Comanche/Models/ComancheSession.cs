@@ -181,7 +181,7 @@ internal sealed class ComancheSession(
             if (mods.Count > 0)
             {
                 console.Write(Environment.NewLine + "Sub Modules:", line: true);
-                foreach (var kvp in mods)
+                foreach (var kvp in mods.OrderBy(d => d.Key))
                 {
                     var moduleSummary = kvp.Value.Summary.AsComment();
                     console.WriteStructured(this.CliName, routeText + keyPrefix + kvp.Key, null, moduleSummary);

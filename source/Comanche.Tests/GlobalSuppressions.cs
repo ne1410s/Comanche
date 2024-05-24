@@ -21,4 +21,4 @@ using System.Diagnostics.CodeAnalysis;
     "CA2000:Dispose objects before losing scope",
     Justification = "Testing requirement",
     Scope = "namespaceanddescendants",
-    Target = "~N:Comanche.Tests.Services")]
+    Target = "~N:Comanche.Tests.Features.Console")]
