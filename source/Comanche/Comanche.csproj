@@ -18,7 +18,6 @@
     <Title>$(AssemblyName)</Title>
     <PackageTags>command autodoc documenting CLI discovery</PackageTags>
     <VersionPrefix>1.1.1</VersionPrefix>
-    <VersionSuffix>dfdfd</VersionSuffix>
   </PropertyGroup>
 
   <ItemGroup>

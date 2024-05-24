@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <Description>Test project</Description>
     <IsPackable>false</IsPackable>
+	<VersionSuffix>testing123</VersionSuffix>
   </PropertyGroup>
 
   <ItemGroup>

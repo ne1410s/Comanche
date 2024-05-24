@@ -49,14 +49,9 @@ internal static class DiscoveryExtensions
             .ToDictionary(m => m!.Name, m => m!);
 
         var asmName = asm.GetName();
-        var version = asmName.Version.ToString(3);
+        var version = asm.GetFriendlyVersion();
+        var comancheVersion = Assembly.GetCallingAssembly().GetFriendlyVersion();
         var description = asm.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description;
-        var callerAsm = Assembly.GetCallingAssembly();
-
-        //TODO: Exten method to get info version from this asm : and strip the trailing junk
-        var infoVersion = callerAsm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-
-        var comancheVersion = callerAsm.GetName().Version.ToString(3);
 
         return new(rootModules, asmName.Name, version, description, comancheVersion);
     }
@@ -200,10 +195,20 @@ internal static class DiscoveryExtensions
 
     private static string GetFriendlyVersion(this Assembly assembly)
     {
+        var retVal = assembly.GetName().Version.ToString();
         var infoVersion = assembly
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-            .InformationalVersion;
+            ?.InformationalVersion;
 
-        assembly.CustomAttributes
+        if (infoVersion != null)
+        {
+            var match = InfoVersionRegex.Match(infoVersion);
+            if (match.Success)
+            {
+                retVal = match.Groups["ver"].Value;
+            }
+        }
+
+        return retVal;
     }
 }

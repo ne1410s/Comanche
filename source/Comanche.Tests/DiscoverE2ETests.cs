@@ -226,15 +226,15 @@ public class DiscoverE2ETests
     {
         // Arrange
         var plainWriter = new PlainWriter();
-        var version = Assembly.GetAssembly(typeof(Discover))!.GetName().Version!.ToString(3);
+        var comancheVersion = Assembly.GetAssembly(typeof(Discover))!.GetName().Version!.ToString(3);
         var year = DateTime.Today.Year;
         const string command = "--version";
         var expected = $@"
 Module:
-Comanche.Tests v1.0.0 (Test project)
+Comanche.Tests v1.0.0-testing123 (Test project)
 
 CLI-ified with <3 by:
-Comanche v{version} (ne1410s © {year})
+Comanche v{comancheVersion} (ne1410s © {year})
 
 ";
 
@@ -243,6 +243,21 @@ Comanche v{version} (ne1410s © {year})
 
         // Assert
         plainWriter.ShouldMatchVerbatim(expected);
+    }
+
+    [Fact]
+    public void Discover_NoAssemblyInfoVersion_UsesMainVersion()
+    {
+        // Arrange
+        var plainWriter = new PlainWriter();
+        const string command = "--version";
+        const string expected = "Module: Comanche.Tests v1.0.0.0 (Test project)";
+
+        // Act
+        Invoke(command, plainWriter, new FakeAsm());
+
+        // Assert
+        plainWriter.ShouldContain(expected);
     }
 
     [Fact]
@@ -610,7 +625,7 @@ Run again with --help for a full parameter list.
         const string expected = @"No routes found.
 
 Module:
-Comanche.Tests v1.0.0 (Test project)
+Comanche.Tests v1.0.0-testing123 (Test project)
 
 Sub Modules:
 Comanche.Tests e2e (Module for end to end tests.)
@@ -1196,13 +1211,14 @@ Run again with --debug for more detail.
 
     private static object? Invoke(
         string? command = null,
-        IConsole? console = null)
+        IConsole? console = null,
+        Assembly? asm = null)
     {
         console ??= GetMockConsole().Object;
+        asm ??= Assembly.GetAssembly(typeof(DiscoverE2ETests));
+
         var services = new ServiceCollection();
         services.AddSingleton(console);
-
-        var asm = Assembly.GetAssembly(typeof(DiscoverE2ETests));
         return Discover.Go(services, command?.Split(' '), asm);
     }
 
@@ -1216,5 +1232,19 @@ Run again with --debug for more detail.
     private sealed class StacklessException : Exception
     {
         public override string? StackTrace => null;
+    }
+
+    private sealed class FakeAsm : Assembly
+    {
+        private readonly Assembly inner = GetAssembly(typeof(DiscoverE2ETests))!;
+
+        public override Type[] GetExportedTypes() => this.inner.GetExportedTypes();
+
+        public override AssemblyName GetName() => this.inner.GetName();
+
+        public override object[] GetCustomAttributes(Type attributeType, bool inherit)
+            => attributeType == typeof(AssemblyInformationalVersionAttribute)
+                ? Array.Empty<Attribute>()
+                : this.inner.GetCustomAttributes(attributeType, inherit);
     }
 }

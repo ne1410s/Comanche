@@ -4,7 +4,6 @@
 
 namespace Comanche.Extensions;
 
-using System;
 using System.Collections.Generic;
 using Comanche.Exceptions;
 using Comanche.Models;
@@ -30,7 +29,7 @@ internal static class MatchingExtensions
         var matchedTerms = new List<string>();
         if (route.RouteTerms.Count == 0 || !session.Modules.ContainsKey(route.RouteTerms[0]))
         {
-            throw new RouteBuilderException(Array.Empty<string>(), "Invalid route.");
+            throw new RouteBuilderException([], "Invalid route.");
         }
 
         var firstTerm = route.RouteTerms[0];
