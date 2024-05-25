@@ -14,16 +14,16 @@ internal sealed class PlainWriter : IConsole
 
     public ComanchePalette Palette { get; } = new();
 
-    public override string ToString() => sb.ToString();
+    public override string ToString() => this.sb.ToString();
 
     public Collection<string> CaptureStrings(string prompt = "Input: ", char? mask = null, byte max = 255) => null!;
 
     public void Write(string? text = null, bool line = false, ConsoleColor? colour = null, bool err = false)
-        => sb.Append(text).Append(line ? Environment.NewLine : string.Empty);
+        => this.sb.Append(text).Append(line ? Environment.NewLine : string.Empty);
 
     public string Text(bool? normaliseAllSpaces = null)
     {
-        var text = ToString();
+        var text = this.ToString();
         return normaliseAllSpaces switch
         {
             null => text,

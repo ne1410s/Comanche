@@ -1,9 +1,6 @@
-﻿
-////    [Fact]
-////    public void Discover_StringArray_ReturnsExpected()
-////    {
-////        // Arrange
-////        const string command = "e2e commented join-array --s hello --s world";
+﻿// <copyright file="DiscoverE2ETests.cs" company="ne1410s">
+// Copyright (c) ne1410s. All rights reserved.
+// </copyright>
 
 ////        // Act
 ////        var result = Invoke(command);
