@@ -6,6 +6,7 @@ namespace Comanche.Tests.Discovery;
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Comanche.Tests.Console;
 using E2E = TestHelper;
 
@@ -157,7 +158,7 @@ public class E2EDiscoveryTests
     }
 
     [Fact]
-    public void Discovery_LotsOfDefaultParams_WritesExpected()
+    public async Task Discovery_LotsOfDefaultParams_WritesExpected()
     {
         // Arrange
         const string command = "disco dox greet uber-defaults --help";
@@ -166,15 +167,17 @@ public class E2EDiscoveryTests
             Module: testctl disco dox greet (Tests doc gen.)
             Method: testctl disco dox greet uber-defaults
             Parameters:
-              --my-int [int = 3]
-              --my-str [string = "hiya"]
-              --my-day [DayOfWeek = Friday]
-            Returns: [<void>]
+            --my-int [int = 3]
+            --my-str [string = "hiya"]
+            --my-day [DayOfWeek = Friday]
+            --my-struct [TestStruct = null]
+            --my-arr [int?[] = null]
+            Returns: [string]
             """.Normalise(true);
 
         // Act
         E2E.Run(command, plainWriter);
-        E2EDocumentedModule.UberDefaults();
+        await E2EDocumentedModule.UberDefaults();
 
         // Assert
         plainWriter.Text(true).Should().Be(expected);

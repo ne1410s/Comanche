@@ -59,9 +59,8 @@ internal static class WriterExtensions
         {
             _ when !param.HasDefault => null,
             _ when param.DefaultValue == null => "null",
-            _ when checkType == typeof(string) => $"\"{param.DefaultValue}\"",
-            _ when checkType.IsPrimitive || checkType.IsEnum => param.DefaultValue.ToString(),
-            _ => null
+            _ when checkType.IsPrimitive || checkType.IsEnum => $"{param.DefaultValue}",
+            _ => $"\"{param.DefaultValue}\"",
         };
     }
 

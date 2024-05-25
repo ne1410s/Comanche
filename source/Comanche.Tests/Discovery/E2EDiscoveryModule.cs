@@ -6,6 +6,7 @@ namespace Comanche.Tests.Discovery;
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Comanche;
 
 /// <summary>
@@ -33,11 +34,14 @@ public class E2EDocumentedModule : E2EDiscoveryModule
         IDictionary<string, int>? dicto = null)
             => $"Hi, {name} #{dicto?.Count}!";
 
-    public static void UberDefaults(
+    public static async Task<string> UberDefaults(
         int myInt = 3,
         string myStr = "hiya",
-        DayOfWeek myDay = DayOfWeek.Friday)
+        DayOfWeek myDay = DayOfWeek.Friday,
+        TestStruct myStruct = new(),
+        int?[]? myArr = null)
     {
-        // It's just empty, you pesky analysers ok
+        await Task.CompletedTask;
+        return $"{myInt}{myStr}{myDay}{myStruct}{myArr}";
     }
 }

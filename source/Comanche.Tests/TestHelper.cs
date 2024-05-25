@@ -62,3 +62,6 @@ internal static class TestHelper
                 : this.inner.GetCustomAttributes(attributeType, inherit);
     }
 }
+
+public struct TestStruct
+{ }
