@@ -15,5 +15,9 @@ public class E2EExecutionModule(IConfiguration config) : IModule
 
     public static void ThrowStackless() => throw new E2E.StacklessException();
 
+    public static ComplexObject WriteJson(int myInt) => new(myInt, $"'{myInt}'"); 
+
     public string? GetVar() => config["ConfigName"];
 }
+
+public record ComplexObject(int MyInt, string MyString);

@@ -116,4 +116,24 @@ public class E2EExecutionTests
         // Assert
         actual.Should().Be(expected);
     }
+
+    [Fact]
+    public void Execution_ComplexObject_WritesExpectedJson()
+    {
+        // Arrange
+        const string command = "exec write-json --my-int 42";
+        var plainWriter = new PlainWriter();
+        var expected = """
+            {{
+              "myInt": 42,
+              "myString": "'42'"
+            }}
+            """.Normalise(true);
+
+        // Act
+        E2E.Run(command, plainWriter);
+
+        // Assert
+        plainWriter.Text(true).Should().Be(expected);
+    }
 }

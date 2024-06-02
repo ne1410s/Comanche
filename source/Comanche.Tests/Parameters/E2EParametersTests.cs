@@ -112,6 +112,7 @@ public class E2EParametersTests
 
         // Act
         E2E.Run(command, mockConsole.Object);
+        E2EParametersModule.IncorrectDI(mockConsole.Object);
 
         // Assert
         mockConsole.Verify(m => m.Write(expectedText, true, expectedColour, true));
