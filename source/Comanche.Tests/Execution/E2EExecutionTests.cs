@@ -124,10 +124,10 @@ public class E2EExecutionTests
         const string command = "exec write-json --my-int 42";
         var plainWriter = new PlainWriter();
         var expected = """
-            {{
+            {
               "myInt": 42,
               "myString": "'42'"
-            }}
+            }
             """.Normalise(true);
 
         // Act
