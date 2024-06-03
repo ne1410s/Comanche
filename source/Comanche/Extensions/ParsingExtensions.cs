@@ -211,11 +211,7 @@ internal static class ParsingExtensions
             {
                 value = Convert.ChangeType(input, nullableType ?? targetType, CultureInfo.InvariantCulture);
             }
-            catch (FormatException)
-            {
-                error = "cannot convert";
-            }
-            catch (OverflowException)
+            catch (Exception)
             {
                 error = "cannot convert";
             }

@@ -17,8 +17,14 @@ public class E2EParametersModule : IModule
     public static int SumHashSet(HashSet<int> n)
         => n.Sum();
 
+    public static int SumBadHashSet(BadHashSet<int> n)
+        => n.Sum();
+
     public static int? SumOptionalArray(int[]? n = null)
         => n?.Sum() ?? -1;
+
+    public static int? SumGenericInterface(ICollection<int> n)
+        => n.Sum();
 
     public static void CorrectDI([Hidden] IConsole console)
         => console.Write("woot");
@@ -34,4 +40,12 @@ public class E2EParametersModule : IModule
 
     public static string ReformatGuid(Guid id)
         => id.ToString("P");
+}
+
+public class BadHashSet<T> : HashSet<T>
+{
+    public BadHashSet() { }
+
+    public BadHashSet(IEnumerable<int> values)
+        => throw new NotImplementedException();
 }

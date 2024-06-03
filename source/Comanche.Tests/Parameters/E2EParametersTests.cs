@@ -55,11 +55,90 @@ public class E2EParametersTests
     }
 
     [Fact]
+    public void Parameters_ValidGenericInterfaceSequence_ReturnExpected()
+    {
+        // Arrange
+        const string command = "paramz sum-generic-interface --n 3 --n 5";
+        const int expected = 8;
+
+        // Act
+        var actual = E2E.Run(command);
+
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    [Fact]
     public void Parameters_InvalidSequenceFormat_WritesExpectedError()
     {
         // Arrange
         const string command = "paramz sum-hash-set --n [ why! ]";
         const string expectedText = "--n: cannot deserialise";
+        var mockConsole = E2E.DefaultPalette.GetMockConsole();
+        var expectedColour = E2E.DefaultPalette.Error;
+
+        // Act
+        E2E.Run(command, mockConsole.Object);
+
+        // Assert
+        mockConsole.Verify(m => m.Write(expectedText, true, expectedColour, true));
+    }
+
+    [Fact]
+    public void Parameters_InconvertibleMemberInArray_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "paramz sum-optional-array --n 1 --n toast --n 3";
+        const string expectedText = "--n: cannot convert";
+        var mockConsole = E2E.DefaultPalette.GetMockConsole();
+        var expectedColour = E2E.DefaultPalette.Error;
+
+        // Act
+        E2E.Run(command, mockConsole.Object);
+
+        // Assert
+        mockConsole.Verify(m => m.Write(expectedText, true, expectedColour, true));
+    }
+
+    [Fact]
+    public void Parameters_InconvertibleMemberInSequence_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "paramz sum-hash-set --n 1 --n toast --n 3";
+        const string expectedText = "--n: cannot convert";
+        var mockConsole = E2E.DefaultPalette.GetMockConsole();
+        var expectedColour = E2E.DefaultPalette.Error;
+
+        // Act
+        E2E.Run(command, mockConsole.Object);
+
+        // Assert
+        mockConsole.Verify(m => m.Write(expectedText, true, expectedColour, true));
+    }
+
+    [Fact]
+    public void Parameters_InconstructibleSequence_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "paramz sum-bad-hash-set --n 1 --n 2 --n 3";
+        const string expectedText = "--n: cannot create sequence";
+        var mockConsole = E2E.DefaultPalette.GetMockConsole();
+        var expectedColour = E2E.DefaultPalette.Error;
+
+        // Act
+        E2E.Run(command, mockConsole.Object);
+        E2EParametersModule.SumBadHashSet([]);
+
+        // Assert
+        mockConsole.Verify(m => m.Write(expectedText, true, expectedColour, true));
+    }
+
+    [Fact]
+    public void Parameters_MultipleInputsOnNonArray_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "paramz next-day --day 1 --day 2";
+        const string expectedText = "--day: not array";
         var mockConsole = E2E.DefaultPalette.GetMockConsole();
         var expectedColour = E2E.DefaultPalette.Error;
 
@@ -81,6 +160,37 @@ public class E2EParametersTests
 
         // Act
         E2E.Run(command, mockConsole.Object);
+
+        // Assert
+        mockConsole.Verify(m => m.Write(expectedText, true, expectedColour, true));
+    }
+
+    [Fact]
+    public void Parameters_EmptyNullishParam_SendsNull()
+    {
+        // Arrange
+        const string command = "paramz sum-optional-array --n";
+        const int expected = -1;
+
+        // Act
+        var actual = E2E.Run(command);
+
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    [Fact]
+    public void Parameters_EmptyNonBoolValueParam_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "paramz next-day --day";
+        const string expectedText = "--day: missing";
+        var mockConsole = E2E.DefaultPalette.GetMockConsole();
+        var expectedColour = E2E.DefaultPalette.Error;
+
+        // Act
+        E2E.Run(command, mockConsole.Object);
+        E2EParametersModule.IncorrectDI(mockConsole.Object);
 
         // Assert
         mockConsole.Verify(m => m.Write(expectedText, true, expectedColour, true));

@@ -136,4 +136,21 @@ public class E2EExecutionTests
         // Assert
         plainWriter.Text(true).Should().Be(expected);
     }
+
+    [Fact]
+    public void Execution_ProblematicJson_UsesObjectToString()
+    {
+        // Arrange
+        const string command = "exec json-err";
+        var plainWriter = new PlainWriter();
+        var expectedObject = new JsonError { MyBool = true, MyString = "hi" };
+        var expectedOutput = $"{expectedObject}\n";
+
+        // Act
+        var actual = E2E.Run(command, plainWriter);
+
+        // Assert
+        actual.Should().BeEquivalentTo(expectedObject);
+        plainWriter.Text(false).Should().Be(expectedOutput);
+    }
 }
