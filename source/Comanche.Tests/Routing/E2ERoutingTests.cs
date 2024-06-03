@@ -54,4 +54,19 @@ public class E2ERoutingTests
         // Assert
         mockConsole.Verify(m => m.Write(expected, true, E2E.DefaultPalette.Error, true));
     }
+
+    [Fact]
+    public void Routing_BadParamFormat_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "routez revealed do ---whoops";
+        const string expected = "Bad parameter: ---whoops";
+        var mockConsole = E2E.DefaultPalette.GetMockConsole();
+
+        // Act
+        E2E.Run(command, mockConsole.Object);
+
+        // Assert
+        mockConsole.Verify(m => m.Write(expected, true, E2E.DefaultPalette.Error, true));
+    }
 }

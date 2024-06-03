@@ -138,7 +138,7 @@ public class E2EParametersTests
     {
         // Arrange
         const string command = "paramz next-day --day 1 --day 2";
-        const string expectedText = "--day: not array";
+        const string expectedText = "--day (-d): not array";
         var mockConsole = E2E.DefaultPalette.GetMockConsole();
         var expectedColour = E2E.DefaultPalette.Error;
 
@@ -184,7 +184,7 @@ public class E2EParametersTests
     {
         // Arrange
         const string command = "paramz next-day --day";
-        const string expectedText = "--day: missing";
+        const string expectedText = "--day (-d): missing";
         var mockConsole = E2E.DefaultPalette.GetMockConsole();
         var expectedColour = E2E.DefaultPalette.Error;
 
@@ -271,12 +271,12 @@ public class E2EParametersTests
     }
 
     [Theory]
-    [InlineData("Monday")]
-    [InlineData("1")]
+    [InlineData("--day Monday")]
+    [InlineData("-d 1")]
     public void Parameters_EnumInputs_ReturnExpected(string param)
     {
         // Arrange
-        var command = $"paramz next-day --day {param}";
+        var command = $"paramz next-day {param}";
         const DayOfWeek expected = DayOfWeek.Tuesday;
 
         // Act
@@ -291,7 +291,7 @@ public class E2EParametersTests
     {
         // Arrange
         const string command = "paramz next-day --day Funday";
-        const string expectedText = "--day: not in enum";
+        const string expectedText = "--day (-d): not in enum";
         var mockConsole = E2E.DefaultPalette.GetMockConsole();
         var expectedColour = E2E.DefaultPalette.Error;
 

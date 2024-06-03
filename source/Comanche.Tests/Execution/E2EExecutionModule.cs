@@ -6,6 +6,7 @@ namespace Comanche.Tests.Execution;
 
 using System;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using E2E = TestHelper;
 
@@ -19,6 +20,10 @@ public class E2EExecutionModule(IConfiguration config) : IModule
     public static ComplexObject WriteJson(int myInt) => new(myInt, $"'{myInt}'");
 
     public static JsonError JsonErr() => new() { MyBool = true, MyString = "hi" };
+
+    public static async Task<int> GetAsync() => await Task.FromResult(43);
+
+    public static async Task DoAsync() => await Task.CompletedTask;
 
     public string? GetVar() => config["ConfigName"];
 }

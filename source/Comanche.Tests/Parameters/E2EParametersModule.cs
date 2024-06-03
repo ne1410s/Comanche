@@ -35,7 +35,7 @@ public class E2EParametersModule : IModule
     public static string OptionalBool(bool force = false)
         => force.ToString();
 
-    public static DayOfWeek NextDay(DayOfWeek day)
+    public static DayOfWeek NextDay([Alias("d")] DayOfWeek day)
         => (DayOfWeek)(((int)day + 1) % 7);
 
     public static string ReformatGuid(Guid id)

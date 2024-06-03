@@ -101,7 +101,7 @@ internal static class RoutingExtensions
             {
                 // Stryker disable once Linq: There must always be at least one item
                 var badArg = numberedArgs.First(n => badParams.Contains(n.arg)).arg;
-                throw new RouteBuilderException(routes, $"Bad parameter: '{badArg}'.");
+                throw new RouteBuilderException(routes, $"Bad parameter: {badArg}");
             }
         }
 

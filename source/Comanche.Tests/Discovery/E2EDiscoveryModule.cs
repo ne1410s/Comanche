@@ -45,3 +45,6 @@ public class E2EDocumentedModule : E2EDiscoveryModule
         return $"{myInt}{myStr}{myDay}{myStruct}{myArr}";
     }
 }
+
+[Alias("empty")]
+public class E2EEmptyModule : E2EDocumentedModule { }

@@ -153,4 +153,31 @@ public class E2EExecutionTests
         actual.Should().BeEquivalentTo(expectedObject);
         plainWriter.Text(false).Should().Be(expectedOutput);
     }
+
+    [Fact]
+    public void Execution_AsyncWithValue_ReturnsExpected()
+    {
+        // Arrange
+        const string command = "exec get-async";
+        const int expected = 43;
+
+        // Act
+        var actual = E2E.Run(command);
+
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    [Fact]
+    public void Execution_AsyncTaskOnly_ReturnsNull()
+    {
+        // Arrange
+        const string command = "exec do-async";
+
+        // Act
+        var actual = E2E.Run(command);
+
+        // Assert
+        actual.Should().BeNull();
+    }
 }
