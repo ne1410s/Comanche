@@ -41,6 +41,21 @@ public class E2ERoutingTests
     }
 
     [Fact]
+    public void Routing_NoRouteJunk_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "--conk";
+        const string expected = "No routes found";
+        var mockConsole = E2E.DefaultPalette.GetMockConsole();
+
+        // Act
+        E2E.Run(command, mockConsole.Object);
+
+        // Assert
+        mockConsole.Verify(m => m.Write(expected, true, E2E.DefaultPalette.Error, true));
+    }
+
+    [Fact]
     public void Routing_PreRouteJunk_WritesExpectedError()
     {
         // Arrange

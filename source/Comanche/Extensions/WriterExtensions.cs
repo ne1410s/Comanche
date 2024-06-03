@@ -26,14 +26,11 @@ internal static class WriterExtensions
     {
         return type switch
         {
-            ////_ when type == typeof(bool) => "bool",
-            _ when type == typeof(int) => "int",
-            _ when type.IsPrimitive => type.Name.ToLowerInvariant(),
-            _ when type == typeof(string) => "string",
+            _ when type.IsPrimitive || type == typeof(string) => type.Name.ToLowerInvariant(),
             _ when type == typeof(void) => "<void>",
             _ when type.IsArray
                 => type.GetElementType().ToPrintableName() + "[]",
-            _ when type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)
+            _ when type.IsGenericType && Nullable.GetUnderlyingType(type) != null
                 => type.GenericTypeArguments[0].ToPrintableName() + "?",
             _ when type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>)
                 => type.GenericTypeArguments[0].ToPrintableName(),

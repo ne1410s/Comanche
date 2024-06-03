@@ -332,4 +332,18 @@ public class E2EParametersTests
         // Assert
         mockConsole.Verify(m => m.Write(expectedText, true, expectedColour, true));
     }
+
+    [Fact]
+    public void Parameters_Nullables_ParseAsExpected()
+    {
+        // Arrange
+        const string command = "paramz nullables --num 32 --str hi";
+        const string expected = "hi=32";
+
+        // Act
+        var result = E2E.Run(command);
+
+        // Assert
+        result.Should().Be(expected);
+    }
 }

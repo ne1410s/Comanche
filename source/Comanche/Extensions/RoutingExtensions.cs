@@ -63,7 +63,7 @@ internal static class RoutingExtensions
         // Kick out no routes or have anything pre-route
         if (!isHelp && firstRoute?.i != 0)
         {
-            var message = firstRoute == null ? "No routes found." : $"Invalid route: {numberedArgs[0].arg}";
+            var message = firstRoute == null ? "No routes found" : $"Invalid route: {numberedArgs[0].arg}";
             throw new RouteBuilderException([], message);
         }
 

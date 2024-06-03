@@ -36,7 +36,7 @@ public class E2EDocumentedModule : E2EDiscoveryModule
 
     public static async Task<string> UberDefaults(
         int myInt = 3,
-        string myStr = "hiya",
+        string? myStr = "hiya",
         DayOfWeek myDay = DayOfWeek.Friday,
         TestStruct myStruct = new(),
         int?[]? myArr = null)
@@ -44,6 +44,18 @@ public class E2EDocumentedModule : E2EDiscoveryModule
         await Task.CompletedTask;
         return $"{myInt}{myStr}{myDay}{myStruct}{myArr}";
     }
+}
+
+public class E2ENoAliasModule : E2EDocumentedModule
+{
+    public static void Do()
+    {
+        // It's empty
+    }
+
+    public static bool Invert(bool b, long l) => !b;
+
+    public static string Nullable(long? id = 4300) => $"{id}";
 }
 
 [Alias("empty")]

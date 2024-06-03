@@ -38,8 +38,11 @@ public class E2EParametersModule : IModule
     public static DayOfWeek NextDay([Alias("d")] DayOfWeek day)
         => (DayOfWeek)(((int)day + 1) % 7);
 
-    public static string ReformatGuid(Guid id)
+    public static string ReformatGuid([Alias(null!)] Guid id)
         => id.ToString("P");
+
+    public static string Nullables(short? num, string? str)
+        => $"{str}={num}";
 }
 
 public class BadHashSet<T> : HashSet<T>

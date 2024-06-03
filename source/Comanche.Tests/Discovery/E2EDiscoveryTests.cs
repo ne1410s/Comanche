@@ -8,10 +8,24 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Comanche.Tests.Console;
+using Microsoft.Extensions.DependencyInjection;
 using E2E = TestHelper;
 
 public class E2EDiscoveryTests
 {
+    [Fact]
+    public void Go_NoServices_DoesNotThrow()
+    {
+        // Arrange
+        var nullServices = (IServiceCollection?)null;
+
+        // Act
+        var act = () => Discover.Go(nullServices);
+
+        // Assert
+        act.Should().NotThrow();
+    }
+
     [Theory]
     [InlineData("")]
     [InlineData("--help")]
@@ -108,6 +122,7 @@ public class E2EDiscoveryTests
         var plainWriter = new PlainWriter();
         var expected = """
             Module: testctl disco dox (Tests doc gen.)
+            Sub Modules: testctl disco dox e2eno-alias
             Methods:
               testctl disco dox greet (Send a greeting.)
               testctl disco dox uber-defaults
@@ -115,6 +130,7 @@ public class E2EDiscoveryTests
 
         // Act
         E2E.Run(command, plainWriter);
+        E2ENoAliasModule.Do();
 
         // Assert
         plainWriter.Text(true).Should().Be(expected);
@@ -131,7 +147,7 @@ public class E2EDiscoveryTests
             Method: testctl disco dox greet (Send a greeting.)
             Parameters:
               --name (-n) [string] (The greetee.)
-              --dicto [IDictionary<string, int> = null] (The numbers dictionary.)
+              --dicto [IDictionary<string, int32> = null] (The numbers dictionary.)
             Returns: [string] (A greeting.)
             """.Normalise(true);
 
@@ -167,11 +183,11 @@ public class E2EDiscoveryTests
             Module: testctl disco dox greet (Tests doc gen.)
             Method: testctl disco dox greet uber-defaults
             Parameters:
-            --my-int [int = 3]
+            --my-int [int32 = 3]
             --my-str [string = "hiya"]
             --my-day [DayOfWeek = Friday]
             --my-struct [TestStruct = null]
-            --my-arr [int?[] = null]
+            --my-arr [int32?[] = null]
             Returns: [string]
             """.Normalise(true);
 
@@ -181,5 +197,60 @@ public class E2EDiscoveryTests
 
         // Assert
         plainWriter.Text(true).Should().Be(expected);
+    }
+
+    [Fact]
+    public void Discovery_VoidReturn_LabelledAsExpected()
+    {
+        // Arrange
+        const string command = "disco dox e2eno-alias do --help";
+        const string expected = "Returns: [<void>]";
+        var plainWriter = new PlainWriter();
+
+        // Act
+        E2E.Run(command, plainWriter);
+        E2ENoAliasModule.Invert(true, 0);
+
+        // Assert
+        plainWriter.Text(true).Should().Contain(expected);
+    }
+
+    [Fact]
+    public void Discovery_PrimitiveParameters_LabelledAsExpected()
+    {
+        // Arrange
+        const string command = "disco dox e2eno-alias invert --help";
+        var plainWriter = new PlainWriter();
+        var expected = """
+            Parameters:
+            --b [boolean]
+            --l [int64]
+            """.Normalise(true);
+
+        // Act
+        E2E.Run(command, plainWriter);
+        E2ENoAliasModule.Invert(true, 0);
+
+        // Assert
+        plainWriter.Text(true).Should().Contain(expected);
+    }
+
+    [Fact]
+    public void Discovery_NullableType_LabelledAsExpected()
+    {
+        // Arrange
+        const string command = "disco dox e2eno-alias nullable --help";
+        var plainWriter = new PlainWriter();
+        var expected = """
+            Parameters:
+            --id [int64? = 4300]
+            """.Normalise(true);
+
+        // Act
+        E2E.Run(command, plainWriter);
+        E2ENoAliasModule.Nullable();
+
+        // Assert
+        plainWriter.Text(true).Should().Contain(expected);
     }
 }
