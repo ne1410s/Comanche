@@ -31,4 +31,7 @@ public class E2EParametersModule : IModule
 
     public static DayOfWeek NextDay(DayOfWeek day)
         => (DayOfWeek)(((int)day + 1) % 7);
+
+    public static string ReformatGuid(Guid id)
+        => id.ToString("P");
 }

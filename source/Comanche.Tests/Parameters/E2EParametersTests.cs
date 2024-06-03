@@ -191,4 +191,35 @@ public class E2EParametersTests
         // Assert
         mockConsole.Verify(m => m.Write(expectedText, true, expectedColour, true));
     }
+
+    [Fact]
+    public void Parameters_ValidGuid_ParsedOk()
+    {
+        // Arrange
+        var guid = Guid.NewGuid();
+        var command = $"paramz reformat-guid --id {guid}";
+        var expected = guid.ToString("P");
+
+        // Act
+        var actual = E2E.Run(command);
+
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    [Fact]
+    public void Parameters_InvalidGuid_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "paramz reformat-guid --id n0t-4-gU1D";
+        const string expectedText = "--id: cannot parse guid";
+        var mockConsole = E2E.DefaultPalette.GetMockConsole();
+        var expectedColour = E2E.DefaultPalette.Error;
+
+        // Act
+        E2E.Run(command, mockConsole.Object);
+
+        // Assert
+        mockConsole.Verify(m => m.Write(expectedText, true, expectedColour, true));
+    }
 }
