@@ -158,9 +158,12 @@ Boolean flags offer a short-hand, where you only need to provide the flag name t
 ### Enum Values
 Enum handling is designed to be versatile between strings and numeric values. Therefore either one is acceptable for the parameter to be correctly understood. Note that in return values, the string form is used.
 
-### IEnumerable Values
+### IEnumerables and Sequence Types
 Sequence-type parameters - for primitives and strings - (e.g. `List<int>`, `string[]`, etc) can be supplied by simply specifying multiple parameters of the same flag. For example, in the case of a `List<int>` parameter with an alias of `-n`, multiple values are supplied by:
 > `assembly module method -n 4 -n 5 -n 6`
+
+It is also possible to supply a **single** parameter that is a JSON array, which produces the same effect as above:
+> `assembly module method -n [ 4, 5, 6 ]`
 
 ### Reserved Flags
 There are a number of reserved flags that apply globally.
