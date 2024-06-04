@@ -69,12 +69,13 @@ public class E2EParametersTests
         actual.Should().Be(expected);
     }
 
-    [Fact]
-    public void Parameters_InvalidSequenceFormat_WritesExpectedError()
+    [Theory]
+    [InlineData("[ not-array ]", "--n: cannot deserialise")]
+    [InlineData("[ not-even-json }!", "--n: cannot convert")]
+    public void Parameters_InvalidJsonSequence_WritesExpectedError(string badParam, string expectedError)
     {
         // Arrange
-        const string command = "paramz sum-hash-set --n [ why! ]";
-        const string expectedText = "--n: cannot deserialise";
+        var command = $"paramz sum-hash-set --n {badParam}";
         var mockConsole = E2E.DefaultPalette.GetMockConsole();
         var expectedColour = E2E.DefaultPalette.Error;
 
@@ -82,7 +83,7 @@ public class E2EParametersTests
         E2E.Run(command, mockConsole.Object);
 
         // Assert
-        mockConsole.Verify(m => m.Write(expectedText, true, expectedColour, true));
+        mockConsole.Verify(m => m.Write(expectedError, true, expectedColour, true));
     }
 
     [Fact]
@@ -390,5 +391,21 @@ public class E2EParametersTests
 
         // Assert
         result.Should().Be(expected);
+    }
+
+    [Fact]
+    public void Parameters_NullablePrimitiveBadValue_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "paramz nullables --num fake --str hi";
+        const string expectedText = "--num: cannot convert";
+        var mockConsole = E2E.DefaultPalette.GetMockConsole();
+        var expectedColour = E2E.DefaultPalette.Error;
+
+        // Act
+        E2E.Run(command, mockConsole.Object);
+
+        // Assert
+        mockConsole.Verify(m => m.Write(expectedText, true, expectedColour, true));
     }
 }
