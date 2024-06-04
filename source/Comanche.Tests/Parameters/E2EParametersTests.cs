@@ -5,6 +5,7 @@
 namespace Comanche.Tests.Parameters;
 
 using System;
+using Comanche.Tests.Console;
 using E2E = TestHelper;
 
 public class E2EParametersTests
@@ -197,18 +198,18 @@ public class E2EParametersTests
     }
 
     [Fact]
-    public void Parameters_CorrectDI_WritesExpected()
+    public void Parameters_CorrectDI_WritesExpectedVerbatim()
     {
         // Arrange
         const string command = "paramz correct-di";
-        const string expectedText = "woot";
-        var mockConsole = E2E.DefaultPalette.GetMockConsole();
+        const string expectedText = "woot\n";
+        var plainWriter = new PlainWriter();
 
         // Act
-        E2E.Run(command, mockConsole.Object);
+        E2E.Run(command, plainWriter);
 
         // Assert
-        mockConsole.Verify(m => m.Write(expectedText, false, null, false));
+        plainWriter.Text(false).Should().Be(expectedText);
     }
 
     [Fact]
@@ -287,6 +288,25 @@ public class E2EParametersTests
     }
 
     [Fact]
+    public void Parameters_OutputtingNestedEnum_JsonHasEnumText()
+    {
+        // Arrange
+        const string command = "paramz next-day-obj -d Wednesday";
+        const string expected = """
+        {
+          "day": "Thursday"
+        }
+        """;
+        var mockConsole = E2E.DefaultPalette.GetMockConsole();
+
+        // Act
+        E2E.Run(command, mockConsole.Object);
+
+        // Assert
+        mockConsole.Verify(m => m.Write(expected, true, null, false));
+    }
+
+    [Fact]
     public void Parameters_BadEnumInput_WritesExpectedError()
     {
         // Arrange
@@ -318,19 +338,28 @@ public class E2EParametersTests
     }
 
     [Fact]
-    public void Parameters_InvalidGuid_WritesExpectedError()
+    public void Parameters_InvalidGuid_WritesExpectedErrorVerbatim()
     {
         // Arrange
         const string command = "paramz reformat-guid --id n0t-4-gU1D";
-        const string expectedText = "--id: cannot parse guid";
-        var mockConsole = E2E.DefaultPalette.GetMockConsole();
-        var expectedColour = E2E.DefaultPalette.Error;
+        var expectedText = """
+            
+            Invalid Parameters:
+            --id: cannot parse guid
+
+            Note:
+            Run again with --help for a full parameter list.
+
+
+            """.Normalise(false);
+        var plainWriter = new PlainWriter();
 
         // Act
-        E2E.Run(command, mockConsole.Object);
+        E2E.Run(command, plainWriter);
 
         // Assert
-        mockConsole.Verify(m => m.Write(expectedText, true, expectedColour, true));
+        var actualText = plainWriter.Text(false);
+        actualText.Should().Be(expectedText);
     }
 
     [Fact]

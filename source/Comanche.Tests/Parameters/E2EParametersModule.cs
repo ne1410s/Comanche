@@ -38,12 +38,17 @@ public class E2EParametersModule : IModule
     public static DayOfWeek NextDay([Alias("d")] DayOfWeek day)
         => (DayOfWeek)(((int)day + 1) % 7);
 
+    public static EnumObject NextDayObj([Alias("d")] DayOfWeek day)
+        => new((DayOfWeek)(((int)day + 1) % 7));
+
     public static string ReformatGuid([Alias(null!)] Guid id)
         => id.ToString("P");
 
     public static string Nullables(short? num, string? str)
         => $"{str}={num}";
 }
+
+public record EnumObject(DayOfWeek Day);
 
 public class BadHashSet<T> : HashSet<T>
 {

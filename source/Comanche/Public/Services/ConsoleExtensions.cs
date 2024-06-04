@@ -1,4 +1,4 @@
-﻿// <copyright file="IConsoleExtensions.cs" company="ne1410s">
+﻿// <copyright file="ConsoleExtensions.cs" company="ne1410s">
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
@@ -10,7 +10,7 @@ using System.Linq;
 /// <summary>
 /// Extensions for <see cref="IConsole"/>.
 /// </summary>
-public static class IConsoleExtensions
+public static class ConsoleExtensions
 {
     /// <summary>
     /// Writes text in the <see cref="ComanchePalette.Primary"/> colour.

@@ -75,13 +75,24 @@ public class E2ERoutingTests
     {
         // Arrange
         const string command = "routez revealed do ---whoops";
-        const string expected = "Bad parameter: ---whoops";
-        var mockConsole = E2E.DefaultPalette.GetMockConsole();
+        var plainWriter = new PlainWriter();
+        var expected = """
+            Bad parameter: ---whoops
+
+            Module:
+            testctl routez revealed do
+
+            Methods:
+            testctl routez revealed do do
+
+            
+            """.Normalise(false);
 
         // Act
-        E2E.Run(command, mockConsole.Object);
+        E2E.Run(command, plainWriter);
 
         // Assert
-        mockConsole.Verify(m => m.Write(expected, true, E2E.DefaultPalette.Error, true));
+        var actualText = plainWriter.Text(false);
+        actualText.Should().Be(expected);
     }
 }

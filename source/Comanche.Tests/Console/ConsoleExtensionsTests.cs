@@ -1,4 +1,4 @@
-﻿// <copyright file="IConsoleExtensionsTests.cs" company="ne1410s">
+﻿// <copyright file="ConsoleExtensionsTests.cs" company="ne1410s">
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
@@ -8,9 +8,9 @@ using System;
 using System.Collections.ObjectModel;
 
 /// <summary>
-/// Tests for the <see cref="IConsoleExtensions"/> class.
+/// Tests for the <see cref="ConsoleExtensions"/> class.
 /// </summary>
-public class IConsoleExtensionsTests
+public class ConsoleExtensionsTests
 {
     [Fact]
     public void CaptureString_WhenCalled_InvokesInterfaceMethod()
@@ -57,6 +57,19 @@ public class IConsoleExtensionsTests
 
         // Assert
         act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void WriteLine_WhenCalled_InvokesInterfaceMethod()
+    {
+        // Arrange
+        var mockConsole = new Mock<IConsole>();
+
+        // Act
+        mockConsole.Object.WriteLine();
+
+        // Assert
+        mockConsole.Verify(m => m.Write(string.Empty, true, null, false));
     }
 
     [Fact]

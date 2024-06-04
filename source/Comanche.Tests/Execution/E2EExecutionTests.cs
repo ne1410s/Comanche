@@ -45,21 +45,27 @@ public class E2EExecutionTests
     }
 
     [Fact]
-    public void Execution_Throw_WritesExpected()
+    public void Execution_Throw_WritesExpectedVerbatim()
     {
         // Arrange
         const string command = "exec throw";
         var plainWriter = new PlainWriter();
         var expected = """
-            Exception: [ArithmeticException] Overflow or underflow in the arithmetic operation.
-            Note: Run again with --debug for more detail.
-            """.Normalise(true);
+
+            Exception:
+            [ArithmeticException] Overflow or underflow in the arithmetic operation.
+
+            Note:
+            Run again with --debug for more detail.
+
+
+            """.Normalise(false);
 
         // Act
         E2E.Run(command, plainWriter);
 
         // Assert
-        plainWriter.Text(true).Should().Be(expected);
+        plainWriter.Text(false).Should().Be(expected);
     }
 
     [Fact]
@@ -87,16 +93,22 @@ public class E2EExecutionTests
         const string command = "exec throw-stackless --debug";
         var plainWriter = new PlainWriter();
         var expected = """
-            Exception: [StacklessException]
-            Exception of type 'Comanche.Tests.TestHelper+StacklessException' was thrown.
+
+            Exception:
+            [StacklessException] Exception of type 'Comanche.Tests.TestHelper+StacklessException' was thrown.
+            
             Stack Trace:
-            """.Normalise(true);
+            
+            
+            
+            """.Normalise(false);
 
         // Act
         E2E.Run(command, plainWriter);
 
         // Assert
-        plainWriter.Text(true).Should().Be(expected);
+        var actualText = plainWriter.Text(false);
+        actualText.Should().Be(expected);
     }
 
     [Theory]

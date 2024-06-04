@@ -26,6 +26,20 @@ public class E2EDiscoveryTests
         act.Should().NotThrow();
     }
 
+    [Fact]
+    public void Discovery_NoArgs_WritesExpectedError()
+    {
+        // Arrange
+        var mockConsole = E2E.DefaultPalette.GetMockConsole();
+        const string expected = "Invalid route: --port";
+
+        // Act
+        E2E.Run(console: mockConsole.Object);
+
+        // Assert
+        mockConsole.Verify(m => m.Write(expected, true, E2E.DefaultPalette.Error, true));
+    }
+
     [Theory]
     [InlineData("")]
     [InlineData("--help")]
@@ -50,21 +64,28 @@ public class E2EDiscoveryTests
     }
 
     [Fact]
-    public void Discovery_VersionCommand_WritesExpected()
+    public void Discovery_VersionCommand_WritesExpectedVerbatim()
     {
         // Arrange
         const string command = "--version";
         var plainWriter = new PlainWriter();
         var expected = """
-            Module: testctl v1.0.0-testing123 (Test project)
-            CLI-ified with <3 by: Comanche v1.1.1 (ne1410s © 2024)
-            """.Normalise(true);
+
+            Module:
+            testctl v1.0.0-testing123 (Test project)
+            
+            CLI-ified with <3 by:
+            Comanche v1.1.1 (ne1410s © 2024)
+            
+
+            """.Normalise(false);
 
         // Act
         E2E.Run(command, plainWriter);
 
         // Assert
-        plainWriter.Text(true).Should().Be(expected);
+        var actualText = plainWriter.Text(false);
+        actualText.Should().Be(expected);
     }
 
     [Fact]
@@ -200,19 +221,31 @@ public class E2EDiscoveryTests
     }
 
     [Fact]
-    public void Discovery_VoidReturn_LabelledAsExpected()
+    public void Discovery_ParamlessAndVoidReturnHelpCommand_WritesExpectedVerbatim()
     {
         // Arrange
         const string command = "disco dox e2eno-alias do --help";
-        const string expected = "Returns: [<void>]";
         var plainWriter = new PlainWriter();
+        var expected = """
+            
+            Module:
+            testctl disco dox e2eno-alias
+
+            Method:
+            testctl disco dox e2eno-alias do
+
+            Returns:
+            [<void>]
+
+            
+            """.Normalise(false);
 
         // Act
         E2E.Run(command, plainWriter);
-        E2ENoAliasModule.Invert(true, 0);
 
         // Assert
-        plainWriter.Text(true).Should().Contain(expected);
+        var actualText = plainWriter.Text(false);
+        actualText.Should().Be(expected);
     }
 
     [Fact]
