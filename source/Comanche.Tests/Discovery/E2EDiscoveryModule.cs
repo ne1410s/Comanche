@@ -28,7 +28,7 @@ public class E2EDocumentedModule : E2EDiscoveryModule
     /// <param name="name">The greetee.</param>
     /// <param name="dicto">The numbers dictionary.</param>
     /// <returns>A greeting.</returns>
-    [Alias("greet")]
+    [Alias("9greet+")]
     public static string GetGreeting(
         [Alias("n")] string name,
         IDictionary<string, int>? dicto = null)

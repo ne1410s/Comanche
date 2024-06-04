@@ -64,6 +64,51 @@ public class E2EDiscoveryTests
     }
 
     [Fact]
+    public void Discovery_UnknownModule_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "just-not-a-module";
+        const string expected = "Invalid route.";
+        var mockConsole = E2E.DefaultPalette.GetMockConsole();
+
+        // Act
+        E2E.Run(command, mockConsole.Object);
+
+        // Assert
+        mockConsole.Verify(m => m.Write(expected, true, E2E.DefaultPalette.Error, true));
+    }
+
+    [Fact]
+    public void Discovery_UnknownMethod_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "disco just-not-a-method";
+        const string expected = "No such method.";
+        var mockConsole = E2E.DefaultPalette.GetMockConsole();
+
+        // Act
+        E2E.Run(command, mockConsole.Object);
+
+        // Assert
+        mockConsole.Verify(m => m.Write(expected, true, E2E.DefaultPalette.Error, true));
+    }
+
+    [Fact]
+    public void Discovery_UnknownParameter_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "disco dox greet --just-not-a-parameter";
+        const string expected = "--just-not-a-parameter: unrecognised";
+        var mockConsole = E2E.DefaultPalette.GetMockConsole();
+
+        // Act
+        E2E.Run(command, mockConsole.Object);
+
+        // Assert
+        mockConsole.Verify(m => m.Write(expected, true, E2E.DefaultPalette.Error, true));
+    }
+
+    [Fact]
     public void Discovery_VersionCommand_WritesExpectedVerbatim()
     {
         // Arrange
@@ -104,6 +149,7 @@ public class E2EDiscoveryTests
     }
 
     [Theory]
+    [InlineData("/?")]
     [InlineData("--help")]
     [InlineData("--debug")]
     public void Discovery_VersionCommandWithBadFlag_WritesExpectedError(string incompatibleFlag)

@@ -86,6 +86,22 @@ public class E2EParametersTests
     }
 
     [Fact]
+    public void Parameters_MultipleJsonArrayInputs_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "paramz sum-hash-set --n [ 2, 3 ] --n [ 3, 4 ]";
+        const string expectedText = "--n: cannot convert";
+        var mockConsole = E2E.DefaultPalette.GetMockConsole();
+        var expectedColour = E2E.DefaultPalette.Error;
+
+        // Act
+        E2E.Run(command, mockConsole.Object);
+
+        // Assert
+        mockConsole.Verify(m => m.Write(expectedText, true, expectedColour, true));
+    }
+
+    [Fact]
     public void Parameters_InconvertibleMemberInArray_WritesExpectedError()
     {
         // Arrange
