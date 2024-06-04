@@ -88,7 +88,6 @@ internal static class DiscoveryExtensions
             .Where(et => et.IsModule() && et.FindParentModule() == t)
             .Select(n => n.ToModule(xDoc, asm, provider))
             .Where(m => m != null)
-            .OrderBy(m => m!.Name)
             .ToDictionary(m => m!.Name, m => m!);
 
         if (methods.Count + subModules.Count == 0)

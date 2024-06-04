@@ -48,14 +48,24 @@ public class E2EDocumentedModule : E2EDiscoveryModule
 
 public class E2ENoAliasModule : E2EDocumentedModule
 {
-    public static void Do()
-    {
-        // It's empty
-    }
-
     public static bool Invert(bool b, long l) => !b;
 
     public static string Nullable(long? id = 4300) => $"{id}";
+
+    /// <summary>
+    /// Nested module.
+    /// </summary>
+    [Alias("nested")]
+    public class E2ENestedModule : E2ENoAliasModule
+    {
+        /// <summary>
+        /// JDI.
+        /// </summary>
+        public static void Do()
+        {
+            // It's empty
+        }
+    }
 }
 
 [Alias("empty")]

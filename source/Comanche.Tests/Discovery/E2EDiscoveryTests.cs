@@ -197,7 +197,6 @@ public class E2EDiscoveryTests
 
         // Act
         E2E.Run(command, plainWriter);
-        E2ENoAliasModule.Do();
 
         // Assert
         plainWriter.Text(true).Should().Be(expected);
@@ -270,15 +269,15 @@ public class E2EDiscoveryTests
     public void Discovery_ParamlessAndVoidReturnHelpCommand_WritesExpectedVerbatim()
     {
         // Arrange
-        const string command = "disco dox e2eno-alias do --help";
+        const string command = "disco dox e2eno-alias nested do --help";
         var plainWriter = new PlainWriter();
         var expected = """
             
             Module:
-            testctl disco dox e2eno-alias
+            testctl disco dox e2eno-alias nested (Nested module.)
 
             Method:
-            testctl disco dox e2eno-alias do
+            testctl disco dox e2eno-alias nested do (JDI.)
 
             Returns:
             [<void>]
