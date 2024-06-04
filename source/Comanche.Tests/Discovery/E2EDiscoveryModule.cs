@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Comanche;
+using Microsoft.Extensions.Configuration;
 
 /// <summary>
 /// Discovery module.
@@ -70,3 +71,28 @@ public class E2ENoAliasModule : E2EDocumentedModule
 
 [Alias("empty")]
 public class E2EEmptyModule : E2EDocumentedModule { }
+
+[Alias("ctors")]
+public class E2EMultiCtorsModule : E2EDocumentedModule
+{
+    public E2EMultiCtorsModule()
+        => throw new NotImplementedException();
+
+    public E2EMultiCtorsModule(IConfiguration config)
+    { }
+
+    public E2EMultiCtorsModule(IConfiguration config, int notInjected)
+        => throw new NotImplementedException();
+
+    public sbyte Test() => -12;
+}
+
+[Alias("none")]
+public sealed class E2ENoCtorsModule : E2EMultiCtorsModule
+{
+    internal E2ENoCtorsModule()
+        : base(null!)
+    { }
+
+    public static int Do() => 2;
+}

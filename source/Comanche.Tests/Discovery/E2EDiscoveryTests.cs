@@ -189,7 +189,9 @@ public class E2EDiscoveryTests
         var plainWriter = new PlainWriter();
         var expected = """
             Module: testctl disco dox (Tests doc gen.)
-            Sub Modules: testctl disco dox e2eno-alias
+            Sub Modules:
+              testctl disco dox ctors
+              testctl disco dox e2eno-alias
             Methods:
               testctl disco dox greet (Send a greeting.)
               testctl disco dox uber-defaults
@@ -331,5 +333,48 @@ public class E2EDiscoveryTests
 
         // Assert
         plainWriter.Text(true).Should().Contain(expected);
+    }
+
+    [Fact]
+    public void Discovery_MultipleCtors_PicksMostParamsAllInjected()
+    {
+        // Arrange
+        const string command = "disco dox ctors test";
+        const sbyte expected = -12;
+
+        // Act
+        var actual = E2E.Run(command);
+
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    [Fact]
+    public void Discovery_BadCtors_ThrowExpected()
+    {
+        // Act
+        var act1 = () => new E2EMultiCtorsModule();
+        var act2 = () => new E2EMultiCtorsModule(default!, default);
+
+        // Assert
+        act1.Should().Throw<NotImplementedException>();
+        act2.Should().Throw<NotImplementedException>();
+    }
+
+    [Fact]
+    public void Discovery_NoCtors_WritesExpectedError()
+    {
+        // Arrange
+        const string command = "disco dox ctors none do";
+        var expectedText = $"{Environment.NewLine}Exception:";
+        var mockConsole = E2E.DefaultPalette.GetMockConsole();
+
+        // Act
+        E2E.Run(command, mockConsole.Object);
+        _ = new E2ENoCtorsModule();
+        E2ENoCtorsModule.Do();
+
+        // Assert
+        mockConsole.Verify(m => m.Write(expectedText, true, null, false));
     }
 }

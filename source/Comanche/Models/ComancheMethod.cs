@@ -70,7 +70,7 @@ internal sealed class ComancheMethod(
         }
         catch (Exception wrapperEx)
         {
-            var ex = wrapperEx.InnerException;
+            var ex = wrapperEx.InnerException ?? wrapperEx;
             throw new ExecutionException(ex.Message, ex, ex.StackTrace);
         }
     }

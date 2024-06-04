@@ -192,30 +192,4 @@ public class E2EExecutionTests
         // Assert
         actual.Should().BeNull();
     }
-
-    [Fact]
-    public void Execution_MultipleCtors_PicksMostParamsAllInjected()
-    {
-        // Arrange
-        const string command = "exec ctors test";
-        const sbyte expected = -12;
-
-        // Act
-        var actual = E2E.Run(command);
-
-        // Assert
-        actual.Should().Be(expected);
-    }
-
-    [Fact]
-    public void Execution_BadCtors_ThrowExpected()
-    {
-        // Act
-        var act1 = () => new E2EMultiCtorsModule();
-        var act2 = () => new E2EMultiCtorsModule(default!, default);
-
-        // Assert
-        act1.Should().Throw<NotImplementedException>();
-        act2.Should().Throw<NotImplementedException>();
-    }
 }
