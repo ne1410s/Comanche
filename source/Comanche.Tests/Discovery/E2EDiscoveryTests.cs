@@ -287,6 +287,7 @@ public class E2EDiscoveryTests
 
         // Act
         E2E.Run(command, plainWriter);
+        E2ENoAliasModule.E2ENestedModule.Do();
 
         // Assert
         var actualText = plainWriter.Text(false);

@@ -28,6 +28,22 @@ public class E2EExecutionModule(IConfiguration config) : IModule
     public string? GetVar() => config["ConfigName"];
 }
 
+[Alias("ctors")]
+public class E2EMultiCtorsModule : E2EExecutionModule
+{
+    public E2EMultiCtorsModule()
+        : base(null!) => throw new NotImplementedException();
+
+    public E2EMultiCtorsModule(IConfiguration config)
+        : base(config)
+    { }
+
+    public E2EMultiCtorsModule(IConfiguration config, int notInjected)
+        : base(config) => throw new NotImplementedException();
+
+    public sbyte Test() => -12;
+}
+
 public record ComplexObject(int MyInt, string MyString);
 
 public class JsonError
