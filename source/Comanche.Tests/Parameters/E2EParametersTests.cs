@@ -307,7 +307,7 @@ public class E2EParametersTests
     public void Parameters_OutputtingNestedEnum_JsonHasEnumText()
     {
         // Arrange
-        const string command = "paramz next-day-obj -d Wednesday";
+        const string command = "paramz next-day-obj -d wEdNesDAy";
         const string expected = """
         {
           "day": "Thursday"
