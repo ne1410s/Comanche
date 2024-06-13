@@ -57,7 +57,12 @@ jobs:
       continue-on-error: true
       env:
         STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
-      run: echo todo - send to stryker dash
-      # -v ${{ github.ref_name }}
+        PROJECT: ${{ secrets.STRYKER_DASHBOARD_PROJECT }}
+      run: |
+        curl -X PUT https://dashboard.stryker-mutator.io/api/reports/${{ env.PROJECT }}/${{ github.ref_name }} \
+          -H 'Content-Type: application/json' \
+          -H 'Host: dashboard.stryker-mutator.io' \
+          -H 'X-Api-Key: ${{ env.STRYKER_DASHBOARD_API_KEY }}' \
+          -d @${{ github.workspace }}/drop/mutation-report.json
     - name: Fail build warnings
       run: dotnet build -c Release --no-incremental /warnaserror

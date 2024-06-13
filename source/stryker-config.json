@@ -1,8 +1,5 @@
 {
   "stryker-config": {
-    "project-info": {
-      "name": "github.com/ne1410s/Comanche"
-    },
     "thresholds": {
       "high": 100,
       "low": 100,
