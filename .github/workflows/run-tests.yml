@@ -47,7 +47,7 @@ jobs:
       if: success() || steps.check_coverage.outcome == 'failure'
       env:
         STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
-      run: dotnet stryker -r "progress" -r "html" -r "dashboard" -v ${{ github.ref_name }} -O ${{ github.workspace }}/drop
+      run: dotnet stryker -O ${{ github.workspace }}/drop -v ${{ github.ref_name }}
     - name: Drop artifact - reports
       if: success() || steps.check_coverage.outcome == 'failure' || steps.gen_mutation.outcome == 'failure'
       uses: actions/upload-artifact@v4
