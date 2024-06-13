@@ -113,14 +113,15 @@ public class E2EDiscoveryTests
     {
         // Arrange
         const string command = "--version";
+        var comancheVer = typeof(Discover).Assembly.GetName().Version;
         var plainWriter = new PlainWriter();
-        var expected = """
+        var expected = $"""
 
             Module:
             testctl v1.0.0-testing123 (Test project)
             
             CLI-ified with <3 by:
-            Comanche v1.1.1 (ne1410s © 2024)
+            Comanche v{comancheVer!.ToString(3)} (ne1410s © 2024)
             
 
             """.Normalise(false);
