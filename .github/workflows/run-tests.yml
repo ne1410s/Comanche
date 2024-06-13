@@ -63,6 +63,6 @@ jobs:
           -H 'Content-Type: application/json' \
           -H 'Host: dashboard.stryker-mutator.io' \
           -H 'X-Api-Key: ${{ env.STRYKER_DASHBOARD_API_KEY }}' \
-          -d @${{ github.workspace }}/drop/mutation-report.json
+          -d @${{ github.workspace }}/drop/reports/mutation-report.json
     - name: Fail build warnings
       run: dotnet build -c Release --no-incremental /warnaserror
