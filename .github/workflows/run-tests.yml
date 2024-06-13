@@ -31,6 +31,7 @@ jobs:
       with:
         file: ${{ github.workspace }}/coverage/Cobertura.xml
         format: cobertura
+        git-branch: main
     - name: Get coverage json
       id: getjson
       run: echo COVERAGE_JSON=$(tr '\r\n' ' ' <${{ github.workspace }}/coverage/Summary.json) >> $GITHUB_ENV
