@@ -45,14 +45,19 @@ jobs:
     - name: Get mutation data
       id: gen_mutation
       if: success() || steps.check_coverage.outcome == 'failure'
-      env:
-        STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
-      run: dotnet stryker -O ${{ github.workspace }}/drop -r dashboard -v ${{ github.ref_name }}
+      run: dotnet stryker -O ${{ github.workspace }}/drop -r html -r json
     - name: Drop artifact - reports
       if: success() || steps.check_coverage.outcome == 'failure' || steps.gen_mutation.outcome == 'failure'
       uses: actions/upload-artifact@v4
       with:
         name: reports
         path: ${{ github.workspace }}/drop/reports
+    - name: Send to Stryker Dashboard
+      if: steps.gen_mutation.outcome == 'success'
+      continue-on-error: true
+      env:
+        STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
+      run: echo todo - send to stryker dash
+      # -v ${{ github.ref_name }}
     - name: Fail build warnings
       run: dotnet build -c Release --no-incremental /warnaserror
