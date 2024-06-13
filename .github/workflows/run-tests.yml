@@ -59,7 +59,7 @@ jobs:
         STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
         PROJECT: ${{ secrets.STRYKER_DASHBOARD_PROJECT }}
       run: |
-        curl -X PUT https://dashboard.stryker-mutator.io/api/reports/${{ env.PROJECT }}/${{ github.ref_name }} \
+        curl -X PUT https://dashboard.stryker-mutator.io/api/reports/${{ env.PROJECT }}/main \
           -H 'Content-Type: application/json' \
           -H 'Host: dashboard.stryker-mutator.io' \
           -H 'X-Api-Key: ${{ env.STRYKER_DASHBOARD_API_KEY }}' \
