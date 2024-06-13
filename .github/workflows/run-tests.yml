@@ -25,6 +25,9 @@ jobs:
       run: dotnet build -c Release
     - name: Generate raw coverage data
       run: dotnet test -c Release -s .runsettings; dotnet reportgenerator -targetdir:coveragereport -reports:**/coverage.cobertura.xml -reporttypes:"html;jsonsummary"
+    - name: Send to coveralls
+      uses: coverallsapp/github-action@v2
+      continue-on-error: true
     - name: Get coverage json
       id: getjson
       run: echo COVERAGE_JSON=$(tr '\r\n' ' ' <coveragereport/Summary.json) >> $GITHUB_ENV
