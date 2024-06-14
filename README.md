@@ -2,6 +2,8 @@
 
 [![Coverage Status](https://coveralls.io/repos/github/ne1410s/Comanche/badge.svg?branch=main)](https://coveralls.io/github/ne1410s/Comanche?branch=main)
 
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8c6eac3c66b840538b91c52fef1aa19f)](https://app.codacy.com/gh/ne1410s/Comanche/dashboard)
+
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fne1410s%2FComanche%2Fmain)](https://dashboard.stryker-mutator.io/reports/github.com/ne1410s/Comanche/main)
 
 ## Overview
