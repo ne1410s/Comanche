@@ -16,3 +16,9 @@ using System.Diagnostics.CodeAnalysis;
     Justification = "Testing requirement",
     Scope = "namespaceanddescendants",
     Target = "~N:Comanche.Tests.Console")]
+[assembly: SuppressMessage(
+    "Style",
+    "IDE0060:Remove unused parameter",
+    Justification = "Eample code",
+    Scope = "namespaceanddescendants",
+    Target = "~N:Comanche.Tests.Discovery")]

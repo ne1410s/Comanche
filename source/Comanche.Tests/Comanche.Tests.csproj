@@ -26,7 +26,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Analyse.4Tests" Version="1.0.0" />
+    <PackageReference Include="Analyse.4Tests" Version="1.0.*" />
     <PackageReference Include="FluentAssertions" Version="6.12.*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.*" />
     <PackageReference Include="Moq" Version="4.20.*" />
@@ -35,7 +35,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="6.0.2">
+    <PackageReference Include="coverlet.collector" Version="6.0.*">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
