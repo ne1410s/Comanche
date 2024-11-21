@@ -45,6 +45,21 @@ public class ConsoleWriterTests
     }
 
     [Fact]
+    public void Write_IsLine_ReturnsExpected()
+    {
+        // Arrange
+        var text = "hello" + Environment.NewLine;
+        var sut = new ConsoleWriter(new());
+        var expected = Tuple.Create(text, true, StandardPalette.Default, false);
+
+        // Act
+        sut.Write(text.Trim(), true);
+
+        // Assert
+        sut.LastCommand.Should().Be(expected);
+    }
+
+    [Fact]
     public void Write_CustomColour_UsesSpecified()
     {
         // Arrange

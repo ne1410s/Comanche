@@ -45,6 +45,20 @@ public class E2EExecutionTests
     }
 
     [Fact]
+    public void Execution_NoDeepValidTerms_WritesExpected()
+    {
+        // Arrange
+        var stubServices = new ServiceCollection();
+        var plainWriter = new PlainWriter();
+
+        // Act
+        E2E.Run(console: plainWriter, services: stubServices);
+
+        // Assert
+        plainWriter.Text(false).Should().Contain("testctl disco (Discovery module.)");
+    }
+
+    [Fact]
     public void Execution_Throw_WritesExpectedVerbatim()
     {
         // Arrange
