@@ -21,7 +21,7 @@ public class ConsoleExtensionsTests
         const char mask = '*';
 
         // Act
-        mockConsole.Object.CaptureString(input, mask);
+        _ = mockConsole.Object.CaptureString(input, mask);
 
         // Assert
         mockConsole.Verify(m => m.CaptureStrings(input, mask, 1));
@@ -30,12 +30,13 @@ public class ConsoleExtensionsTests
     [Theory]
     [InlineData("1,2,3", "1")]
     [InlineData("", null)]
-    public void CaptureString_VaryingResults_ReturnsFirstOrDefault(string itemCsv, string? expected)
+    [InlineData(null, null)]
+    public void CaptureString_VaryingResults_ReturnsFirstOrDefault(string? itemCsv, string? expected)
     {
         // Arrange
         var mockConsole = new Mock<IConsole>();
-        var items = itemCsv.Split(',', StringSplitOptions.RemoveEmptyEntries);
-        mockConsole
+        var items = (itemCsv ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries);
+        _ = mockConsole
             .Setup(m => m.CaptureStrings(It.IsAny<string>(), It.IsAny<char?>(), It.IsAny<byte>()))
             .Returns(new Collection<string>(items));
 
@@ -43,7 +44,7 @@ public class ConsoleExtensionsTests
         var result = mockConsole.Object.CaptureString();
 
         // Assert
-        result.Should().Be(expected);
+        result.ShouldBe(expected);
     }
 
     [Fact]
@@ -56,7 +57,7 @@ public class ConsoleExtensionsTests
         var act = () => nullConsole.CaptureString();
 
         // Assert
-        act.Should().Throw<ArgumentNullException>();
+        _ = act.ShouldThrow<ArgumentNullException>();
     }
 
     [Fact]
@@ -82,7 +83,7 @@ public class ConsoleExtensionsTests
         sut.WriteStructured();
 
         // Assert
-        sut.Text(true).Should().Be(string.Empty);
+        sut.Text(true).ShouldBe(string.Empty);
     }
 
     [Fact]
@@ -96,6 +97,6 @@ public class ConsoleExtensionsTests
         sut.WriteStructured("my", "name", "is", "stan");
 
         // Assert
-        sut.Text(true).Should().Be(expected);
+        sut.Text(true).ShouldBe(expected);
     }
 }

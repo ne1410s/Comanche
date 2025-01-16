@@ -22,12 +22,12 @@ public class E2EExecutionTests
         var stubServices = new ServiceCollection();
 
         // Act
-        Discover.Go(services: stubServices);
+        _ = Discover.Go(services: stubServices);
 
         // Assert
-        stubServices.Should().Contain(d => d.ServiceType == typeof(IConfiguration));
-        stubServices.Should().Contain(d => d.ServiceType == typeof(IConsole));
-        stubServices.Should().Contain(d => d.ServiceType == typeof(ComanchePalette));
+        stubServices.ShouldContain(d => d.ServiceType == typeof(IConfiguration));
+        stubServices.ShouldContain(d => d.ServiceType == typeof(IConsole));
+        stubServices.ShouldContain(d => d.ServiceType == typeof(ComanchePalette));
     }
 
     [Fact]
@@ -38,10 +38,10 @@ public class E2EExecutionTests
         var console = E2E.DefaultPalette.GetMockConsole().Object;
 
         // Act
-        E2E.Run(console: console, services: stubServices);
+        _ = E2E.Run(console: console, services: stubServices);
 
         // Assert
-        stubServices.Should().NotContain(d => d.ImplementationType == typeof(ConsoleWriter));
+        stubServices.ShouldNotContain(d => d.ImplementationType == typeof(ConsoleWriter));
     }
 
     [Fact]
@@ -52,10 +52,10 @@ public class E2EExecutionTests
         var plainWriter = new PlainWriter();
 
         // Act
-        E2E.Run(console: plainWriter, services: stubServices);
+        _ = E2E.Run(console: plainWriter, services: stubServices);
 
         // Assert
-        plainWriter.Text(false).Should().Contain("testctl disco (Discovery module.)");
+        plainWriter.Text(false).ShouldContain("testctl disco (Discovery module.)");
     }
 
     [Fact]
@@ -76,10 +76,10 @@ public class E2EExecutionTests
             """.Normalise(false);
 
         // Act
-        E2E.Run(command, plainWriter);
+        _ = E2E.Run(command, plainWriter);
 
         // Assert
-        plainWriter.Text(false).Should().Be(expected);
+        plainWriter.Text(false).ShouldBe(expected);
     }
 
     [Fact]
@@ -94,10 +94,10 @@ public class E2EExecutionTests
             """.Normalise(true);
 
         // Act
-        E2E.Run(command, plainWriter);
+        _ = E2E.Run(command, plainWriter);
 
         // Assert
-        plainWriter.Text(true).Should().StartWith(expected);
+        plainWriter.Text(true).ShouldStartWith(expected);
     }
 
     [Fact]
@@ -118,11 +118,11 @@ public class E2EExecutionTests
             """.Normalise(false);
 
         // Act
-        E2E.Run(command, plainWriter);
+        _ = E2E.Run(command, plainWriter);
 
         // Assert
         var actualText = plainWriter.Text(false);
-        actualText.Should().Be(expected);
+        actualText.ShouldBe(expected);
     }
 
     [Theory]
@@ -140,7 +140,7 @@ public class E2EExecutionTests
         var actual = E2E.Run(command);
 
         // Assert
-        actual.Should().Be(expected);
+        actual.ShouldBe(expected);
     }
 
     [Fact]
@@ -157,10 +157,10 @@ public class E2EExecutionTests
             """.Normalise(true);
 
         // Act
-        E2E.Run(command, plainWriter);
+        _ = E2E.Run(command, plainWriter);
 
         // Assert
-        plainWriter.Text(true).Should().Be(expected);
+        plainWriter.Text(true).ShouldBe(expected);
     }
 
     [Fact]
@@ -176,8 +176,8 @@ public class E2EExecutionTests
         var actual = E2E.Run(command, plainWriter);
 
         // Assert
-        actual.Should().BeEquivalentTo(expectedObject);
-        plainWriter.Text(false).Should().Be(expectedOutput);
+        actual.ShouldBeEquivalentTo(expectedObject);
+        plainWriter.Text(false).ShouldBe(expectedOutput);
     }
 
     [Fact]
@@ -191,7 +191,7 @@ public class E2EExecutionTests
         var actual = E2E.Run(command);
 
         // Assert
-        actual.Should().Be(expected);
+        actual.ShouldBe(expected);
     }
 
     [Fact]
@@ -204,6 +204,6 @@ public class E2EExecutionTests
         var actual = E2E.Run(command);
 
         // Assert
-        actual.Should().BeNull();
+        actual.ShouldBeNull();
     }
 }

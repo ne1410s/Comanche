@@ -10,9 +10,6 @@ namespace Comanche.Tests.Console;
 public class PlainWriterTests
 {
     [Fact]
-    public void CaptureStrings_WhenCalled_ReturnsNull()
-    {
-        // Arrange, Act & Assert
-        new PlainWriter().CaptureStrings().Should().BeNull();
-    }
+    public void CaptureStrings_WhenCalled_ReturnsNull() =>
+        new PlainWriter().CaptureStrings().ShouldBeNull();
 }

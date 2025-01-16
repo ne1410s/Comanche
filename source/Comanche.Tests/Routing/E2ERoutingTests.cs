@@ -24,7 +24,7 @@ public class E2ERoutingTests
         E2E.Run(command, plainWriter);
 
         // Assert
-        plainWriter.Text(true).Should().Be(expected);
+        plainWriter.Text(true).ShouldBe(expected);
     }
 
     [Fact]
@@ -37,7 +37,7 @@ public class E2ERoutingTests
         var actual = E2EUnhiddenSubRouteModule.Do();
 
         // Assert
-        actual.Should().Be(expected);
+        actual.ShouldBe(expected);
     }
 
     [Fact]
@@ -93,6 +93,6 @@ public class E2ERoutingTests
 
         // Assert
         var actualText = plainWriter.Text(false);
-        actualText.Should().Be(expected);
+        actualText.ShouldBe(expected);
     }
 }

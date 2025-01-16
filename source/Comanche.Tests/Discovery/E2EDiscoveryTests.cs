@@ -23,7 +23,7 @@ public class E2EDiscoveryTests
         var act = () => Discover.Go(nullServices);
 
         // Assert
-        act.Should().NotThrow();
+        _ = act.ShouldNotThrow();
     }
 
     [Fact]
@@ -34,7 +34,7 @@ public class E2EDiscoveryTests
         const string expected = "Invalid route: --port";
 
         // Act
-        E2E.Run(console: mockConsole.Object);
+        _ = E2E.Run(console: mockConsole.Object);
 
         // Assert
         mockConsole.Verify(m => m.Write(expected, true, E2E.DefaultPalette.Error, true));
@@ -57,10 +57,10 @@ public class E2EDiscoveryTests
             """.Normalise(true);
 
         // Act
-        E2E.Run(command, plainWriter);
+        _ = E2E.Run(command, plainWriter);
 
         // Assert
-        plainWriter.Text(true).Should().Be(expected);
+        plainWriter.Text(true).ShouldBe(expected);
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public class E2EDiscoveryTests
         var mockConsole = E2E.DefaultPalette.GetMockConsole();
 
         // Act
-        E2E.Run(command, mockConsole.Object);
+        _ = E2E.Run(command, mockConsole.Object);
 
         // Assert
         mockConsole.Verify(m => m.Write(expected, true, E2E.DefaultPalette.Error, true));
@@ -87,7 +87,7 @@ public class E2EDiscoveryTests
         var mockConsole = E2E.DefaultPalette.GetMockConsole();
 
         // Act
-        E2E.Run(command, mockConsole.Object);
+        _ = E2E.Run(command, mockConsole.Object);
 
         // Assert
         mockConsole.Verify(m => m.Write(expected, true, E2E.DefaultPalette.Error, true));
@@ -102,7 +102,7 @@ public class E2EDiscoveryTests
         var mockConsole = E2E.DefaultPalette.GetMockConsole();
 
         // Act
-        E2E.Run(command, mockConsole.Object);
+        _ = E2E.Run(command, mockConsole.Object);
 
         // Assert
         mockConsole.Verify(m => m.Write(expected, true, E2E.DefaultPalette.Error, true));
@@ -121,17 +121,17 @@ public class E2EDiscoveryTests
             testctl v1.0.0-testing123 (Test project)
             
             CLI-ified with <3 by:
-            Comanche v{comancheVer!.ToString(3)} (ne1410s © 2024)
+            Comanche v{comancheVer!.ToString(3)} (ne1410s © {DateTime.Now.Year})
             
 
             """.Normalise(false);
 
         // Act
-        E2E.Run(command, plainWriter);
+        _ = E2E.Run(command, plainWriter);
 
         // Assert
         var actualText = plainWriter.Text(false);
-        actualText.Should().Be(expected);
+        actualText.ShouldBe(expected);
     }
 
     [Fact]
@@ -143,7 +143,7 @@ public class E2EDiscoveryTests
         var mockConsole = E2E.DefaultPalette.GetMockConsole();
 
         // Act
-        E2E.Run(command, mockConsole.Object);
+        _ = E2E.Run(command, mockConsole.Object);
 
         // Assert
         mockConsole.Verify(m => m.Write(expected, false, ConsoleColor.DarkRed, false));
@@ -160,10 +160,10 @@ public class E2EDiscoveryTests
         var plainWriter = new PlainWriter();
 
         // Act
-        E2E.Run(command, plainWriter);
+        _ = E2E.Run(command, plainWriter);
 
         // Assert
-        plainWriter.Text().Should().Contain("--version: Command does not support --debug or --help");
+        plainWriter.Text().ShouldContain("--version: Command does not support --debug or --help");
     }
 
     [Fact]
@@ -175,10 +175,10 @@ public class E2EDiscoveryTests
         var plainWriter = new PlainWriter();
 
         // Act
-        E2E.Run(command, plainWriter, asm: new E2E.InfolessAssembly());
+        _ = E2E.Run(command, plainWriter, asm: new E2E.InfolessAssembly());
 
         // Assert
-        plainWriter.Text(true).Should().Contain(expected);
+        plainWriter.Text(true).ShouldContain(expected);
     }
 
     [Theory]
@@ -199,10 +199,10 @@ public class E2EDiscoveryTests
             """.Normalise(true);
 
         // Act
-        E2E.Run(command, plainWriter);
+        _ = E2E.Run(command, plainWriter);
 
         // Assert
-        plainWriter.Text(true).Should().Be(expected);
+        plainWriter.Text(true).ShouldBe(expected);
     }
 
     [Fact]
@@ -221,10 +221,10 @@ public class E2EDiscoveryTests
             """.Normalise(true);
 
         // Act
-        E2E.Run(command, plainWriter);
+        _ = E2E.Run(command, plainWriter);
 
         // Assert
-        plainWriter.Text(true).Should().Be(expected);
+        plainWriter.Text(true).ShouldBe(expected);
     }
 
     [Theory]
@@ -239,7 +239,7 @@ public class E2EDiscoveryTests
         var actual = E2EDocumentedModule.GetGreeting("Bob", sendVals ? dicto : null);
 
         // Assert
-        actual.Should().Be(expected);
+        actual.ShouldBe(expected);
     }
 
     [Fact]
@@ -261,11 +261,11 @@ public class E2EDiscoveryTests
             """.Normalise(true);
 
         // Act
-        E2E.Run(command, plainWriter);
-        await E2EDocumentedModule.UberDefaults();
+        _ = E2E.Run(command, plainWriter);
+        _ = await E2EDocumentedModule.UberDefaults();
 
         // Assert
-        plainWriter.Text(true).Should().Be(expected);
+        plainWriter.Text(true).ShouldBe(expected);
     }
 
     [Fact]
@@ -289,12 +289,12 @@ public class E2EDiscoveryTests
             """.Normalise(false);
 
         // Act
-        E2E.Run(command, plainWriter);
+        _ = E2E.Run(command, plainWriter);
         E2ENoAliasModule.E2ENestedModule.Do();
 
         // Assert
         var actualText = plainWriter.Text(false);
-        actualText.Should().Be(expected);
+        actualText.ShouldBe(expected);
     }
 
     [Fact]
@@ -310,11 +310,11 @@ public class E2EDiscoveryTests
             """.Normalise(true);
 
         // Act
-        E2E.Run(command, plainWriter);
-        E2ENoAliasModule.Invert(true, 0);
+        _ = E2E.Run(command, plainWriter);
+        _ = E2ENoAliasModule.Invert(true, 0);
 
         // Assert
-        plainWriter.Text(true).Should().Contain(expected);
+        plainWriter.Text(true).ShouldContain(expected);
     }
 
     [Fact]
@@ -329,11 +329,11 @@ public class E2EDiscoveryTests
             """.Normalise(true);
 
         // Act
-        E2E.Run(command, plainWriter);
-        E2ENoAliasModule.Nullable();
+        _ = E2E.Run(command, plainWriter);
+        _ = E2ENoAliasModule.Nullable();
 
         // Assert
-        plainWriter.Text(true).Should().Contain(expected);
+        plainWriter.Text(true).ShouldContain(expected);
     }
 
     [Fact]
@@ -347,7 +347,7 @@ public class E2EDiscoveryTests
         var actual = E2E.Run(command);
 
         // Assert
-        actual.Should().Be(expected);
+        actual.ShouldBe(expected);
     }
 
     [Fact]
@@ -358,8 +358,8 @@ public class E2EDiscoveryTests
         var act2 = () => new E2EMultiCtorsModule(default!, default);
 
         // Assert
-        act1.Should().Throw<NotImplementedException>();
-        act2.Should().Throw<NotImplementedException>();
+        _ = act1.ShouldThrow<NotImplementedException>();
+        _ = act2.ShouldThrow<NotImplementedException>();
     }
 
     [Fact]
@@ -371,9 +371,9 @@ public class E2EDiscoveryTests
         var mockConsole = E2E.DefaultPalette.GetMockConsole();
 
         // Act
-        E2E.Run(command, mockConsole.Object);
+        _ = E2E.Run(command, mockConsole.Object);
         _ = new E2ENoCtorsModule();
-        E2ENoCtorsModule.Do();
+        _ = E2ENoCtorsModule.Do();
 
         // Assert
         mockConsole.Verify(m => m.Write(expectedText, true, null, false));

@@ -25,7 +25,7 @@ public class ConsoleWriterTests
         var actual = sut.ConsoleBackspace;
 
         // Assert
-        actual.Should().Be(expected);
+        actual.ShouldBe(expected);
     }
 
     [Fact]
@@ -41,7 +41,7 @@ public class ConsoleWriterTests
         sut.Write(text);
 
         // Assert
-        sut.LastCommand.Should().Be(expected);
+        sut.LastCommand.ShouldBe(expected);
     }
 
     [Fact]
@@ -56,7 +56,7 @@ public class ConsoleWriterTests
         sut.Write(text.Trim(), true);
 
         // Assert
-        sut.LastCommand.Should().Be(expected);
+        sut.LastCommand.ShouldBe(expected);
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public class ConsoleWriterTests
         sut.Write(text, colour: colour);
 
         // Assert
-        sut.LastCommand.Should().Be(expected);
+        sut.LastCommand.ShouldBe(expected);
     }
 
     [Fact]
@@ -87,7 +87,7 @@ public class ConsoleWriterTests
         sut.WriteError("foo");
 
         // Assert
-        writer.ToString().Should().Contain("foo");
+        writer.ToString().ShouldContain("foo");
     }
 
     [Fact]
@@ -102,6 +102,6 @@ public class ConsoleWriterTests
         sut.Write("bar");
 
         // Assert
-        writer.ToString().Should().Contain("bar");
+        writer.ToString().ShouldContain("bar");
     }
 }

@@ -21,7 +21,7 @@ public class E2EParametersTests
         var actual = E2E.Run(command);
 
         // Assert
-        actual.Should().Be(expected);
+        actual.ShouldBe(expected);
     }
 
     [Fact]
@@ -52,7 +52,7 @@ public class E2EParametersTests
         var actual = E2E.Run(command);
 
         // Assert
-        actual.Should().Be(expected);
+        actual.ShouldBe(expected);
     }
 
     [Fact]
@@ -66,7 +66,7 @@ public class E2EParametersTests
         var actual = E2E.Run(command);
 
         // Assert
-        actual.Should().Be(expected);
+        actual.ShouldBe(expected);
     }
 
     [Theory]
@@ -194,7 +194,7 @@ public class E2EParametersTests
         var actual = E2E.Run(command);
 
         // Assert
-        actual.Should().Be(expected);
+        actual.ShouldBe(expected);
     }
 
     [Fact]
@@ -226,7 +226,7 @@ public class E2EParametersTests
         E2E.Run(command, plainWriter);
 
         // Assert
-        plainWriter.Text(false).Should().Be(expectedText);
+        plainWriter.Text(false).ShouldBe(expectedText);
     }
 
     [Fact]
@@ -271,7 +271,7 @@ public class E2EParametersTests
         var result = E2E.Run(command);
 
         // Assert
-        result.Should().Be(expected);
+        result.ShouldBe(expected);
     }
 
     [Fact]
@@ -285,7 +285,7 @@ public class E2EParametersTests
         var result = E2E.Run(command);
 
         // Assert
-        result.Should().Be(expected);
+        result.ShouldBe(expected);
     }
 
     [Theory]
@@ -301,7 +301,7 @@ public class E2EParametersTests
         var result = E2E.Run(command);
 
         // Assert
-        result.Should().Be(expected);
+        result.ShouldBe(expected);
     }
 
     [Fact]
@@ -351,7 +351,7 @@ public class E2EParametersTests
         var actual = E2E.Run(command);
 
         // Assert
-        actual.Should().Be(expected);
+        actual.ShouldBe(expected);
     }
 
     [Fact]
@@ -376,7 +376,7 @@ public class E2EParametersTests
 
         // Assert
         var actualText = plainWriter.Text(false);
-        actualText.Should().Be(expectedText);
+        actualText.ShouldBe(expectedText);
     }
 
     [Fact]
@@ -390,7 +390,7 @@ public class E2EParametersTests
         var result = E2E.Run(command);
 
         // Assert
-        result.Should().Be(expected);
+        result.ShouldBe(expected);
     }
 
     [Fact]
