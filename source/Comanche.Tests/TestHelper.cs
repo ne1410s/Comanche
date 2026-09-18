@@ -28,7 +28,7 @@ internal static class TestHelper
         services.AddSingleton(console);
         services.AddSingleton(palette);
 
-        return Discover.Go(services, command?.Split(' '), asm);
+        return Discover.Go(services, command?.Split(' ') ?? Array.Empty<string>(), asm);
     }
 
     public static Mock<IConsole> GetMockConsole(

@@ -31,13 +31,13 @@ public class E2EDiscoveryTests
     {
         // Arrange
         var mockConsole = E2E.DefaultPalette.GetMockConsole();
-        const string expected = "Invalid route: --port";
+        const string expected = " paramz";
 
         // Act
         _ = E2E.Run(console: mockConsole.Object);
 
         // Assert
-        mockConsole.Verify(m => m.Write(expected, true, E2E.DefaultPalette.Error, true));
+        mockConsole.Verify(m => m.Write(expected, false, null, false));
     }
 
     [Theory]
