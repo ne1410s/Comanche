@@ -231,7 +231,7 @@ internal static class ParsingExtensions
         {
             try
             {
-                value = JsonSerializer.Deserialize(input!, targetType);
+                value = JsonSerializer.Deserialize(input, targetType);
             }
             catch (JsonException)
             {

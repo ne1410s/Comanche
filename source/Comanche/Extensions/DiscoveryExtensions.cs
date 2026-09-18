@@ -128,7 +128,7 @@ internal static class DiscoveryExtensions
             }
         }
 
-        return new(methodName!, xmlSummary, xmlReturns, m.ReturnType, resolver, TaskCall, parameters);
+        return new(methodName, xmlSummary, xmlReturns, m.ReturnType, resolver, TaskCall, parameters);
     }
 
     private static ComancheParam ToParam(this ParameterInfo p, XElement? xmlMethod)
@@ -138,7 +138,7 @@ internal static class DiscoveryExtensions
         var hidden = p.GetCustomAttribute<HiddenAttribute>() != null;
         var term = p.Name.Sanitise();
 
-        return new(term!, xmlSummary, alias, p.ParameterType, hidden, p.HasDefaultValue, p.DefaultValue);
+        return new(term, xmlSummary, alias, p.ParameterType, hidden, p.HasDefaultValue, p.DefaultValue);
     }
 
     private static XDocument LoadXDoc(this Assembly asm)
