@@ -28,7 +28,7 @@ internal static class TestHelper
         services.AddSingleton(console);
         services.AddSingleton(palette);
 
-        return Discover.Go(services, command?.Split(' ') ?? Array.Empty<string>(), asm);
+        return Discover.Go(services, command?.Split(' ') ?? [], asm);
     }
 
     public static Mock<IConsole> GetMockConsole(
@@ -48,9 +48,9 @@ internal static class TestHelper
         public override string? StackTrace => null;
     }
 
-    public sealed class InfolessAssembly : Assembly
+    public class InfolessAssembly : Assembly
     {
-        private readonly Assembly inner = GetAssembly(typeof(TestHelper))!;
+        protected readonly Assembly inner = GetAssembly(typeof(TestHelper))!;
 
         public override Type[] GetExportedTypes() => this.inner.GetExportedTypes();
 
@@ -59,6 +59,19 @@ internal static class TestHelper
         public override object[] GetCustomAttributes(Type attributeType, bool inherit)
             => attributeType == typeof(AssemblyInformationalVersionAttribute)
                 ? Array.Empty<Attribute>()
+                : this.inner.GetCustomAttributes(attributeType, inherit);
+    }
+
+    public sealed class NoAttributesAssembly : InfolessAssembly
+    {
+        public override object[] GetCustomAttributes(Type attributeType, bool inherit) => null!;
+    }
+
+    public sealed class OddlyVersionedAssembly : InfolessAssembly
+    {
+        public override object[] GetCustomAttributes(Type attributeType, bool inherit)
+            => attributeType == typeof(AssemblyInformationalVersionAttribute)
+                ? new Attribute[] { new AssemblyInformationalVersionAttribute("god-mode") }
                 : this.inner.GetCustomAttributes(attributeType, inherit);
     }
 }

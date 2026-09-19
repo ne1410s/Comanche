@@ -6,6 +6,7 @@ namespace Comanche.Tests.Discovery;
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using Comanche.Tests.Console;
 using Microsoft.Extensions.DependencyInjection;
@@ -176,6 +177,53 @@ public class E2EDiscoveryTests
 
         // Act
         _ = E2E.Run(command, plainWriter, asm: new E2E.InfolessAssembly());
+
+        // Assert
+        plainWriter.Text(true).ShouldContain(expected);
+    }
+
+    [Fact]
+    public void Discovery_NoDescriptionAttributes_SkipsParens()
+    {
+        // Arrange
+        const string command = "--version";
+        const string expected = "Module: testctl v1.0.0.0 CLI-ified with <3";
+        var plainWriter = new PlainWriter();
+
+        // Act
+        _ = E2E.Run(command, plainWriter, asm: new E2E.NoAttributesAssembly());
+
+        // Assert
+        plainWriter.Text(true).ShouldContain(expected);
+    }
+
+
+    [Fact]
+    public void Discovery_AssemblyWithOddVersionDescription_ReadsBaseVersion()
+    {
+        // Arrange
+        const string command = "--version";
+        const string expected = "Module: testctl v1.0.0.0 (Test project)";
+        var plainWriter = new PlainWriter();
+
+        // Act
+        _ = E2E.Run(command, plainWriter, asm: new E2E.OddlyVersionedAssembly());
+
+        // Assert
+        plainWriter.Text(true).ShouldContain(expected);
+    }
+
+    [Fact]
+    public void Discovery_AssemblyWithoutXml_SkipsParens()
+    {
+        // Arrange
+        const string command = "--version";
+        const string expected = "Module: Moq";
+        var plainWriter = new PlainWriter();
+        var asm = Assembly.GetAssembly(typeof(Moq.Mock));
+
+        // Act
+        _ = E2E.Run(command, plainWriter, asm: asm);
 
         // Assert
         plainWriter.Text(true).ShouldContain(expected);
